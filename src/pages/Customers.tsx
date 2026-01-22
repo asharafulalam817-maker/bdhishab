@@ -1,237 +1,215 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  Plus,
-  Search,
-  Phone,
-  MapPin,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Eye,
-  Users,
-  Wallet,
-} from 'lucide-react';
-import { bn, formatBDT } from '@/lib/constants';
+import { Plus, Search, Users, Wallet, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-
-// Demo customers data
-const demoCustomers = [
-  { id: '1', name: 'মোহাম্মদ করিম', phone: '01712345678', address: 'মিরপুর, ঢাকা', totalDue: 12500, totalPurchase: 85000 },
-  { id: '2', name: 'ফাতেমা বেগম', phone: '01812345678', address: 'উত্তরা, ঢাকা', totalDue: 0, totalPurchase: 125000 },
-  { id: '3', name: 'রহিম উদ্দিন', phone: '01912345678', address: 'গুলশান, ঢাকা', totalDue: 35000, totalPurchase: 245000 },
-  { id: '4', name: 'আয়েশা খাতুন', phone: '01612345678', address: 'বনানী, ঢাকা', totalDue: 8500, totalPurchase: 45000 },
-  { id: '5', name: 'আবদুল হক', phone: '01512345678', address: 'ধানমন্ডি, ঢাকা', totalDue: 0, totalPurchase: 320000 },
-];
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { CustomerTable } from '@/components/customers/CustomerTable';
+import { CustomerFormDialog } from '@/components/customers/CustomerFormDialog';
+import { DueAdjustDialog } from '@/components/customers/DueAdjustDialog';
+import { useCustomers, Customer, CustomerFormData } from '@/hooks/useCustomers';
+import { formatBDT, bn, formatNumberBn } from '@/lib/constants';
+import { toast } from 'sonner';
 
 export default function Customers() {
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const {
+    customers,
+    allCustomers,
+    searchQuery,
+    setSearchQuery,
+    filterDue,
+    setFilterDue,
+    addCustomer,
+    updateCustomer,
+    deleteCustomer,
+    adjustDue,
+    totalDue,
+  } = useCustomers();
 
-  const filteredCustomers = demoCustomers.filter(
-    (customer) =>
-      customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.phone.includes(searchQuery)
-  );
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDueDialogOpen, setIsDueDialogOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
-  const totalDue = demoCustomers.reduce((sum, c) => sum + c.totalDue, 0);
+  const handleAddCustomer = () => {
+    setSelectedCustomer(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEditCustomer = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsFormOpen(true);
+  };
+
+  const handleFormSubmit = (data: CustomerFormData) => {
+    if (selectedCustomer) {
+      updateCustomer(selectedCustomer.id, data);
+      toast.success('গ্রাহকের তথ্য আপডেট হয়েছে');
+    } else {
+      addCustomer(data);
+      toast.success('নতুন গ্রাহক যোগ হয়েছে');
+    }
+  };
+
+  const handleDeleteCustomer = (id: string) => {
+    deleteCustomer(id);
+    toast.success('গ্রাহক মুছে ফেলা হয়েছে');
+  };
+
+  const handleAdjustDue = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsDueDialogOpen(true);
+  };
+
+  const handleDueAdjust = (id: string, amount: number, type: 'add' | 'subtract') => {
+    adjustDue(id, amount, type);
+    toast.success(
+      type === 'subtract' ? 'বকেয়া পরিশোধ হয়েছে' : 'বকেয়া যোগ হয়েছে'
+    );
+  };
+
+  const dueCustomersCount = allCustomers.filter((c) => c.due_amount > 0).length;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-6"
-    >
-      {/* Page Header */}
-      <div className="page-header">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="page-title">{bn.customers.title}</h1>
-          <p className="text-muted-foreground">আপনার সব গ্রাহক এখানে দেখুন এবং পরিচালনা করুন</p>
+          <h1 className="text-2xl font-bold tracking-tight">{bn.customers.title}</h1>
+          <p className="text-muted-foreground">
+            মোট {formatNumberBn(allCustomers.length)} জন গ্রাহক
+          </p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              {bn.customers.addNew}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>{bn.customers.addNew}</DialogTitle>
-              <DialogDescription>নতুন গ্রাহকের তথ্য দিন</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label>{bn.customers.name}</Label>
-                <Input placeholder="গ্রাহকের নাম" />
-              </div>
-              <div className="space-y-2">
-                <Label>{bn.customers.phone}</Label>
-                <Input placeholder="01XXXXXXXXX" />
-              </div>
-              <div className="space-y-2">
-                <Label>{bn.customers.address}</Label>
-                <Textarea placeholder="ঠিকানা (ঐচ্ছিক)" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                {bn.common.cancel}
-              </Button>
-              <Button onClick={() => setIsAddDialogOpen(false)}>
-                {bn.common.save}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={handleAddCustomer} className="gap-2">
+          <Plus className="h-4 w-4" />
+          {bn.customers.addNew}
+        </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Users className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">মোট গ্রাহক</p>
-              <p className="text-2xl font-bold">{demoCustomers.length}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-warning/5 border-warning/20">
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-lg bg-warning/10 flex items-center justify-center">
-              <Wallet className="h-6 w-6 text-warning" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">মোট বকেয়া</p>
-              <p className="text-2xl font-bold text-warning">{formatBDT(totalDue)}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-success/5 border-success/20">
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
-              <Wallet className="h-6 w-6 text-success" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">বকেয়া নেই</p>
-              <p className="text-2xl font-bold text-success">{demoCustomers.filter(c => c.totalDue === 0).length} জন</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                মোট গ্রাহক
+              </CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {formatNumberBn(allCustomers.length)}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                মোট বকেয়া
+              </CardTitle>
+              <Wallet className="h-4 w-4 text-destructive" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-destructive">
+                {formatBDT(totalDue)}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                বকেয়াদার গ্রাহক
+              </CardTitle>
+              <Users className="h-4 w-4 text-orange-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-500">
+                {formatNumberBn(dueCustomersCount)}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
-      {/* Search */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="নাম বা ফোন নম্বর দিয়ে খুঁজুন..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Customers Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredCustomers.map((customer, index) => (
-          <motion.div
-            key={customer.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-lg font-bold text-primary">
-                        {customer.name.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{customer.name}</h3>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Phone className="h-3 w-3" />
-                        {customer.phone}
-                      </div>
-                    </div>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem className="gap-2">
-                        <Eye className="h-4 w-4" />
-                        {bn.customers.purchaseHistory}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2">
-                        <Edit className="h-4 w-4" />
-                        {bn.common.edit}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2 text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                        {bn.common.delete}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                {customer.address && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                    <MapPin className="h-4 w-4" />
-                    {customer.address}
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
-                  <div>
-                    <p className="text-xs text-muted-foreground">মোট ক্রয়</p>
-                    <p className="font-semibold">{formatBDT(customer.totalPurchase)}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">বকেয়া</p>
-                    <p className={`font-semibold ${customer.totalDue > 0 ? 'text-warning' : 'text-success'}`}>
-                      {formatBDT(customer.totalDue)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="নাম, ফোন বা ইমেইল দিয়ে খুঁজুন..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select
+          value={filterDue}
+          onValueChange={(v) => setFilterDue(v as 'all' | 'due' | 'clear')}
+        >
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <Filter className="h-4 w-4 mr-2" />
+            <SelectValue placeholder="ফিল্টার" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">সব গ্রাহক</SelectItem>
+            <SelectItem value="due">বকেয়াদার</SelectItem>
+            <SelectItem value="clear">বকেয়া নেই</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-    </motion.div>
+
+      {/* Customer Table */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        <CustomerTable
+          customers={customers}
+          onEdit={handleEditCustomer}
+          onDelete={handleDeleteCustomer}
+          onAdjustDue={handleAdjustDue}
+        />
+      </motion.div>
+
+      {/* Dialogs */}
+      <CustomerFormDialog
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        customer={selectedCustomer}
+        onSubmit={handleFormSubmit}
+      />
+
+      <DueAdjustDialog
+        open={isDueDialogOpen}
+        onOpenChange={setIsDueDialogOpen}
+        customer={selectedCustomer}
+        onAdjust={handleDueAdjust}
+      />
+    </div>
   );
 }
