@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Customers from "./pages/Customers";
 import Suppliers from "./pages/Suppliers";
+import Purchases from "./pages/Purchases";
 import POS from "./pages/POS";
 import Warranty from "./pages/Warranty";
 import Settings from "./pages/Settings";
@@ -39,8 +40,8 @@ const App = () => (
               <Route path="/inventory/adjustment" element={<Products />} />
               <Route path="/inventory/low-stock" element={<Products />} />
               <Route path="/suppliers" element={<Suppliers />} />
-              <Route path="/purchases" element={<Products />} />
-              <Route path="/purchases/new" element={<Products />} />
+              <Route path="/purchases" element={<Purchases />} />
+              <Route path="/purchases/new" element={<Purchases />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/pos" element={<POS />} />
               <Route path="/sales" element={<Products />} />
