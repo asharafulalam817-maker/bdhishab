@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings as SettingsIcon, Store, Receipt, Shield, Users, Bell } from 'lucide-react';
+import { Settings as SettingsIcon, Store, Receipt, Shield, Users } from 'lucide-react';
 import { bn } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,8 +9,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import InvoiceTemplateSelector from '@/components/invoice/InvoiceTemplateSelector';
+import { InvoiceTemplate } from '@/components/invoice/types';
+import { toast } from 'sonner';
 
 export default function Settings() {
+  const [selectedTemplate, setSelectedTemplate] = useState<InvoiceTemplate>('classic');
+
+  const handleTemplateChange = (template: InvoiceTemplate) => {
+    setSelectedTemplate(template);
+    toast.success(`${template} টেমপ্লেট সিলেক্ট করা হয়েছে`);
+  };
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="page-header">
@@ -55,6 +66,18 @@ export default function Settings() {
         </TabsContent>
 
         <TabsContent value="invoice" className="mt-6 space-y-4">
+          {/* Template Selector */}
+          <Card>
+            <CardHeader><CardTitle>চালান টেমপ্লেট সিলেক্ট করুন</CardTitle></CardHeader>
+            <CardContent>
+              <InvoiceTemplateSelector 
+                selectedTemplate={selectedTemplate} 
+                onSelect={handleTemplateChange} 
+              />
+            </CardContent>
+          </Card>
+
+          {/* Other Invoice Settings */}
           <Card>
             <CardHeader><CardTitle>চালান সেটিংস</CardTitle></CardHeader>
             <CardContent className="space-y-4">
