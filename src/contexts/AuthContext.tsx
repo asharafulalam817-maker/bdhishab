@@ -178,7 +178,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const createStore = async (storeName: string, phone?: string, address?: string) => {
-    if (!user) return { error: new Error('Not authenticated') };
+    // Get the current session to ensure we have the latest user
+    const { data: { session: currentSession } } = await supabase.auth.getSession();
+    const currentUser = currentSession?.user;
+    
+    if (!currentUser) return { error: new Error('Not authenticated') };
 
     // Create the store
     const { data: store, error: storeError } = await supabase
@@ -199,14 +203,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from('store_memberships')
       .insert({
         store_id: store.id,
-        user_id: user.id,
+        user_id: currentUser.id,
         role: 'owner',
       });
 
     if (memberError) return { error: memberError as Error };
 
     // Refresh stores
-    await fetchStores(user.id);
+    await fetchStores(currentUser.id);
     localStorage.setItem('currentStoreId', store.id);
 
     return { error: null, store };
