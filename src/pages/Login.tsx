@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Phone, Lock, Loader2, Store } from 'lucide-react';
+import { Phone, Lock, Loader2, Store, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { bn } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
@@ -94,6 +94,27 @@ export default function Login() {
             <CardDescription>আপনার একাউন্টে প্রবেশ করুন</CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Features List */}
+            <div className="grid grid-cols-2 gap-2 mb-6">
+              {[
+                'ইনভেন্টরি ম্যানেজমেন্ট',
+                'ক্রয়-বিক্রয় হিসাব',
+                'ওয়ারেন্টি ট্র্যাকিং',
+                'চালান ও রিপোর্ট',
+              ].map((feature, index) => (
+                <motion.div
+                  key={feature}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 + index * 0.1 }}
+                  className="flex items-center gap-2 text-sm text-muted-foreground"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-success" />
+                  <span>{feature}</span>
+                </motion.div>
+              ))}
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="phone">মোবাইল নম্বর</Label>
