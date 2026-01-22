@@ -10,6 +10,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Customers from "./pages/Customers";
+import Suppliers from "./pages/Suppliers";
 import POS from "./pages/POS";
 import Warranty from "./pages/Warranty";
 import Settings from "./pages/Settings";
@@ -37,7 +38,7 @@ const App = () => (
               <Route path="/inventory/stock-out" element={<Products />} />
               <Route path="/inventory/adjustment" element={<Products />} />
               <Route path="/inventory/low-stock" element={<Products />} />
-              <Route path="/suppliers" element={<Customers />} />
+              <Route path="/suppliers" element={<Suppliers />} />
               <Route path="/purchases" element={<Products />} />
               <Route path="/purchases/new" element={<Products />} />
               <Route path="/customers" element={<Customers />} />
