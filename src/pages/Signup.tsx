@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, Loader2, Store, CheckCircle2 } from 'lucide-react';
+import { Phone, Lock, User, Loader2, Store, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { bn } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
@@ -10,9 +10,22 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 
+// Convert phone to email format for Supabase auth
+const phoneToEmail = (phone: string) => {
+  const cleanPhone = phone.replace(/\D/g, '');
+  return `${cleanPhone}@digitaldondu.store`;
+};
+
+// Validate Bangladesh phone number
+const validateBDPhone = (phone: string): boolean => {
+  const cleanPhone = phone.replace(/\D/g, '');
+  // Bangladesh mobile: 01[3-9]XXXXXXXX (11 digits)
+  return /^01[3-9]\d{8}$/.test(cleanPhone);
+};
+
 export default function Signup() {
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -23,8 +36,18 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!fullName || !email || !password) {
-      toast.error('অনুগ্রহ করে সব তথ্য দিন');
+    if (!fullName.trim()) {
+      toast.error('অনুগ্রহ করে আপনার নাম দিন');
+      return;
+    }
+
+    if (!phone.trim()) {
+      toast.error('অনুগ্রহ করে মোবাইল নম্বর দিন');
+      return;
+    }
+
+    if (!validateBDPhone(phone)) {
+      toast.error('সঠিক মোবাইল নম্বর দিন (যেমন: 01712345678)');
       return;
     }
 
@@ -40,15 +63,20 @@ export default function Signup() {
 
     setIsLoading(true);
     
-    const { error } = await signUp(email, password, fullName);
+    const email = phoneToEmail(phone);
+    const { error } = await signUp(email, password, fullName, phone);
     
     if (error) {
-      toast.error(error.message || 'সাইন আপ ব্যর্থ হয়েছে');
+      if (error.message.includes('already registered')) {
+        toast.error('এই মোবাইল নম্বর দিয়ে আগে থেকেই একাউন্ট আছে');
+      } else {
+        toast.error(error.message || 'সাইন আপ ব্যর্থ হয়েছে');
+      }
       setIsLoading(false);
       return;
     }
 
-    toast.success('সফলভাবে সাইন আপ হয়েছে!');
+    toast.success('সফলভাবে একাউন্ট তৈরি হয়েছে!');
     navigate('/create-store');
   };
 
@@ -116,24 +144,27 @@ export default function Signup() {
                     onChange={(e) => setFullName(e.target.value)}
                     className="pl-10"
                     disabled={isLoading}
+                    maxLength={100}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">{bn.auth.email}</Label>
+                <Label htmlFor="phone">মোবাইল নম্বর</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="example@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="phone"
+                    type="tel"
+                    placeholder="01XXXXXXXXX"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
                     className="pl-10"
                     disabled={isLoading}
+                    maxLength={11}
                   />
                 </div>
+                <p className="text-xs text-muted-foreground">বাংলাদেশি মোবাইল নম্বর দিন</p>
               </div>
 
               <div className="space-y-2">
@@ -148,6 +179,7 @@ export default function Signup() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10"
                     disabled={isLoading}
+                    maxLength={50}
                   />
                 </div>
               </div>
@@ -164,6 +196,7 @@ export default function Signup() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pl-10"
                     disabled={isLoading}
+                    maxLength={50}
                   />
                 </div>
               </div>
