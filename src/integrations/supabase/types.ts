@@ -820,6 +820,7 @@ export type Database = {
           invoice_footer_note: string | null
           invoice_header_note: string | null
           invoice_prefix: string | null
+          invoice_template: string
           logo_url: string | null
           name: string
           phone: string | null
@@ -844,6 +845,7 @@ export type Database = {
           invoice_footer_note?: string | null
           invoice_header_note?: string | null
           invoice_prefix?: string | null
+          invoice_template?: string
           logo_url?: string | null
           name: string
           phone?: string | null
@@ -868,6 +870,7 @@ export type Database = {
           invoice_footer_note?: string | null
           invoice_header_note?: string | null
           invoice_prefix?: string | null
+          invoice_template?: string
           logo_url?: string | null
           name?: string
           phone?: string | null
