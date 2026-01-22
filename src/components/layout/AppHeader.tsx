@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { Menu, Bell, Search, User, LogOut, Settings, Store, ChevronDown } from 'lucide-react';
+import { Menu, Bell, Search, User, Settings, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { bn } from '@/lib/constants';
-import { useAuth } from '@/contexts/AuthContext';
+import { useDemo } from '@/contexts/DemoContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,27 +19,8 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ onMenuClick }: AppHeaderProps) {
-  const { profile, currentStore, stores, role, signOut, switchStore } = useAuth();
+  const { demoProfile, demoStore } = useDemo();
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/login');
-  };
-
-  const getRoleBadge = () => {
-    if (!role) return null;
-    const roleColors = {
-      owner: 'bg-primary/10 text-primary',
-      manager: 'bg-info/10 text-info',
-      staff: 'bg-muted text-muted-foreground',
-    };
-    return (
-      <Badge variant="secondary" className={roleColors[role]}>
-        {bn.roles[role]}
-      </Badge>
-    );
-  };
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-card px-4 lg:px-6">
@@ -52,32 +33,13 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
         <Menu className="h-5 w-5" />
       </Button>
 
-      {/* Store Switcher (if multiple stores) */}
-      {stores.length > 1 && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2 hidden sm:flex">
-              <Store className="h-4 w-4" />
-              <span className="max-w-[120px] truncate">{currentStore?.store?.name}</span>
-              <ChevronDown className="h-3 w-3" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuLabel>স্টোর পরিবর্তন</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {stores.map((membership) => (
-              <DropdownMenuItem
-                key={membership.store_id}
-                onClick={() => switchStore(membership.store_id)}
-                className={membership.store_id === currentStore?.store_id ? 'bg-accent' : ''}
-              >
-                <Store className="h-4 w-4 mr-2" />
-                {membership.store.name}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      {/* Store Name */}
+      <div className="hidden sm:flex items-center gap-2">
+        <Button variant="outline" size="sm" className="gap-2">
+          <Store className="h-4 w-4" />
+          <span className="max-w-[120px] truncate">{demoStore.name}</span>
+        </Button>
+      </div>
 
       {/* Search */}
       <div className="flex-1 max-w-md">
@@ -95,7 +57,9 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
       <div className="flex items-center gap-2">
         {/* Role Badge */}
         <div className="hidden md:block">
-          {getRoleBadge()}
+          <Badge variant="secondary" className="bg-primary/10 text-primary">
+            {bn.roles.owner}
+          </Badge>
         </div>
 
         {/* Notifications */}
@@ -131,20 +95,16 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
               <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
-                ) : (
-                  <User className="h-4 w-4 text-primary" />
-                )}
+                <User className="h-4 w-4 text-primary" />
               </div>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span>{profile?.full_name || 'ব্যবহারকারী'}</span>
+                <span>{demoProfile.full_name}</span>
                 <span className="text-xs font-normal text-muted-foreground">
-                  {currentStore?.store?.name}
+                  {demoStore.name}
                 </span>
               </div>
             </DropdownMenuLabel>
@@ -152,11 +112,6 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
             <DropdownMenuItem onClick={() => navigate('/settings')}>
               <Settings className="h-4 w-4 mr-2" />
               {bn.nav.settings}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
-              <LogOut className="h-4 w-4 mr-2" />
-              {bn.nav.logout}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

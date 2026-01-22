@@ -1,6 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { startOfDay, endOfDay, startOfMonth, endOfMonth, addDays } from 'date-fns';
 
 export interface DashboardStats {
@@ -42,259 +40,80 @@ export interface ExpiringWarranty {
   status: string;
 }
 
+// Demo data for development
+const DEMO_STATS: DashboardStats = {
+  todaySales: 25600,
+  todayInvoices: 8,
+  monthSales: 356400,
+  monthInvoices: 124,
+  customerDue: 45200,
+  supplierDue: 28500,
+  lowStockCount: 5,
+  warrantyExpiring7: 3,
+  warrantyExpiring30: 12,
+  totalProducts: 156,
+  totalCustomers: 89,
+};
+
+const DEMO_RECENT_SALES: RecentSale[] = [
+  { id: '1', invoice_number: 'INV-202601-0001', customer_name: 'রহিম উদ্দিন', total: 4500, created_at: new Date().toISOString() },
+  { id: '2', invoice_number: 'INV-202601-0002', customer_name: 'করিম সাহেব', total: 8200, created_at: new Date().toISOString() },
+  { id: '3', invoice_number: 'INV-202601-0003', customer_name: 'জামাল হোসেন', total: 3200, created_at: new Date().toISOString() },
+  { id: '4', invoice_number: 'INV-202601-0004', customer_name: 'সালমা বেগম', total: 5600, created_at: new Date().toISOString() },
+  { id: '5', invoice_number: 'INV-202601-0005', customer_name: 'আব্দুল করিম', total: 4100, created_at: new Date().toISOString() },
+];
+
+const DEMO_LOW_STOCK: LowStockItem[] = [
+  { id: '1', name: 'Samsung Galaxy A54', sku: 'SAM-A54-BLK', current_stock: 2, low_stock_threshold: 5 },
+  { id: '2', name: 'iPhone 15 Pro Case', sku: 'IP15P-CASE', current_stock: 3, low_stock_threshold: 10 },
+  { id: '3', name: 'USB-C Cable 1m', sku: 'USB-C-1M', current_stock: 5, low_stock_threshold: 20 },
+  { id: '4', name: 'AirPods Pro 2', sku: 'APP-2-WHT', current_stock: 1, low_stock_threshold: 3 },
+  { id: '5', name: 'Samsung Charger 25W', sku: 'SAM-CHG-25', current_stock: 4, low_stock_threshold: 10 },
+];
+
+const DEMO_EXPIRING_WARRANTIES: ExpiringWarranty[] = [
+  { id: '1', product_name: 'Samsung Galaxy S23', customer_name: 'মোঃ রফিক', customer_phone: '01712345678', warranty_expiry: addDays(new Date(), 5).toISOString(), status: 'active' },
+  { id: '2', product_name: 'iPhone 14 Pro', customer_name: 'করিম সাহেব', customer_phone: '01812345678', warranty_expiry: addDays(new Date(), 12).toISOString(), status: 'active' },
+  { id: '3', product_name: 'OnePlus 12', customer_name: 'জাহিদ হাসান', customer_phone: '01912345678', warranty_expiry: addDays(new Date(), 25).toISOString(), status: 'active' },
+];
+
 export function useDashboardStats() {
-  const { currentStore } = useAuth();
-  const storeId = currentStore?.store_id;
-
   return useQuery({
-    queryKey: ['dashboard-stats', storeId],
+    queryKey: ['dashboard-stats', 'demo'],
     queryFn: async (): Promise<DashboardStats> => {
-      if (!storeId) throw new Error('No store selected');
-
-      const today = new Date();
-      const todayStart = startOfDay(today).toISOString();
-      const todayEnd = endOfDay(today).toISOString();
-      const monthStart = startOfMonth(today).toISOString();
-      const monthEnd = endOfMonth(today).toISOString();
-      const next7Days = addDays(today, 7).toISOString();
-      const next30Days = addDays(today, 30).toISOString();
-
-      // Fetch all stats in parallel
-      const [
-        todaySalesResult,
-        monthSalesResult,
-        customerDueResult,
-        supplierDueResult,
-        lowStockResult,
-        warranty7Result,
-        warranty30Result,
-        totalProductsResult,
-        totalCustomersResult,
-      ] = await Promise.all([
-        // Today's sales
-        supabase
-          .from('sales')
-          .select('total')
-          .eq('store_id', storeId)
-          .gte('created_at', todayStart)
-          .lte('created_at', todayEnd),
-        
-        // Month's sales
-        supabase
-          .from('sales')
-          .select('total')
-          .eq('store_id', storeId)
-          .gte('created_at', monthStart)
-          .lte('created_at', monthEnd),
-        
-        // Customer due
-        supabase
-          .from('customers')
-          .select('due_amount')
-          .eq('store_id', storeId)
-          .gt('due_amount', 0),
-        
-        // Supplier due
-        supabase
-          .from('suppliers')
-          .select('due_amount')
-          .eq('store_id', storeId)
-          .gt('due_amount', 0),
-        
-        // Low stock products - will be calculated manually
-        Promise.resolve({ count: 0 }),
-        
-        // Warranty expiring in 7 days
-        supabase
-          .from('warranty_records')
-          .select('id', { count: 'exact' })
-          .eq('store_id', storeId)
-          .eq('status', 'active')
-          .lte('warranty_expiry', next7Days)
-          .gte('warranty_expiry', today.toISOString()),
-        
-        // Warranty expiring in 30 days
-        supabase
-          .from('warranty_records')
-          .select('id', { count: 'exact' })
-          .eq('store_id', storeId)
-          .eq('status', 'active')
-          .lte('warranty_expiry', next30Days)
-          .gte('warranty_expiry', today.toISOString()),
-        
-        // Total products
-        supabase
-          .from('products')
-          .select('id', { count: 'exact' })
-          .eq('store_id', storeId),
-        
-        // Total customers
-        supabase
-          .from('customers')
-          .select('id', { count: 'exact' })
-          .eq('store_id', storeId),
-      ]);
-
-      // Calculate totals
-      const todaySales = todaySalesResult.data?.reduce((sum, s) => sum + (Number(s.total) || 0), 0) || 0;
-      const todayInvoices = todaySalesResult.data?.length || 0;
-      const monthSales = monthSalesResult.data?.reduce((sum, s) => sum + (Number(s.total) || 0), 0) || 0;
-      const monthInvoices = monthSalesResult.data?.length || 0;
-      const customerDue = customerDueResult.data?.reduce((sum, c) => sum + (Number(c.due_amount) || 0), 0) || 0;
-      const supplierDue = supplierDueResult.data?.reduce((sum, s) => sum + (Number(s.due_amount) || 0), 0) || 0;
-
-      // Count low stock items manually
-      const { data: products } = await supabase
-        .from('products')
-        .select('current_stock, low_stock_threshold')
-        .eq('store_id', storeId);
-      
-      const lowStockCount = products?.filter(p => 
-        (p.current_stock || 0) <= (p.low_stock_threshold || 10)
-      ).length || 0;
-
-      return {
-        todaySales,
-        todayInvoices,
-        monthSales,
-        monthInvoices,
-        customerDue,
-        supplierDue,
-        lowStockCount,
-        warrantyExpiring7: warranty7Result.count || 0,
-        warrantyExpiring30: warranty30Result.count || 0,
-        totalProducts: totalProductsResult.count || 0,
-        totalCustomers: totalCustomersResult.count || 0,
-      };
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return DEMO_STATS;
     },
-    enabled: !!storeId,
-    refetchInterval: 30000, // Refresh every 30 seconds
   });
 }
 
 export function useRecentSales(limit = 5) {
-  const { currentStore } = useAuth();
-  const storeId = currentStore?.store_id;
-
   return useQuery({
-    queryKey: ['recent-sales', storeId, limit],
+    queryKey: ['recent-sales', 'demo', limit],
     queryFn: async (): Promise<RecentSale[]> => {
-      if (!storeId) throw new Error('No store selected');
-
-      const { data: sales, error } = await supabase
-        .from('sales')
-        .select(`
-          id,
-          total,
-          created_at,
-          customer:customers (name)
-        `)
-        .eq('store_id', storeId)
-        .order('created_at', { ascending: false })
-        .limit(limit);
-
-      if (error) throw error;
-
-      // Get invoice numbers
-      const salesWithInvoices = await Promise.all(
-        (sales || []).map(async (sale) => {
-          const { data: invoice } = await supabase
-            .from('invoices')
-            .select('invoice_number')
-            .eq('sale_id', sale.id)
-            .single();
-          
-          return {
-            id: sale.id,
-            invoice_number: invoice?.invoice_number || `SALE-${sale.id.slice(0, 8)}`,
-            customer_name: (sale.customer as any)?.name || 'অজানা গ্রাহক',
-            total: Number(sale.total) || 0,
-            created_at: sale.created_at,
-          };
-        })
-      );
-
-      return salesWithInvoices;
+      await new Promise(resolve => setTimeout(resolve, 300));
+      return DEMO_RECENT_SALES.slice(0, limit);
     },
-    enabled: !!storeId,
   });
 }
 
 export function useLowStockItems(limit = 5) {
-  const { currentStore } = useAuth();
-  const storeId = currentStore?.store_id;
-
   return useQuery({
-    queryKey: ['low-stock-items', storeId, limit],
+    queryKey: ['low-stock-items', 'demo', limit],
     queryFn: async (): Promise<LowStockItem[]> => {
-      if (!storeId) throw new Error('No store selected');
-
-      const { data, error } = await supabase
-        .from('products')
-        .select('id, name, sku, current_stock, low_stock_threshold')
-        .eq('store_id', storeId)
-        .order('current_stock', { ascending: true })
-        .limit(50); // Get more to filter
-
-      if (error) throw error;
-
-      // Filter low stock items
-      const lowStock = (data || [])
-        .filter(p => (p.current_stock || 0) <= (p.low_stock_threshold || 10))
-        .slice(0, limit);
-
-      return lowStock.map(p => ({
-        id: p.id,
-        name: p.name,
-        sku: p.sku || '',
-        current_stock: p.current_stock || 0,
-        low_stock_threshold: p.low_stock_threshold || 10,
-      }));
+      await new Promise(resolve => setTimeout(resolve, 300));
+      return DEMO_LOW_STOCK.slice(0, limit);
     },
-    enabled: !!storeId,
   });
 }
 
 export function useExpiringWarranties(days = 30, limit = 10) {
-  const { currentStore } = useAuth();
-  const storeId = currentStore?.store_id;
-
   return useQuery({
-    queryKey: ['expiring-warranties', storeId, days, limit],
+    queryKey: ['expiring-warranties', 'demo', days, limit],
     queryFn: async (): Promise<ExpiringWarranty[]> => {
-      if (!storeId) throw new Error('No store selected');
-
-      const today = new Date();
-      const futureDate = addDays(today, days).toISOString();
-
-      const { data, error } = await supabase
-        .from('warranty_records')
-        .select(`
-          id,
-          warranty_expiry,
-          status,
-          customer_phone,
-          product:products (name),
-          customer:customers (name)
-        `)
-        .eq('store_id', storeId)
-        .eq('status', 'active')
-        .gte('warranty_expiry', today.toISOString())
-        .lte('warranty_expiry', futureDate)
-        .order('warranty_expiry', { ascending: true })
-        .limit(limit);
-
-      if (error) throw error;
-
-      return (data || []).map(w => ({
-        id: w.id,
-        product_name: (w.product as any)?.name || 'অজানা পণ্য',
-        customer_name: (w.customer as any)?.name || 'অজানা গ্রাহক',
-        customer_phone: w.customer_phone || '',
-        warranty_expiry: w.warranty_expiry,
-        status: w.status || 'active',
-      }));
+      await new Promise(resolve => setTimeout(resolve, 300));
+      return DEMO_EXPIRING_WARRANTIES.slice(0, limit);
     },
-    enabled: !!storeId,
   });
 }

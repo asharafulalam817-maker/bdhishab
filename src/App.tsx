@@ -3,14 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { DemoProvider } from "@/contexts/DemoContext";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-
-// Auth Pages
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import CreateStore from "./pages/CreateStore";
 
 // App Pages
 import Dashboard from "./pages/Dashboard";
@@ -23,30 +17,18 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Demo Mode: All routes are accessible without authentication
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
+        <DemoProvider>
           <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/create-store" element={
-              <ProtectedRoute requireStore={false}>
-                <CreateStore />
-              </ProtectedRoute>
-            } />
-            
-            {/* Protected Routes */}
+            {/* All routes accessible in demo mode */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route element={
-              <ProtectedRoute>
-                <DashboardLayout />
-              </ProtectedRoute>
-            }>
+            <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
               <Route path="/products/new" element={<Products />} />
@@ -64,17 +46,12 @@ const App = () => (
               <Route path="/invoices" element={<Products />} />
               <Route path="/warranty" element={<Warranty />} />
               <Route path="/reports/*" element={<Products />} />
-              {/* Settings - Only for Owner/Manager */}
-              <Route path="/settings" element={
-                <ProtectedRoute allowedRoles={['owner', 'manager']}>
-                  <Settings />
-                </ProtectedRoute>
-              } />
+              <Route path="/settings" element={<Settings />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </AuthProvider>
+        </DemoProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

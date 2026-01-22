@@ -1,39 +1,19 @@
 import { useState } from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
-import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { useDemo } from '@/contexts/DemoContext';
 
 export function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isLoading, isAuthenticated, hasStore, currentStore } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-          <p className="mt-4 text-muted-foreground">লোড হচ্ছে...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (!hasStore) {
-    return <Navigate to="/create-store" replace />;
-  }
+  const { demoStore } = useDemo();
 
   return (
     <div className="flex min-h-screen w-full bg-background">
       <AppSidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
-        storeName={currentStore?.store?.name || 'স্টোর'}
+        storeName={demoStore.name}
       />
       
       <div className="flex flex-1 flex-col lg:ml-0">

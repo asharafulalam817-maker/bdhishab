@@ -9,8 +9,6 @@ import {
   AlertTriangle,
   ShieldAlert,
   Wallet,
-  Users,
-  Loader2,
   RefreshCw,
 } from 'lucide-react';
 import { bn, formatBDT, formatNumberBn, formatDateBn } from '@/lib/constants';
@@ -19,7 +17,7 @@ import { QuickActionButton } from '@/components/dashboard/QuickActionButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/contexts/AuthContext';
+import { useDemo } from '@/contexts/DemoContext';
 import { 
   useDashboardStats, 
   useRecentSales, 
@@ -28,10 +26,11 @@ import {
 } from '@/hooks/useDashboard';
 import { format } from 'date-fns';
 import { bn as bnLocale } from 'date-fns/locale';
+import { Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { profile, currentStore, isManager } = useAuth();
+  const { demoProfile, demoStore } = useDemo();
   
   const { 
     data: stats, 
@@ -83,10 +82,10 @@ export default function Dashboard() {
       <div className="page-header flex items-center justify-between">
         <div>
           <h1 className="page-title">
-            {bn.dashboard.welcome}{profile?.full_name ? `, ${profile.full_name}` : ''}! 👋
+            {bn.dashboard.welcome}, {demoProfile.full_name}! 👋
           </h1>
           <p className="text-muted-foreground">
-            {currentStore?.store?.name} - আজকের ব্যবসার সারসংক্ষেপ
+            {demoStore.name} - আজকের ব্যবসার সারসংক্ষেপ
           </p>
         </div>
         <Button 
@@ -159,20 +158,16 @@ export default function Dashboard() {
               variant="primary"
               onClick={() => navigate('/pos')}
             />
-            {isManager && (
-              <QuickActionButton
-                label={bn.dashboard.newPurchase}
-                icon={Truck}
-                onClick={() => navigate('/purchases/new')}
-              />
-            )}
-            {isManager && (
-              <QuickActionButton
-                label={bn.dashboard.addProduct}
-                icon={Package}
-                onClick={() => navigate('/products/new')}
-              />
-            )}
+            <QuickActionButton
+              label={bn.dashboard.newPurchase}
+              icon={Truck}
+              onClick={() => navigate('/purchases/new')}
+            />
+            <QuickActionButton
+              label={bn.dashboard.addProduct}
+              icon={Package}
+              onClick={() => navigate('/products/new')}
+            />
             <QuickActionButton
               label={bn.dashboard.printLastInvoice}
               icon={Printer}
