@@ -17,19 +17,17 @@ import {
   CreditCard,
   X,
   Store,
-  LogOut,
 } from 'lucide-react';
 import { bn } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useDemo } from '@/contexts/DemoContext';
 
 interface NavItem {
   label: string;
   icon: React.ElementType;
   href?: string;
   children?: { label: string; href: string }[];
-  roles?: ('owner' | 'manager' | 'staff')[];
 }
 
 const navItems: NavItem[] = [
@@ -38,7 +36,6 @@ const navItems: NavItem[] = [
   {
     label: bn.nav.inventory,
     icon: Warehouse,
-    roles: ['owner', 'manager'],
     children: [
       { label: bn.inventory.stockLedger, href: '/inventory/ledger' },
       { label: bn.inventory.stockIn, href: '/inventory/stock-in' },
@@ -47,8 +44,8 @@ const navItems: NavItem[] = [
       { label: bn.inventory.lowStockAlerts, href: '/inventory/low-stock' },
     ],
   },
-  { label: bn.nav.suppliers, icon: Truck, href: '/suppliers', roles: ['owner', 'manager'] },
-  { label: bn.nav.purchases, icon: ShoppingCart, href: '/purchases', roles: ['owner', 'manager'] },
+  { label: bn.nav.suppliers, icon: Truck, href: '/suppliers' },
+  { label: bn.nav.purchases, icon: ShoppingCart, href: '/purchases' },
   { label: bn.nav.customers, icon: Users, href: '/customers' },
   {
     label: bn.nav.sales,
@@ -63,7 +60,6 @@ const navItems: NavItem[] = [
   {
     label: bn.nav.reports,
     icon: BarChart3,
-    roles: ['owner', 'manager'],
     children: [
       { label: bn.reports.dailySales, href: '/reports/daily-sales' },
       { label: bn.reports.monthlySales, href: '/reports/monthly-sales' },
@@ -74,7 +70,7 @@ const navItems: NavItem[] = [
       { label: bn.reports.supplierDue, href: '/reports/supplier-due' },
     ],
   },
-  { label: bn.nav.settings, icon: Settings, href: '/settings', roles: ['owner', 'manager'] },
+  { label: bn.nav.settings, icon: Settings, href: '/settings' },
 ];
 
 interface AppSidebarProps {
@@ -85,9 +81,8 @@ interface AppSidebarProps {
 
 export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSidebarProps) {
   const location = useLocation();
-  const navigate = useNavigate();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
-  const { profile, role, signOut } = useAuth();
+  const { demoProfile } = useDemo();
 
   const toggleExpand = (label: string) => {
     setExpandedItems((prev) =>
@@ -98,18 +93,6 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
   const isActive = (href: string) => location.pathname === href;
   const isChildActive = (children?: { href: string }[]) =>
     children?.some((child) => location.pathname === child.href);
-
-  const canAccessItem = (item: NavItem) => {
-    if (!item.roles) return true;
-    return role && item.roles.includes(role);
-  };
-
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/login');
-  };
-
-  const filteredNavItems = navItems.filter(canAccessItem);
 
   return (
     <>
@@ -160,7 +143,7 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {filteredNavItems.map((item) => (
+          {navItems.map((item) => (
             <div key={item.label}>
               {item.children ? (
                 <>
@@ -235,28 +218,16 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
         <div className="border-t border-border p-3">
           <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="h-9 w-9 rounded-full object-cover" />
-              ) : (
-                <UserCircle className="h-5 w-5" />
-              )}
+              <UserCircle className="h-5 w-5" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">
-                {profile?.full_name || 'ব্যবহারকারী'}
+                {demoProfile.full_name}
               </p>
               <p className="text-xs text-muted-foreground">
-                {role ? bn.roles[role] : ''}
+                {bn.roles.owner}
               </p>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-muted-foreground hover:text-destructive"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       </motion.aside>
