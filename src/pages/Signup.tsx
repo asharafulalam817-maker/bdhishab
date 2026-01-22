@@ -24,18 +24,24 @@ const validateBDPhone = (phone: string): boolean => {
 };
 
 export default function Signup() {
+  const [businessName, setBusinessName] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { signUp } = useAuth();
+  const { signUp, createStore } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!businessName.trim()) {
+      toast.error('অনুগ্রহ করে প্রতিষ্ঠানের নাম দিন');
+      return;
+    }
+
     if (!fullName.trim()) {
       toast.error('অনুগ্রহ করে আপনার নাম দিন');
       return;
@@ -76,8 +82,18 @@ export default function Signup() {
       return;
     }
 
-    toast.success('সফলভাবে একাউন্ট তৈরি হয়েছে!');
-    navigate('/create-store');
+    // Auto-create store with the business name
+    const { error: storeError } = await createStore(businessName.trim(), phone);
+    
+    if (storeError) {
+      toast.error('স্টোর তৈরিতে সমস্যা হয়েছে। পরে চেষ্টা করুন।');
+      setIsLoading(false);
+      navigate('/create-store');
+      return;
+    }
+
+    toast.success('সফলভাবে একাউন্ট ও স্টোর তৈরি হয়েছে!');
+    navigate('/dashboard');
   };
 
   const features = [
@@ -132,6 +148,23 @@ export default function Signup() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="businessName">{bn.auth.businessName}</Label>
+                <div className="relative">
+                  <Store className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="businessName"
+                    type="text"
+                    placeholder="আপনার প্রতিষ্ঠানের নাম"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
+                    className="pl-10"
+                    disabled={isLoading}
+                    maxLength={100}
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="fullName">{bn.auth.ownerName}</Label>
                 <div className="relative">

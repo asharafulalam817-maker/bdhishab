@@ -218,6 +218,7 @@ export const bn = {
     createStore: 'স্টোর তৈরি করুন',
     storeName: 'স্টোরের নাম',
     ownerName: 'মালিকের নাম',
+    businessName: 'প্রতিষ্ঠানের নাম',
     alreadyHaveAccount: 'ইতিমধ্যে একাউন্ট আছে?',
     dontHaveAccount: "একাউন্ট নেই?",
   },
