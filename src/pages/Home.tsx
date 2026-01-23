@@ -409,9 +409,9 @@ const Home = () => {
                 <Smartphone className="h-4 w-4 text-primary" />
                 <span className="text-sm font-bold text-foreground/90">অ্যাপ ডেমো</span>
               </div>
-              <h2 className="text-3xl lg:text-5xl font-extrabold mb-4 tracking-tight">অ্যাপটি দেখুন</h2>
+              <h2 className="text-3xl lg:text-5xl font-extrabold mb-4 tracking-tight">আমাদের প্রিমিয়াম ফিচার দেখুন</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-semibold">
-                আমাদের প্রিমিয়াম ফিচারগুলো এক নজরে দেখুন
+                ড্যাশবোর্ড থেকে শুরু করে POS, রিপোর্ট - সব কিছু এক নজরে
               </p>
             </motion.div>
           </div>
