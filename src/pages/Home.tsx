@@ -17,7 +17,10 @@ import {
   Star,
   Zap,
   TrendingUp,
-  FileText
+  FileText,
+  UserPlus,
+  Store,
+  Rocket
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { motion } from 'framer-motion';
@@ -203,8 +206,114 @@ const Home = () => {
         </div>
       </section>
 
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">কিভাবে কাজ করে?</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              মাত্র ৪টি সহজ ধাপে আপনার ব্যবসা ডিজিটাল করুন
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {/* Step 1 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0 }}
+              viewport={{ once: true }}
+              className="relative text-center"
+            >
+              <div className="h-16 w-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                ১
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <UserPlus className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">রেজিস্ট্রেশন করুন</h3>
+              <p className="text-muted-foreground text-sm">
+                ফোন নম্বর দিয়ে ফ্রি অ্যাকাউন্ট তৈরি করুন। কোনো ক্রেডিট কার্ড লাগবে না।
+              </p>
+              {/* Connector Line - Hidden on mobile */}
+              <div className="hidden lg:block absolute top-8 left-[60%] w-[80%] border-t-2 border-dashed border-primary/30" />
+            </motion.div>
+
+            {/* Step 2 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="relative text-center"
+            >
+              <div className="h-16 w-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                ২
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Store className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">স্টোর সেটআপ করুন</h3>
+              <p className="text-muted-foreground text-sm">
+                আপনার দোকানের নাম ও তথ্য দিন। প্রোডাক্ট ও ক্যাটাগরি যোগ করুন।
+              </p>
+              <div className="hidden lg:block absolute top-8 left-[60%] w-[80%] border-t-2 border-dashed border-primary/30" />
+            </motion.div>
+
+            {/* Step 3 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="relative text-center"
+            >
+              <div className="h-16 w-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                ৩
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <ShoppingCart className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">বিক্রয় শুরু করুন</h3>
+              <p className="text-muted-foreground text-sm">
+                POS থেকে বিক্রয় করুন, ইনভয়েস তৈরি করুন এবং স্টক অটো আপডেট হবে।
+              </p>
+              <div className="hidden lg:block absolute top-8 left-[60%] w-[80%] border-t-2 border-dashed border-primary/30" />
+            </motion.div>
+
+            {/* Step 4 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="relative text-center"
+            >
+              <div className="h-16 w-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                ৪
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Rocket className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">ব্যবসা বাড়ান</h3>
+              <p className="text-muted-foreground text-sm">
+                রিপোর্ট দেখুন, লাভ-ক্ষতি বিশ্লেষণ করুন এবং সিদ্ধান্ত নিন।
+              </p>
+            </motion.div>
+          </div>
+
+          <div className="text-center mt-12">
+            <Link to="/signup">
+              <Button size="lg" className="gap-2">
+                এখনই শুরু করুন <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Section */}
-      <section id="pricing" className="py-20">
+      <section id="pricing" className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold mb-4">সাবস্ক্রিপশন প্যাকেজ</h2>
