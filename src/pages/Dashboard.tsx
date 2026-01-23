@@ -5,6 +5,7 @@ import {
   Truck,
   Package,
   TrendingUp,
+  TrendingDown,
   AlertTriangle,
   Wallet,
   RefreshCw,
@@ -13,8 +14,11 @@ import {
   Users,
   FileText,
   ChevronRight,
+  Receipt,
+  CreditCard,
+  PiggyBank,
 } from 'lucide-react';
-import { bn, formatBDT, formatNumberBn, formatDateBn } from '@/lib/constants';
+import { bn, formatBDT, formatNumberBn } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -110,10 +114,9 @@ export default function Dashboard() {
         </Button>
       </motion.div>
 
-      {/* Main Stats Grid */}
-      <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        {/* Balance Card - Highlighted */}
-        <Card className="col-span-2 bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground border-0 shadow-lg shadow-primary/20">
+      {/* Balance Card - Full Width Highlighted */}
+      <motion.div variants={item}>
+        <Card className="bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground border-0 shadow-lg shadow-primary/20">
           <CardContent className="p-4 lg:p-6">
             <div className="flex items-start justify-between">
               <div>
@@ -121,10 +124,10 @@ export default function Dashboard() {
                 <p className="text-3xl lg:text-4xl font-bold tracking-tight">
                   {balanceLoading ? '...' : formatBDT(balance?.current_balance || 0)}
                 </p>
-                <div className="flex items-center gap-2 mt-2">
+                <div className="flex flex-wrap items-center gap-2 mt-2">
                   <Badge variant="secondary" className="bg-white/20 text-white border-0 text-xs">
                     <TrendingUp className="h-3 w-3 mr-1" />
-                    আজকের আয়: {statsLoading ? '...' : formatBDT(stats?.todaySales || 0)}
+                    আজকের লাভ: {statsLoading ? '...' : formatBDT(stats?.todayProfit || 0)}
                   </Badge>
                 </div>
               </div>
@@ -134,23 +137,56 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+      </motion.div>
 
+      {/* Today's Stats Grid */}
+      <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 lg:gap-3">
         {/* Today's Sales */}
         <StatCard
           title="আজকের বিক্রয়"
           value={statsLoading ? '...' : formatBDT(stats?.todaySales || 0)}
           subtitle={`${formatNumberBn(stats?.todayInvoices || 0)} ইনভয়েস`}
-          icon={ArrowUpRight}
+          icon={ShoppingCart}
           trend="up"
           loading={statsLoading}
         />
 
-        {/* Total Due */}
+        {/* Today's Purchases */}
         <StatCard
-          title="মোট বাকি"
-          value={statsLoading ? '...' : formatBDT((stats?.customerDue || 0) + (stats?.supplierDue || 0))}
-          subtitle={`গ্রাহক: ${formatBDT(stats?.customerDue || 0)}`}
-          icon={ArrowDownRight}
+          title="আজকের ক্রয়"
+          value={statsLoading ? '...' : formatBDT(stats?.todayPurchases || 0)}
+          subtitle={`${formatNumberBn(stats?.todayPurchaseCount || 0)} পার্চেজ`}
+          icon={Truck}
+          trend="neutral"
+          loading={statsLoading}
+        />
+
+        {/* Today's Due Sales */}
+        <StatCard
+          title="আজকের বাকি"
+          value={statsLoading ? '...' : formatBDT(stats?.todayDueSales || 0)}
+          subtitle="বিক্রয় বাকি"
+          icon={CreditCard}
+          trend="down"
+          loading={statsLoading}
+        />
+
+        {/* Today's Profit */}
+        <StatCard
+          title="আজকের লাভ"
+          value={statsLoading ? '...' : formatBDT(stats?.todayProfit || 0)}
+          subtitle="নেট প্রফিট"
+          icon={PiggyBank}
+          trend={(stats?.todayProfit || 0) >= 0 ? 'up' : 'down'}
+          loading={statsLoading}
+        />
+
+        {/* Today's Expenses */}
+        <StatCard
+          title="আজকের খরচ"
+          value={statsLoading ? '...' : formatBDT(stats?.todayExpenses || 0)}
+          subtitle="মোট ব্যয়"
+          icon={Receipt}
           trend="down"
           loading={statsLoading}
         />
@@ -317,7 +353,7 @@ interface StatCardProps {
   value: string;
   subtitle?: string;
   icon: React.ElementType;
-  trend?: 'up' | 'down';
+  trend?: 'up' | 'down' | 'neutral';
   loading?: boolean;
 }
 
@@ -325,30 +361,38 @@ function StatCard({ title, value, subtitle, icon: Icon, trend, loading }: StatCa
   if (loading) {
     return (
       <Card>
-        <CardContent className="p-4">
-          <Skeleton className="h-4 w-20 mb-2" />
-          <Skeleton className="h-7 w-28 mb-1" />
-          <Skeleton className="h-3 w-16" />
+        <CardContent className="p-3 lg:p-4">
+          <Skeleton className="h-4 w-16 mb-2" />
+          <Skeleton className="h-6 w-20 mb-1" />
+          <Skeleton className="h-3 w-12" />
         </CardContent>
       </Card>
     );
   }
 
+  const getTrendColors = () => {
+    switch (trend) {
+      case 'up':
+        return 'bg-emerald-500/10 text-emerald-600';
+      case 'down':
+        return 'bg-destructive/10 text-destructive';
+      default:
+        return 'bg-primary/10 text-primary';
+    }
+  };
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-3 lg:p-4">
-        <div className="flex items-start justify-between mb-2">
-          <p className="text-xs lg:text-sm text-muted-foreground font-medium">{title}</p>
-          <div className={cn(
-            'p-1.5 lg:p-2 rounded-lg',
-            trend === 'up' ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'
-          )}>
-            <Icon className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+        <div className="flex items-start justify-between mb-1.5 lg:mb-2">
+          <p className="text-[10px] lg:text-xs text-muted-foreground font-medium leading-tight">{title}</p>
+          <div className={cn('p-1.5 rounded-lg', getTrendColors())}>
+            <Icon className="h-3 w-3 lg:h-3.5 lg:w-3.5" />
           </div>
         </div>
-        <p className="text-lg lg:text-xl font-bold text-foreground">{value}</p>
+        <p className="text-base lg:text-lg font-bold text-foreground leading-tight">{value}</p>
         {subtitle && (
-          <p className="text-[10px] lg:text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+          <p className="text-[9px] lg:text-[10px] text-muted-foreground mt-0.5">{subtitle}</p>
         )}
       </CardContent>
     </Card>

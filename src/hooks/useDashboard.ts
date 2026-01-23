@@ -4,6 +4,11 @@ import { startOfDay, endOfDay, startOfMonth, endOfMonth, addDays } from 'date-fn
 export interface DashboardStats {
   todaySales: number;
   todayInvoices: number;
+  todayPurchases: number;
+  todayPurchaseCount: number;
+  todayDueSales: number;
+  todayExpenses: number;
+  todayProfit: number;
   monthSales: number;
   monthInvoices: number;
   customerDue: number;
@@ -44,6 +49,11 @@ export interface ExpiringWarranty {
 const DEMO_STATS: DashboardStats = {
   todaySales: 25600,
   todayInvoices: 8,
+  todayPurchases: 18500,
+  todayPurchaseCount: 3,
+  todayDueSales: 4200,
+  todayExpenses: 2500,
+  todayProfit: 4600,
   monthSales: 356400,
   monthInvoices: 124,
   customerDue: 45200,
