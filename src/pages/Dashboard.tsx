@@ -67,6 +67,15 @@ export default function Dashboard() {
   const { isSubscriptionExpired, getDaysExpired, isLoading: subscriptionLoading } = useSubscription();
   const { isReadOnly, showReadOnlyToast } = useReadOnly();
 
+  // Demo data constants
+  const DEMO_STORE_ID = 'demo-store-id';
+  const DEMO_BALANCE = 491435;
+  const DEMO_STOCK_VALUE = 641336;
+  const DEMO_DUE_AMOUNT = 261482;
+  
+  // Check if this is a demo store
+  const isDemoStore = demoStore?.id === DEMO_STORE_ID || demoStore?.name === 'ডেমো স্টোর';
+
   // Fetch total stock value and customer dues
   const [totalStockValue, setTotalStockValue] = useState(0);
   const [totalDueAmount, setTotalDueAmount] = useState(0);
@@ -79,6 +88,14 @@ export default function Dashboard() {
     const fetchExtras = async () => {
       if (!demoStore?.id) return;
       setIsLoadingExtras(true);
+      
+      // If demo store, use demo data
+      if (isDemoStore) {
+        setTotalStockValue(DEMO_STOCK_VALUE);
+        setTotalDueAmount(DEMO_DUE_AMOUNT);
+        setIsLoadingExtras(false);
+        return;
+      }
       
       try {
         // Fetch products for stock value
@@ -112,7 +129,13 @@ export default function Dashboard() {
     };
 
     fetchExtras();
-  }, [demoStore?.id]);
+  }, [demoStore?.id, isDemoStore]);
+  
+  // Get the balance value - demo or real
+  const displayBalance = isDemoStore ? DEMO_BALANCE : (balance?.current_balance || 0);
+  const displayStockValue = isDemoStore ? DEMO_STOCK_VALUE : totalStockValue;
+  const displayDueAmount = isDemoStore ? DEMO_DUE_AMOUNT : totalDueAmount;
+  const displayCapital = displayBalance + displayStockValue + displayDueAmount;
 
   const container = {
     hidden: { opacity: 0 },
@@ -189,7 +212,7 @@ export default function Dashboard() {
               <div className="min-w-0 flex-1">
                 <p className="text-base lg:text-lg font-extrabold opacity-95 mb-1 truncate">{t('dashboard.totalCash')}</p>
                 <p className="text-2xl lg:text-4xl font-black tracking-tight">
-                  {balanceLoading ? '...' : formatBDT(balance?.current_balance || 0)}
+                  {balanceLoading && !isDemoStore ? '...' : formatBDT(displayBalance)}
                 </p>
                 <p className="text-sm font-bold opacity-80 mt-1 truncate">
                   {t('dashboard.cashOnHand')}
@@ -209,7 +232,7 @@ export default function Dashboard() {
               <div className="min-w-0 flex-1">
                 <p className="text-base lg:text-lg font-extrabold opacity-95 mb-1 truncate">{t('dashboard.totalStockValue')}</p>
                 <p className="text-2xl lg:text-4xl font-black tracking-tight">
-                  {isLoadingExtras ? '...' : formatBDT(totalStockValue)}
+                  {isLoadingExtras && !isDemoStore ? '...' : formatBDT(displayStockValue)}
                 </p>
                 <p className="text-sm font-bold opacity-80 mt-1 truncate">
                   {t('dashboard.allProductsValue')}
@@ -229,7 +252,7 @@ export default function Dashboard() {
               <div className="min-w-0 flex-1">
                 <p className="text-base lg:text-lg font-extrabold opacity-95 mb-1 truncate">{t('dashboard.totalReceivables')}</p>
                 <p className="text-2xl lg:text-4xl font-black tracking-tight">
-                  {isLoadingExtras ? '...' : formatBDT(totalDueAmount)}
+                  {isLoadingExtras && !isDemoStore ? '...' : formatBDT(displayDueAmount)}
                 </p>
                 <p className="text-sm font-bold opacity-80 mt-1 truncate">
                   {t('dashboard.customerDues')}
@@ -249,7 +272,7 @@ export default function Dashboard() {
               <div className="min-w-0 flex-1">
                 <p className="text-base lg:text-lg font-extrabold opacity-95 mb-1 truncate">{t('dashboard.totalCapital')}</p>
                 <p className="text-2xl lg:text-4xl font-black tracking-tight">
-                  {(balanceLoading || isLoadingExtras) ? '...' : formatBDT((balance?.current_balance || 0) + totalStockValue + totalDueAmount)}
+                  {(balanceLoading || isLoadingExtras) && !isDemoStore ? '...' : formatBDT(displayCapital)}
                 </p>
                 <p className="text-sm font-bold opacity-80 mt-1 truncate">
                   {t('dashboard.combined')}
