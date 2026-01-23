@@ -33,6 +33,7 @@ import POSInvoiceDialog from '@/components/pos/POSInvoiceDialog';
 import { BarcodeScanner } from '@/components/pos/BarcodeScanner';
 import { InvoiceData, InvoiceTemplate } from '@/components/invoice/types';
 import { toast as sonnerToast } from 'sonner';
+import { useBalance } from '@/hooks/useBalance';
 
 // Demo products with barcodes
 const demoProducts = [
@@ -63,6 +64,7 @@ interface CartItem {
 export default function POS() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { addSaleToBalance, balance, refreshBalance } = useBalance();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState('');
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -162,7 +164,7 @@ export default function POS() {
   const paid = parseFloat(paidAmount) || 0;
   const due = Math.max(0, grandTotal - paid);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cart.length === 0) {
       toast({
         title: 'কার্ট খালি!',
@@ -217,12 +219,17 @@ export default function POS() {
       footerNote: 'ধন্যবাদ! আবার আসবেন।',
     };
 
+    // Add paid amount to balance (only the amount actually received)
+    if (paid > 0) {
+      await addSaleToBalance(paid, invoiceData.id);
+    }
+
     setCurrentInvoice(invoiceData);
     setShowInvoice(true);
 
     toast({
       title: 'বিক্রয় সফল! ✓',
-      description: `চালান নং: ${invoiceNumber}`,
+      description: `চালান নং: ${invoiceNumber}${paid > 0 ? ` • ৳${paid.toLocaleString('bn-BD')} ব্যালেন্সে যোগ হয়েছে` : ''}`,
     });
   };
 
