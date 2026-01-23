@@ -249,56 +249,63 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Today's Stats Grid */}
-      <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 lg:gap-3">
-        {/* Today's Sales */}
-        <StatCard
-          title={t('dashboard.todaySales')}
-          value={statsLoading ? '...' : formatBDT(stats?.todaySales || 0)}
-          subtitle={`${formatNumberBn(stats?.todayInvoices || 0)} ${t('dashboard.invoices')}`}
-          icon={ShoppingCart}
-          trend="up"
-          loading={statsLoading}
-        />
+      <motion.div variants={item} className="space-y-3">
+        {/* Section Headline */}
+        <h2 className="text-xl lg:text-2xl font-extrabold text-foreground">
+          {t('dashboard.todayStats')} 📊
+        </h2>
+        
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 lg:gap-3">
+          {/* Sales */}
+          <StatCard
+            title={t('dashboard.sales')}
+            value={statsLoading ? '...' : formatBDT(stats?.todaySales || 0)}
+            subtitle={`${formatNumberBn(stats?.todayInvoices || 0)} ${t('dashboard.invoices')}`}
+            icon={ShoppingCart}
+            trend="up"
+            loading={statsLoading}
+          />
 
-        {/* Today's Purchases */}
-        <StatCard
-          title={t('dashboard.todayPurchases')}
-          value={statsLoading ? '...' : formatBDT(stats?.todayPurchases || 0)}
-          subtitle={`${formatNumberBn(stats?.todayPurchaseCount || 0)} ${t('dashboard.purchases')}`}
-          icon={Truck}
-          trend="neutral"
-          loading={statsLoading}
-        />
+          {/* Purchases */}
+          <StatCard
+            title={t('dashboard.purchasesShort')}
+            value={statsLoading ? '...' : formatBDT(stats?.todayPurchases || 0)}
+            subtitle={`${formatNumberBn(stats?.todayPurchaseCount || 0)} ${t('dashboard.purchases')}`}
+            icon={Truck}
+            trend="neutral"
+            loading={statsLoading}
+          />
 
-        {/* Today's Due Sales */}
-        <StatCard
-          title={t('dashboard.todayDue')}
-          value={statsLoading ? '...' : formatBDT(stats?.todayDueSales || 0)}
-          subtitle={t('dashboard.salesDue')}
-          icon={CreditCard}
-          trend="down"
-          loading={statsLoading}
-        />
+          {/* Due */}
+          <StatCard
+            title={t('dashboard.due')}
+            value={statsLoading ? '...' : formatBDT(stats?.todayDueSales || 0)}
+            subtitle={t('dashboard.salesDue')}
+            icon={CreditCard}
+            trend="down"
+            loading={statsLoading}
+          />
 
-        {/* Today's Profit */}
-        <StatCard
-          title={t('dashboard.todayProfit')}
-          value={statsLoading ? '...' : formatBDT(stats?.todayProfit || 0)}
-          subtitle={t('dashboard.netProfit')}
-          icon={PiggyBank}
-          trend={(stats?.todayProfit || 0) >= 0 ? 'up' : 'down'}
-          loading={statsLoading}
-        />
+          {/* Profit */}
+          <StatCard
+            title={t('dashboard.profit')}
+            value={statsLoading ? '...' : formatBDT(stats?.todayProfit || 0)}
+            subtitle={t('dashboard.netProfit')}
+            icon={PiggyBank}
+            trend={(stats?.todayProfit || 0) >= 0 ? 'up' : 'down'}
+            loading={statsLoading}
+          />
 
-        {/* Today's Expenses */}
-        <StatCard
-          title={t('dashboard.todayExpenses')}
-          value={statsLoading ? '...' : formatBDT(stats?.todayExpenses || 0)}
-          subtitle={t('dashboard.totalExpense')}
-          icon={Receipt}
-          trend="down"
-          loading={statsLoading}
-        />
+          {/* Expenses */}
+          <StatCard
+            title={t('dashboard.expenses')}
+            value={statsLoading ? '...' : formatBDT(stats?.todayExpenses || 0)}
+            subtitle={t('dashboard.totalExpense')}
+            icon={Receipt}
+            trend="down"
+            loading={statsLoading}
+          />
+        </div>
       </motion.div>
 
       {/* Quick Actions - Dark Premium Solid Buttons */}
