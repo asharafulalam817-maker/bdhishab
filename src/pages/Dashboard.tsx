@@ -41,6 +41,7 @@ import { useState, useEffect } from 'react';
 import { SubscriptionExpiredBanner } from '@/components/subscription/SubscriptionExpiredBanner';
 import { useReadOnly } from '@/contexts/ReadOnlyContext';
 import { toast } from 'sonner';
+import { AppDownloadSection } from '@/components/pwa/AppDownloadSection';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -576,6 +577,11 @@ export default function Dashboard() {
           </Card>
         </motion.div>
       </div>
+
+      {/* App Download Section - Compact */}
+      <motion.div variants={item} className="mt-6">
+        <AppDownloadSection variant="compact" />
+      </motion.div>
     </motion.div>
   );
 }
