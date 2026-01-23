@@ -833,6 +833,8 @@ export type Database = {
       stores: {
         Row: {
           address: string | null
+          blocked_at: string | null
+          blocked_reason: string | null
           created_at: string
           default_low_stock_threshold: number | null
           default_warranty_duration: number | null
@@ -848,6 +850,7 @@ export type Database = {
           invoice_header_note: string | null
           invoice_prefix: string | null
           invoice_template: string
+          is_blocked: boolean
           logo_url: string | null
           name: string
           phone: string | null
@@ -858,6 +861,8 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          blocked_at?: string | null
+          blocked_reason?: string | null
           created_at?: string
           default_low_stock_threshold?: number | null
           default_warranty_duration?: number | null
@@ -873,6 +878,7 @@ export type Database = {
           invoice_header_note?: string | null
           invoice_prefix?: string | null
           invoice_template?: string
+          is_blocked?: boolean
           logo_url?: string | null
           name: string
           phone?: string | null
@@ -883,6 +889,8 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          blocked_at?: string | null
+          blocked_reason?: string | null
           created_at?: string
           default_low_stock_threshold?: number | null
           default_warranty_duration?: number | null
@@ -898,6 +906,7 @@ export type Database = {
           invoice_header_note?: string | null
           invoice_prefix?: string | null
           invoice_template?: string
+          is_blocked?: boolean
           logo_url?: string | null
           name?: string
           phone?: string | null
