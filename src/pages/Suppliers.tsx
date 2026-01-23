@@ -15,6 +15,7 @@ import { SupplierTable } from '@/components/suppliers/SupplierTable';
 import { SupplierFormDialog } from '@/components/suppliers/SupplierFormDialog';
 import { SupplierDueDialog } from '@/components/suppliers/SupplierDueDialog';
 import { useSuppliers, Supplier, SupplierFormData } from '@/hooks/useSuppliers';
+import { useBalance } from '@/hooks/useBalance';
 import { formatBDT, bn, formatNumberBn } from '@/lib/constants';
 import { toast } from 'sonner';
 
@@ -32,6 +33,8 @@ export default function Suppliers() {
     adjustDue,
     totalDue,
   } = useSuppliers();
+
+  const { balance, deductBalance, refreshBalance } = useBalance();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDueDialogOpen, setIsDueDialogOpen] = useState(false);
@@ -67,8 +70,15 @@ export default function Suppliers() {
     setIsDueDialogOpen(true);
   };
 
-  const handleDueAdjust = (id: string, amount: number, type: 'add' | 'subtract') => {
+  const handleDueAdjust = async (id: string, amount: number, type: 'add' | 'subtract', deductFromBalance?: boolean) => {
     adjustDue(id, amount, type);
+    
+    // Deduct from balance if payment and option selected
+    if (type === 'subtract' && deductFromBalance) {
+      await deductBalance(amount, `সরবরাহকারী বকেয়া পরিশোধ`);
+      await refreshBalance();
+    }
+    
     toast.success(
       type === 'subtract' ? 'বকেয়া পরিশোধ হয়েছে' : 'বকেয়া যোগ হয়েছে'
     );
@@ -209,6 +219,7 @@ export default function Suppliers() {
         onOpenChange={setIsDueDialogOpen}
         supplier={selectedSupplier}
         onAdjust={handleDueAdjust}
+        currentBalance={balance?.current_balance || 0}
       />
     </div>
   );

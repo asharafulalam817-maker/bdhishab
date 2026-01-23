@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Loader2, Plus, Minus } from 'lucide-react';
+import { Loader2, Plus, Minus, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,8 @@ interface SupplierDueDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   supplier: Supplier | null;
-  onAdjust: (id: string, amount: number, type: 'add' | 'subtract') => void;
+  onAdjust: (id: string, amount: number, type: 'add' | 'subtract', deductFromBalance?: boolean) => void;
+  currentBalance?: number;
 }
 
 export function SupplierDueDialog({
@@ -27,10 +29,12 @@ export function SupplierDueDialog({
   onOpenChange,
   supplier,
   onAdjust,
+  currentBalance = 0,
 }: SupplierDueDialogProps) {
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<'add' | 'subtract'>('subtract');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deductFromBalance, setDeductFromBalance] = useState(true);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +42,7 @@ export function SupplierDueDialog({
 
     setIsSubmitting(true);
     await new Promise((resolve) => setTimeout(resolve, 300));
-    onAdjust(supplier.id, parseFloat(amount), type);
+    onAdjust(supplier.id, parseFloat(amount), type, type === 'subtract' ? deductFromBalance : false);
     setIsSubmitting(false);
     setAmount('');
     onOpenChange(false);
@@ -48,11 +52,15 @@ export function SupplierDueDialog({
     if (!isOpen) {
       setAmount('');
       setType('subtract');
+      setDeductFromBalance(true);
     }
     onOpenChange(isOpen);
   };
 
   if (!supplier) return null;
+
+  const paymentAmount = parseFloat(amount) || 0;
+  const insufficientBalance = type === 'subtract' && deductFromBalance && paymentAmount > currentBalance;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -106,8 +114,35 @@ export function SupplierDueDialog({
             </div>
           </div>
 
+          {type === 'subtract' && (
+            <div className="p-3 rounded-lg bg-muted/50 space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="deductFromBalance"
+                  checked={deductFromBalance}
+                  onCheckedChange={(checked) => setDeductFromBalance(checked as boolean)}
+                />
+                <Label htmlFor="deductFromBalance" className="text-sm cursor-pointer flex items-center gap-2">
+                  <Wallet className="h-4 w-4" />
+                  ব্যালেন্স থেকে বাদ দিন
+                </Label>
+              </div>
+              
+              {deductFromBalance && (
+                <div className="text-xs text-muted-foreground">
+                  বর্তমান ব্যালেন্স: <span className="font-medium">{formatBDT(currentBalance)}</span>
+                  {insufficientBalance && (
+                    <span className="text-destructive block mt-1">
+                      ⚠️ ব্যালেন্স পর্যাপ্ত নয়
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {type === 'subtract' && amount && parseFloat(amount) > 0 && (
-            <div className="p-3 rounded-lg bg-muted/50 text-sm">
+            <div className="p-3 rounded-lg bg-primary/10 text-sm">
               <p>
                 পরিশোধের পর বকেয়া থাকবে:{' '}
                 <span className="font-semibold">
@@ -116,6 +151,11 @@ export function SupplierDueDialog({
                   )}
                 </span>
               </p>
+              {deductFromBalance && !insufficientBalance && (
+                <p className="mt-1 text-muted-foreground">
+                  ব্যালেন্স থাকবে: {formatBDT(currentBalance - parseFloat(amount))}
+                </p>
+              )}
             </div>
           )}
 
@@ -140,7 +180,7 @@ export function SupplierDueDialog({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !amount || parseFloat(amount) <= 0}
+              disabled={isSubmitting || !amount || parseFloat(amount) <= 0 || insufficientBalance}
               variant={type === 'add' ? 'destructive' : 'default'}
             >
               {isSubmitting ? (
