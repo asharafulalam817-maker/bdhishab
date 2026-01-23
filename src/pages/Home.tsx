@@ -207,14 +207,22 @@ const Home = () => {
                     <span className="text-sm font-bold text-muted-foreground">লাইভ ড্যাশবোর্ড</span>
                   </div>
                   <div className="p-6 space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
-                        <p className="text-sm font-bold text-muted-foreground">আজকের বিক্রয়</p>
-                        <p className="mt-2 text-2xl font-extrabold">৳ ১২,৮৫০</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-blue-500/15 to-blue-500/5 p-3">
+                        <p className="text-xs font-bold text-muted-foreground">ক্যাশ আছে</p>
+                        <p className="mt-1 text-lg font-extrabold">৳ ৪,৯১,৪৩৫</p>
                       </div>
-                      <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
-                        <p className="text-sm font-bold text-muted-foreground">লো স্টক</p>
-                        <p className="mt-2 text-2xl font-extrabold">৭ টি</p>
+                      <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-green-500/15 to-green-500/5 p-3">
+                        <p className="text-xs font-bold text-muted-foreground">স্টক মূল্য</p>
+                        <p className="mt-1 text-lg font-extrabold">৳ ৬,৪১,৩৩৬</p>
+                      </div>
+                      <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-orange-500/15 to-orange-500/5 p-3">
+                        <p className="text-xs font-bold text-muted-foreground">বাকি পাওনা</p>
+                        <p className="mt-1 text-lg font-extrabold">৳ ২,৬১,৪৮২</p>
+                      </div>
+                      <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-purple-500/15 to-purple-500/5 p-3">
+                        <p className="text-xs font-bold text-muted-foreground">মূলধন</p>
+                        <p className="mt-1 text-lg font-extrabold">৳ ১৩,৯৪,২৫৩</p>
                       </div>
                     </div>
                     <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
