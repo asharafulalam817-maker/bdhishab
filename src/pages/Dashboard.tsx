@@ -162,26 +162,6 @@ export default function Dashboard() {
 
       {/* Balance & Summary Cards */}
       <motion.div variants={item} className="grid grid-cols-2 md:grid-cols-4 gap-2 lg:gap-3">
-        {/* Total Capital (Combined) */}
-        <Card className="bg-gradient-to-br from-violet-600 via-violet-600 to-violet-500 text-white border-0 shadow-lg shadow-violet-600/20">
-          <CardContent className="p-3 lg:p-4">
-            <div className="flex items-start justify-between">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">মোট মূলধন</p>
-                <p className="text-lg lg:text-2xl font-bold tracking-tight">
-                  {(balanceLoading || isLoadingExtras) ? '...' : formatBDT((balance?.current_balance || 0) + totalStockValue + totalDueAmount)}
-                </p>
-                <p className="text-[10px] opacity-75 mt-0.5 truncate">
-                  সব মিলিয়ে
-                </p>
-              </div>
-              <div className="p-2 rounded-lg bg-white/20 shrink-0">
-                <PiggyBank className="h-4 w-4" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Total Cash */}
         <Card className="bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground border-0 shadow-lg shadow-primary/20">
           <CardContent className="p-3 lg:p-4">
@@ -237,6 +217,26 @@ export default function Dashboard() {
               </div>
               <div className="p-2 rounded-lg bg-white/20 shrink-0">
                 <CreditCard className="h-4 w-4" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Total Capital (Combined) - 4th position */}
+        <Card className="bg-gradient-to-br from-violet-600 via-violet-600 to-violet-500 text-white border-0 shadow-lg shadow-violet-600/20">
+          <CardContent className="p-3 lg:p-4">
+            <div className="flex items-start justify-between">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">মোট মূলধন</p>
+                <p className="text-lg lg:text-2xl font-bold tracking-tight">
+                  {(balanceLoading || isLoadingExtras) ? '...' : formatBDT((balance?.current_balance || 0) + totalStockValue + totalDueAmount)}
+                </p>
+                <p className="text-[10px] opacity-75 mt-0.5 truncate">
+                  সব মিলিয়ে
+                </p>
+              </div>
+              <div className="p-2 rounded-lg bg-white/20 shrink-0">
+                <PiggyBank className="h-4 w-4" />
               </div>
             </div>
           </CardContent>
