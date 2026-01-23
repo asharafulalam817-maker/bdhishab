@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings as SettingsIcon, Store, Receipt, Shield, Users } from 'lucide-react';
+import { Settings as SettingsIcon, Store, Receipt, Shield, Users, Bell } from 'lucide-react';
 import { bn } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import InvoiceTemplateSelector from '@/components/invoice/InvoiceTemplateSelector';
 import { InvoiceTemplate } from '@/components/invoice/types';
 import { toast } from 'sonner';
+import NotificationSettings from '@/components/warranty/NotificationSettings';
 
 export default function Settings() {
   const [selectedTemplate, setSelectedTemplate] = useState<InvoiceTemplate>('classic');
@@ -31,10 +32,11 @@ export default function Settings() {
       </div>
 
       <Tabs defaultValue="store">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="store" className="gap-2"><Store className="h-4 w-4" />স্টোর</TabsTrigger>
           <TabsTrigger value="invoice" className="gap-2"><Receipt className="h-4 w-4" />চালান</TabsTrigger>
           <TabsTrigger value="warranty" className="gap-2"><Shield className="h-4 w-4" />ওয়ারেন্টি</TabsTrigger>
+          <TabsTrigger value="notifications" className="gap-2"><Bell className="h-4 w-4" />নোটিফিকেশন</TabsTrigger>
           <TabsTrigger value="users" className="gap-2"><Users className="h-4 w-4" />ব্যবহারকারী</TabsTrigger>
         </TabsList>
 
@@ -119,6 +121,10 @@ export default function Settings() {
               <Button>{bn.common.save}</Button>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="mt-6">
+          <NotificationSettings />
         </TabsContent>
 
         <TabsContent value="users" className="mt-6">
