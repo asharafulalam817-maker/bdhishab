@@ -448,19 +448,19 @@ const Home = () => {
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                           <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-blue-500/20 to-blue-500/5 p-4">
                             <p className="text-xs font-bold text-muted-foreground mb-1">ক্যাশ আছে</p>
-                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ০</p>
+                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ৪,৯১,৪৩৫</p>
                           </div>
                           <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-green-500/20 to-green-500/5 p-4">
                             <p className="text-xs font-bold text-muted-foreground mb-1">স্টক মূল্য</p>
-                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ০</p>
+                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ৬,৪১,৩৩৬</p>
                           </div>
                           <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-orange-500/20 to-orange-500/5 p-4">
                             <p className="text-xs font-bold text-muted-foreground mb-1">বাকি পাওনা</p>
-                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ০</p>
+                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ২,৬১,৪৮২</p>
                           </div>
                           <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-purple-500/20 to-purple-500/5 p-4">
                             <p className="text-xs font-bold text-muted-foreground mb-1">মূলধন</p>
-                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ০</p>
+                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ১৩,৯৪,২৫৩</p>
                           </div>
                         </div>
                         <div className="rounded-2xl border border-border/60 bg-background/40 p-5">
