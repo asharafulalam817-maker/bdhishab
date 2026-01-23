@@ -172,11 +172,11 @@ export default function Dashboard() {
           <CardContent className="p-4 lg:p-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold opacity-90 mb-1 truncate">{t('dashboard.totalCash')}</p>
-                <p className="text-xl lg:text-3xl font-extrabold tracking-tight">
+                <p className="text-base lg:text-lg font-extrabold opacity-95 mb-1 truncate">{t('dashboard.totalCash')}</p>
+                <p className="text-2xl lg:text-4xl font-black tracking-tight">
                   {balanceLoading ? '...' : formatBDT(balance?.current_balance || 0)}
                 </p>
-                <p className="text-xs font-medium opacity-75 mt-1 truncate">
+                <p className="text-sm font-bold opacity-80 mt-1 truncate">
                   {t('dashboard.cashOnHand')}
                 </p>
               </div>
@@ -192,11 +192,11 @@ export default function Dashboard() {
           <CardContent className="p-4 lg:p-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold opacity-90 mb-1 truncate">{t('dashboard.totalStockValue')}</p>
-                <p className="text-xl lg:text-3xl font-extrabold tracking-tight">
+                <p className="text-base lg:text-lg font-extrabold opacity-95 mb-1 truncate">{t('dashboard.totalStockValue')}</p>
+                <p className="text-2xl lg:text-4xl font-black tracking-tight">
                   {isLoadingExtras ? '...' : formatBDT(totalStockValue)}
                 </p>
-                <p className="text-xs font-medium opacity-75 mt-1 truncate">
+                <p className="text-sm font-bold opacity-80 mt-1 truncate">
                   {t('dashboard.allProductsValue')}
                 </p>
               </div>
@@ -212,11 +212,11 @@ export default function Dashboard() {
           <CardContent className="p-4 lg:p-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold opacity-90 mb-1 truncate">{t('dashboard.totalReceivables')}</p>
-                <p className="text-xl lg:text-3xl font-extrabold tracking-tight">
+                <p className="text-base lg:text-lg font-extrabold opacity-95 mb-1 truncate">{t('dashboard.totalReceivables')}</p>
+                <p className="text-2xl lg:text-4xl font-black tracking-tight">
                   {isLoadingExtras ? '...' : formatBDT(totalDueAmount)}
                 </p>
-                <p className="text-xs font-medium opacity-75 mt-1 truncate">
+                <p className="text-sm font-bold opacity-80 mt-1 truncate">
                   {t('dashboard.customerDues')}
                 </p>
               </div>
@@ -232,11 +232,11 @@ export default function Dashboard() {
           <CardContent className="p-4 lg:p-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold opacity-90 mb-1 truncate">{t('dashboard.totalCapital')}</p>
-                <p className="text-xl lg:text-3xl font-extrabold tracking-tight">
+                <p className="text-base lg:text-lg font-extrabold opacity-95 mb-1 truncate">{t('dashboard.totalCapital')}</p>
+                <p className="text-2xl lg:text-4xl font-black tracking-tight">
                   {(balanceLoading || isLoadingExtras) ? '...' : formatBDT((balance?.current_balance || 0) + totalStockValue + totalDueAmount)}
                 </p>
-                <p className="text-xs font-medium opacity-75 mt-1 truncate">
+                <p className="text-sm font-bold opacity-80 mt-1 truncate">
                   {t('dashboard.combined')}
                 </p>
               </div>
