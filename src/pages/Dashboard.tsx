@@ -301,33 +301,33 @@ export default function Dashboard() {
         />
       </motion.div>
 
-      {/* Quick Actions - Premium Buttons */}
+      {/* Quick Actions - Outline Style */}
       <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-5">
         {quickActions.map((action, index) => {
           const styles = [
             {
-              gradient: 'from-blue-500 via-blue-600 to-indigo-600',
-              shadow: 'shadow-blue-500/40',
-              glow: 'bg-blue-400',
-              ring: 'ring-blue-400/30',
+              border: 'border-blue-500',
+              text: 'text-blue-600 dark:text-blue-400',
+              icon: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+              hoverBg: 'hover:bg-blue-50 dark:hover:bg-blue-500/10',
             },
             {
-              gradient: 'from-violet-500 via-purple-600 to-fuchsia-600',
-              shadow: 'shadow-purple-500/40',
-              glow: 'bg-purple-400',
-              ring: 'ring-purple-400/30',
+              border: 'border-purple-500',
+              text: 'text-purple-600 dark:text-purple-400',
+              icon: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+              hoverBg: 'hover:bg-purple-50 dark:hover:bg-purple-500/10',
             },
             {
-              gradient: 'from-emerald-500 via-teal-600 to-cyan-600',
-              shadow: 'shadow-teal-500/40',
-              glow: 'bg-teal-400',
-              ring: 'ring-teal-400/30',
+              border: 'border-teal-500',
+              text: 'text-teal-600 dark:text-teal-400',
+              icon: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
+              hoverBg: 'hover:bg-teal-50 dark:hover:bg-teal-500/10',
             },
             {
-              gradient: 'from-rose-500 via-pink-600 to-red-600',
-              shadow: 'shadow-rose-500/40',
-              glow: 'bg-rose-400',
-              ring: 'ring-rose-400/30',
+              border: 'border-rose-500',
+              text: 'text-rose-600 dark:text-rose-400',
+              icon: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+              hoverBg: 'hover:bg-rose-50 dark:hover:bg-rose-500/10',
             },
           ];
           
@@ -336,55 +336,30 @@ export default function Dashboard() {
           return (
             <motion.button
               key={action.path}
-              whileHover={{ scale: 1.05, y: -4 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => navigate(action.path)}
               className={cn(
-                'relative group flex flex-col items-center justify-center gap-3 lg:gap-4 p-5 lg:p-6 rounded-2xl text-white font-medium transition-all duration-300 cursor-pointer overflow-hidden',
-                `bg-gradient-to-br ${style.gradient}`,
-                `shadow-xl ${style.shadow} hover:shadow-2xl`,
-                `ring-2 ${style.ring} hover:ring-4`
+                'group flex flex-col items-center justify-center gap-3 lg:gap-4 p-5 lg:p-6 rounded-xl bg-card border-2 transition-all duration-200 cursor-pointer',
+                style.border,
+                style.hoverBg
               )}
             >
-              {/* Animated background glow */}
+              {/* Icon */}
               <div className={cn(
-                'absolute -inset-1 rounded-2xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500',
-                style.glow
-              )} />
-              
-              {/* Shimmer effect */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                'p-3 lg:p-4 rounded-full transition-transform duration-200 group-hover:scale-110',
+                style.icon
+              )}>
+                <action.icon className="h-6 w-6 lg:h-7 lg:w-7" />
               </div>
               
-              {/* Decorative circles */}
-              <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-white/10 blur-sm" />
-              <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-white/5 blur-sm" />
-              
-              {/* Icon with animated ring */}
-              <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-white/30 blur group-hover:blur-md transition-all duration-300 scale-110" />
-                <div className="relative p-4 rounded-full bg-white/25 backdrop-blur-sm group-hover:bg-white/35 transition-all duration-300 ring-2 ring-white/30">
-                  <action.icon className="h-7 w-7 lg:h-8 lg:w-8 drop-shadow-lg" />
-                </div>
-              </div>
-              
-              {/* Label with shadow */}
-              <span className="relative text-base lg:text-lg font-extrabold text-center leading-tight drop-shadow-md">
+              {/* Label */}
+              <span className={cn(
+                'text-base lg:text-lg font-bold text-center leading-tight',
+                style.text
+              )}>
                 {action.label}
               </span>
-              
-              {/* Bottom accent line */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-white/40 rounded-full opacity-0 group-hover:opacity-100 group-hover:w-20 transition-all duration-300" />
-              
-              {/* Corner arrow indicator */}
-              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                <div className="p-1.5 rounded-full bg-white/20 backdrop-blur-sm">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </div>
             </motion.button>
           );
         })}
