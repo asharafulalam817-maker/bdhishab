@@ -566,15 +566,15 @@ function StatCard({ title, value, subtitle, icon: Icon, trend, loading }: StatCa
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4 lg:p-5">
-        <div className="flex items-start justify-between mb-2 lg:mb-2.5">
-          <p className="text-xs lg:text-sm text-muted-foreground font-bold leading-tight">{title}</p>
+        <div className="flex items-start justify-between mb-2 lg:mb-3">
+          <p className="text-base lg:text-lg text-muted-foreground font-extrabold leading-tight">{title}</p>
           <div className={cn('p-2 rounded-lg', getTrendColors())}>
             <Icon className="h-4 w-4 lg:h-5 lg:w-5" />
           </div>
         </div>
-        <p className="text-lg lg:text-xl font-extrabold text-foreground leading-tight">{value}</p>
+        <p className="text-xl lg:text-2xl font-black text-foreground leading-tight">{value}</p>
         {subtitle && (
-          <p className="text-xs lg:text-sm text-muted-foreground font-medium mt-1">{subtitle}</p>
+          <p className="text-sm lg:text-base text-muted-foreground font-semibold mt-1">{subtitle}</p>
         )}
       </CardContent>
     </Card>
