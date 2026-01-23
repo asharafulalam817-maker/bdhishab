@@ -301,29 +301,33 @@ export default function Dashboard() {
         />
       </motion.div>
 
-      {/* Quick Actions - Premium Vibrant Buttons */}
+      {/* Quick Actions - Dark Premium Solid Buttons */}
       <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-5">
         {quickActions.map((action, index) => {
           const styles = [
             {
-              bg: 'bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700',
-              glow: 'shadow-[0_8px_30px_rgb(59,130,246,0.5)] hover:shadow-[0_12px_40px_rgb(59,130,246,0.6)]',
-              ring: 'ring-2 ring-blue-400/30',
+              bg: 'bg-slate-900',
+              accent: 'text-blue-400',
+              accentBg: 'bg-blue-500',
+              border: 'border-slate-700',
             },
             {
-              bg: 'bg-gradient-to-br from-purple-500 via-purple-600 to-violet-700',
-              glow: 'shadow-[0_8px_30px_rgb(147,51,234,0.5)] hover:shadow-[0_12px_40px_rgb(147,51,234,0.6)]',
-              ring: 'ring-2 ring-purple-400/30',
+              bg: 'bg-slate-900',
+              accent: 'text-purple-400',
+              accentBg: 'bg-purple-500',
+              border: 'border-slate-700',
             },
             {
-              bg: 'bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-700',
-              glow: 'shadow-[0_8px_30px_rgb(20,184,166,0.5)] hover:shadow-[0_12px_40px_rgb(20,184,166,0.6)]',
-              ring: 'ring-2 ring-teal-400/30',
+              bg: 'bg-slate-900',
+              accent: 'text-emerald-400',
+              accentBg: 'bg-emerald-500',
+              border: 'border-slate-700',
             },
             {
-              bg: 'bg-gradient-to-br from-rose-500 via-pink-600 to-fuchsia-700',
-              glow: 'shadow-[0_8px_30px_rgb(244,63,94,0.5)] hover:shadow-[0_12px_40px_rgb(244,63,94,0.6)]',
-              ring: 'ring-2 ring-rose-400/30',
+              bg: 'bg-slate-900',
+              accent: 'text-rose-400',
+              accentBg: 'bg-rose-500',
+              border: 'border-slate-700',
             },
           ];
           
@@ -332,36 +336,41 @@ export default function Dashboard() {
           return (
             <motion.button
               key={action.path}
-              whileHover={{ scale: 1.05, y: -4 }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => navigate(action.path)}
               className={cn(
-                'group relative flex flex-col items-center justify-center gap-2 lg:gap-3 p-4 lg:p-5 rounded-2xl text-white font-bold transition-all duration-300 cursor-pointer overflow-hidden',
+                'group relative flex flex-col items-center justify-center gap-3 lg:gap-4 p-5 lg:p-6 rounded-2xl font-bold transition-all duration-200 cursor-pointer border-2 shadow-xl hover:shadow-2xl',
                 style.bg,
-                style.glow,
-                style.ring
+                style.border
               )}
             >
-              {/* Shimmer effect overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              
-              {/* Plus badge - premium style */}
-              <div className="absolute -top-1 -right-1 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg ring-2 ring-white/50">
-                <span className="text-lg font-black bg-gradient-to-br from-gray-700 to-gray-900 bg-clip-text text-transparent">+</span>
+              {/* Accent badge */}
+              <div className={cn(
+                'absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center shadow-lg',
+                style.accentBg
+              )}>
+                <span className="text-white text-lg font-black">+</span>
               </div>
               
-              {/* Icon with glass effect */}
-              <div className="p-3 rounded-full bg-white/25 backdrop-blur-sm border border-white/30 shadow-inner">
-                <action.icon className="h-6 w-6 lg:h-7 lg:w-7 drop-shadow-sm" />
+              {/* Icon */}
+              <div className={cn(
+                'p-3 lg:p-4 rounded-xl',
+                style.accentBg
+              )}>
+                <action.icon className="h-6 w-6 lg:h-7 lg:w-7 text-white" />
               </div>
               
               {/* Label */}
-              <span className="text-sm lg:text-base font-bold text-center leading-tight drop-shadow-md">
+              <span className={cn(
+                'text-base lg:text-lg font-extrabold text-center leading-tight',
+                style.accent
+              )}>
                 {action.label}
               </span>
               
-              {/* Click hint with arrow */}
-              <span className="text-[10px] lg:text-xs opacity-90 font-semibold flex items-center gap-1">
+              {/* Click hint */}
+              <span className="text-xs lg:text-sm text-slate-400 font-semibold flex items-center gap-1">
                 {t('common.clickHere')} →
               </span>
             </motion.button>
