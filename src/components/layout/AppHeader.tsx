@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Bell, Search, User, Settings, Home, Command } from 'lucide-react';
+import { Menu, Bell, Search, User, Settings, Home, Command, Sun, Moon, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDemo } from '@/contexts/DemoContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { GlobalSearchDialog } from '@/components/search/GlobalSearchDialog';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface AppHeaderProps {
   onMenuClick: () => void;
@@ -20,10 +22,19 @@ interface AppHeaderProps {
 
 export function AppHeader({ onMenuClick }: AppHeaderProps) {
   const { demoProfile, demoStore } = useDemo();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'bn' ? 'en' : 'bn');
+  };
 
   // Keyboard shortcut for search
   useEffect(() => {
@@ -88,6 +99,46 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
             <Command className="h-3 w-3" />K
           </kbd>
         </Button>
+
+        {/* Theme Toggle */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={toggleTheme}
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-5 w-5 text-warning" />
+              ) : (
+                <Moon className="h-5 w-5 text-muted-foreground" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {theme === 'dark' ? t('settings.lightMode') : t('settings.darkMode')}
+          </TooltipContent>
+        </Tooltip>
+
+        {/* Language Toggle */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 font-bold"
+              onClick={toggleLanguage}
+            >
+              <span className="text-sm font-semibold">
+                {language === 'bn' ? 'EN' : 'বাং'}
+              </span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {language === 'bn' ? 'Switch to English' : 'বাংলায় পরিবর্তন করুন'}
+          </TooltipContent>
+        </Tooltip>
 
         {/* Notifications */}
         <DropdownMenu>
