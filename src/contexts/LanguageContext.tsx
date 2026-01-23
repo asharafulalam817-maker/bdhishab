@@ -221,6 +221,7 @@ const translations: Record<Language, Record<string, string>> = {
     'common.english': 'English',
     'common.goToDashboard': 'ড্যাশবোর্ডে যান',
     'common.notifications': 'বিজ্ঞপ্তি',
+    'common.clickHere': 'ক্লিক করুন',
     
     // Roles
     'roles.owner': 'মালিক',
@@ -454,6 +455,7 @@ const translations: Record<Language, Record<string, string>> = {
     'common.english': 'English',
     'common.goToDashboard': 'Go to Dashboard',
     'common.notifications': 'Notifications',
+    'common.clickHere': 'Click here',
     
     // Roles
     'roles.owner': 'Owner',

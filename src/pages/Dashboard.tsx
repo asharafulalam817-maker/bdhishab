@@ -301,33 +301,25 @@ export default function Dashboard() {
         />
       </motion.div>
 
-      {/* Quick Actions - Outline Style */}
+      {/* Quick Actions - Obvious Clickable Buttons */}
       <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-5">
         {quickActions.map((action, index) => {
           const styles = [
             {
-              border: 'border-blue-500',
-              text: 'text-blue-600 dark:text-blue-400',
-              icon: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-              hoverBg: 'hover:bg-blue-50 dark:hover:bg-blue-500/10',
+              bg: 'bg-blue-600 hover:bg-blue-700',
+              shadow: 'shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40',
             },
             {
-              border: 'border-purple-500',
-              text: 'text-purple-600 dark:text-purple-400',
-              icon: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
-              hoverBg: 'hover:bg-purple-50 dark:hover:bg-purple-500/10',
+              bg: 'bg-purple-600 hover:bg-purple-700',
+              shadow: 'shadow-lg shadow-purple-600/30 hover:shadow-xl hover:shadow-purple-600/40',
             },
             {
-              border: 'border-teal-500',
-              text: 'text-teal-600 dark:text-teal-400',
-              icon: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
-              hoverBg: 'hover:bg-teal-50 dark:hover:bg-teal-500/10',
+              bg: 'bg-teal-600 hover:bg-teal-700',
+              shadow: 'shadow-lg shadow-teal-600/30 hover:shadow-xl hover:shadow-teal-600/40',
             },
             {
-              border: 'border-rose-500',
-              text: 'text-rose-600 dark:text-rose-400',
-              icon: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
-              hoverBg: 'hover:bg-rose-50 dark:hover:bg-rose-500/10',
+              bg: 'bg-rose-600 hover:bg-rose-700',
+              shadow: 'shadow-lg shadow-rose-600/30 hover:shadow-xl hover:shadow-rose-600/40',
             },
           ];
           
@@ -336,29 +328,33 @@ export default function Dashboard() {
           return (
             <motion.button
               key={action.path}
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.03, y: -3 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => navigate(action.path)}
               className={cn(
-                'group flex flex-col items-center justify-center gap-3 lg:gap-4 p-5 lg:p-6 rounded-xl bg-card border-2 transition-all duration-200 cursor-pointer',
-                style.border,
-                style.hoverBg
+                'group relative flex flex-col items-center justify-center gap-2 lg:gap-3 p-4 lg:p-5 rounded-xl text-white font-bold transition-all duration-200 cursor-pointer active:scale-95',
+                style.bg,
+                style.shadow
               )}
             >
+              {/* Plus badge - indicates action */}
+              <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
+                <span className="text-lg font-black text-gray-800">+</span>
+              </div>
+              
               {/* Icon */}
-              <div className={cn(
-                'p-3 lg:p-4 rounded-full transition-transform duration-200 group-hover:scale-110',
-                style.icon
-              )}>
+              <div className="p-3 rounded-full bg-white/20">
                 <action.icon className="h-6 w-6 lg:h-7 lg:w-7" />
               </div>
               
               {/* Label */}
-              <span className={cn(
-                'text-base lg:text-lg font-bold text-center leading-tight',
-                style.text
-              )}>
+              <span className="text-sm lg:text-base font-bold text-center leading-tight">
                 {action.label}
+              </span>
+              
+              {/* Click hint */}
+              <span className="text-[10px] lg:text-xs opacity-80 font-medium">
+                {t('common.clickHere')}
               </span>
             </motion.button>
           );
