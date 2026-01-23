@@ -40,6 +40,8 @@ export function ProductFormDialog({
 }: ProductFormDialogProps) {
   const [formData, setFormData] = useState<{
     name: string;
+    description: string;
+    imageUrl: string;
     sku: string;
     barcode: string;
     category: string;
@@ -59,6 +61,8 @@ export function ProductFormDialog({
     hasExpiry: boolean;
   }>({
     name: '',
+    description: '',
+    imageUrl: '',
     sku: '',
     barcode: '',
     category: '',
@@ -82,6 +86,8 @@ export function ProductFormDialog({
     if (product) {
       setFormData({
         name: product.name,
+        description: product.description || '',
+        imageUrl: product.imageUrl || '',
         sku: product.sku,
         barcode: product.barcode || '',
         category: product.category,
@@ -103,6 +109,8 @@ export function ProductFormDialog({
     } else {
       setFormData({
         name: '',
+        description: '',
+        imageUrl: '',
         sku: '',
         barcode: '',
         category: '',
@@ -163,17 +171,49 @@ export function ProductFormDialog({
             </TabsList>
 
             <TabsContent value="basic" className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">{bn.products.name} *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="পণ্যের নাম লিখুন"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">বিবরণ</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="পণ্যের বিবরণ লিখুন (ঐচ্ছিক)"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="imageUrl">পণ্যের ছবি URL</Label>
+                <Input
+                  id="imageUrl"
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  placeholder="https://example.com/image.jpg"
+                />
+                {formData.imageUrl && (
+                  <div className="mt-2">
+                    <img 
+                      src={formData.imageUrl} 
+                      alt="পণ্যের ছবি" 
+                      className="w-20 h-20 object-cover rounded-md border"
+                      onError={(e) => (e.currentTarget.style.display = 'none')}
+                    />
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">{bn.products.name} *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="পণ্যের নাম লিখুন"
-                    required
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="sku">{bn.products.sku} *</Label>
                   <Input
@@ -184,9 +224,6 @@ export function ProductFormDialog({
                     required
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="barcode">{bn.products.barcode}</Label>
                   <Input
@@ -195,21 +232,6 @@ export function ProductFormDialog({
                     onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
                     placeholder="বারকোড (ঐচ্ছিক)"
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="unit">{bn.products.unit}</Label>
-                  <Select value={formData.unit} onValueChange={(v) => setFormData({ ...formData, unit: v })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pcs">{bn.units.pcs}</SelectItem>
-                      <SelectItem value="kg">{bn.units.kg}</SelectItem>
-                      <SelectItem value="liter">{bn.units.liter}</SelectItem>
-                      <SelectItem value="box">{bn.units.box}</SelectItem>
-                      <SelectItem value="dozen">{bn.units.dozen}</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
               </div>
 
@@ -241,6 +263,23 @@ export function ProductFormDialog({
                   </Select>
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="unit">{bn.products.unit}</Label>
+                <Select value={formData.unit} onValueChange={(v) => setFormData({ ...formData, unit: v })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pcs">{bn.units.pcs}</SelectItem>
+                    <SelectItem value="kg">{bn.units.kg}</SelectItem>
+                    <SelectItem value="liter">{bn.units.liter}</SelectItem>
+                    <SelectItem value="box">{bn.units.box}</SelectItem>
+                    <SelectItem value="dozen">{bn.units.dozen}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
             </TabsContent>
 
             <TabsContent value="pricing" className="space-y-4 pt-4">
