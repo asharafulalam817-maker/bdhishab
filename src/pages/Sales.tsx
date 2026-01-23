@@ -10,6 +10,7 @@ import {
   Download,
   Trash2,
   Filter,
+  CreditCard,
 } from 'lucide-react';
 import { bn, formatBDT, formatDateBn, formatNumberBn } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -38,7 +40,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useSales, Sale } from '@/hooks/useSales';
+import { useBalance } from '@/hooks/useBalance';
 import { SaleViewDialog } from '@/components/sales/SaleViewDialog';
+import { DuePaymentDialog } from '@/components/sales/DuePaymentDialog';
 import { toast } from 'sonner';
 
 export default function Sales() {
@@ -49,15 +53,38 @@ export default function Sales() {
     setSearchQuery,
     statusFilter,
     setStatusFilter,
+    recordDuePayment,
     deleteSale,
   } = useSales();
 
+  const { addSaleToBalance, refreshBalance } = useBalance();
+
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [paymentSale, setPaymentSale] = useState<Sale | null>(null);
 
   const handleViewSale = (sale: Sale) => {
     setSelectedSale(sale);
     setIsViewOpen(true);
+  };
+
+  const handlePayDue = (sale: Sale) => {
+    setPaymentSale(sale);
+    setIsPaymentOpen(true);
+  };
+
+  const handleDuePayment = async (saleId: string, amount: number, paymentMethod: string, addToBalance: boolean) => {
+    // Update the sale
+    recordDuePayment(saleId, amount);
+    
+    // Add to store balance if requested
+    if (addToBalance) {
+      await addSaleToBalance(amount, saleId);
+      await refreshBalance();
+    }
+    
+    toast.success(`৳${amount.toLocaleString('bn-BD')} বাকি পরিশোধ সফল হয়েছে!`);
   };
 
   const handleDeleteSale = (sale: Sale) => {
@@ -244,10 +271,17 @@ export default function Sales() {
                               <Eye className="h-4 w-4" />
                               {bn.common.view}
                             </DropdownMenuItem>
+                            {sale.dueAmount > 0 && (
+                              <DropdownMenuItem onClick={() => handlePayDue(sale)} className="gap-2 text-success">
+                                <CreditCard className="h-4 w-4" />
+                                বাকি পরিশোধ
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem onClick={() => handlePrint(sale)} className="gap-2">
                               <Printer className="h-4 w-4" />
                               {bn.invoices.print}
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handleDeleteSale(sale)} className="gap-2 text-destructive">
                               <Trash2 className="h-4 w-4" />
                               {bn.common.delete}
@@ -265,10 +299,19 @@ export default function Sales() {
       </Card>
 
       {/* View Dialog */}
+      {/* View Dialog */}
       <SaleViewDialog
         open={isViewOpen}
         onOpenChange={setIsViewOpen}
         sale={selectedSale}
+      />
+
+      {/* Due Payment Dialog */}
+      <DuePaymentDialog
+        open={isPaymentOpen}
+        onOpenChange={setIsPaymentOpen}
+        sale={paymentSale}
+        onPayment={handleDuePayment}
       />
     </motion.div>
   );
