@@ -12,6 +12,7 @@ import {
   Receipt,
   Check,
   Printer,
+  ScanLine,
 } from 'lucide-react';
 import { bn, formatBDT, formatNumberBn } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
@@ -29,15 +30,17 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import POSInvoiceDialog from '@/components/pos/POSInvoiceDialog';
+import { BarcodeScanner } from '@/components/pos/BarcodeScanner';
 import { InvoiceData, InvoiceTemplate } from '@/components/invoice/types';
+import { toast as sonnerToast } from 'sonner';
 
-// Demo products
+// Demo products with barcodes
 const demoProducts = [
-  { id: '1', name: 'স্যামসাং গ্যালাক্সি A54', sku: 'SAM-A54', price: 35000, stock: 15 },
-  { id: '2', name: 'আইফোন ১৫ প্রো ম্যাক্স', sku: 'IP15-PRO', price: 175000, stock: 3 },
-  { id: '3', name: 'শাওমি পাওয়ার ব্যাংক', sku: 'XM-PB20', price: 1800, stock: 45 },
-  { id: '4', name: 'JBL ব্লুটুথ স্পিকার', sku: 'JBL-BT01', price: 4500, stock: 8 },
-  { id: '5', name: 'রিয়েলমি সি৫৫', sku: 'RM-C55', price: 18500, stock: 22 },
+  { id: '1', name: 'স্যামসাং গ্যালাক্সি A54', sku: 'SAM-A54', barcode: '8801643123451', price: 35000, stock: 15 },
+  { id: '2', name: 'আইফোন ১৫ প্রো ম্যাক্স', sku: 'IP15-PRO', barcode: '0194253456780', price: 175000, stock: 3 },
+  { id: '3', name: 'শাওমি পাওয়ার ব্যাংক', sku: 'XM-PB20', barcode: '6934177712345', price: 1800, stock: 45 },
+  { id: '4', name: 'JBL ব্লুটুথ স্পিকার', sku: 'JBL-BT01', barcode: '0500000012345', price: 4500, stock: 8 },
+  { id: '5', name: 'রিয়েলমি সি৫৫', sku: 'RM-C55', barcode: '6941399012345', price: 18500, stock: 22 },
 ];
 
 // Demo customers
@@ -69,12 +72,31 @@ export default function POS() {
   const [notes, setNotes] = useState('');
   const [showInvoice, setShowInvoice] = useState(false);
   const [currentInvoice, setCurrentInvoice] = useState<InvoiceData | null>(null);
-
+  const [scannerOpen, setScannerOpen] = useState(false);
   const filteredProducts = demoProducts.filter(
     (p) =>
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.sku.toLowerCase().includes(searchQuery.toLowerCase())
+      p.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.barcode.includes(searchQuery)
   );
+
+  // Handle barcode scan
+  const handleBarcodeScan = (barcode: string) => {
+    const product = demoProducts.find(
+      (p) => p.barcode === barcode || p.sku.toLowerCase() === barcode.toLowerCase()
+    );
+    
+    if (product) {
+      addToCart(product);
+      sonnerToast.success(`${product.name} যোগ হয়েছে`, {
+        description: `বারকোড: ${barcode}`,
+      });
+    } else {
+      sonnerToast.error('পণ্য পাওয়া যায়নি', {
+        description: `বারকোড: ${barcode}`,
+      });
+    }
+  };
 
   const addToCart = (product: typeof demoProducts[0]) => {
     const existingItem = cart.find((item) => item.productId === product.id);
@@ -234,17 +256,28 @@ export default function POS() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Products Section */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Search */}
+          {/* Search and Scan */}
           <Card>
             <CardContent className="p-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="পণ্যের নাম বা SKU দিয়ে খুঁজুন..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="পণ্যের নাম, SKU বা বারকোড দিয়ে খুঁজুন..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setScannerOpen(true)}
+                  className="shrink-0"
+                  title="বারকোড স্ক্যান করুন"
+                >
+                  <ScanLine className="h-5 w-5" />
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -454,6 +487,13 @@ export default function POS() {
         template="minimal"
         open={showInvoice}
         onClose={handleInvoiceClose}
+      />
+
+      {/* Barcode Scanner Dialog */}
+      <BarcodeScanner
+        open={scannerOpen}
+        onOpenChange={setScannerOpen}
+        onScan={handleBarcodeScan}
       />
     </motion.div>
   );
