@@ -29,6 +29,7 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { motion } from 'framer-motion';
+import dashboardPreview from '@/assets/dashboard-preview.jpg';
 
 const Home = () => {
   const features = [
@@ -431,7 +432,7 @@ const Home = () => {
               className="w-full"
             >
               <CarouselContent className="-ml-2 md:-ml-4">
-                {/* Dashboard Demo */}
+                {/* Dashboard Screenshot */}
                 <CarouselItem className="pl-2 md:pl-4 md:basis-4/5 lg:basis-3/4">
                   <div className="relative">
                     <div className="absolute -inset-3 rounded-3xl bg-primary/15 blur-2xl" />
@@ -444,80 +445,13 @@ const Home = () => {
                         </div>
                         <span className="text-sm font-bold text-muted-foreground flex-1 text-center">ড্যাশবোর্ড - ডিজিটাল বন্ধু</span>
                       </div>
-                      <div className="p-6 lg:p-8 space-y-6">
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                          <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-primary/15 to-primary/5 p-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <TrendingUp className="h-4 w-4 text-primary" />
-                              <p className="text-xs font-bold text-muted-foreground">আজকের বিক্রয়</p>
-                            </div>
-                            <p className="text-2xl lg:text-3xl font-extrabold text-primary">৳ ৪৫,৮৫০</p>
-                          </div>
-                          <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Package className="h-4 w-4 text-muted-foreground" />
-                              <p className="text-xs font-bold text-muted-foreground">মোট প্রোডাক্ট</p>
-                            </div>
-                            <p className="text-2xl lg:text-3xl font-extrabold">১,২৪৫</p>
-                          </div>
-                          <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Users className="h-4 w-4 text-muted-foreground" />
-                              <p className="text-xs font-bold text-muted-foreground">কাস্টমার</p>
-                            </div>
-                            <p className="text-2xl lg:text-3xl font-extrabold">৩৮৭</p>
-                          </div>
-                          <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Wallet className="h-4 w-4 text-muted-foreground" />
-                              <p className="text-xs font-bold text-muted-foreground">বাকি আদায়</p>
-                            </div>
-                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ২৮,৫০০</p>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                          <div className="rounded-2xl border border-border/60 bg-background/40 p-5">
-                            <div className="flex items-center justify-between mb-4">
-                              <p className="text-sm font-bold">সাম্প্রতিক বিক্রয়</p>
-                              <span className="text-xs font-bold text-primary">সব দেখুন</span>
-                            </div>
-                            <div className="space-y-3">
-                              {[
-                                { name: 'Samsung Galaxy A54', amount: '৳ ৩২,৫০০', time: '১০ মিনিট আগে' },
-                                { name: 'iPhone 14 Pro Case', amount: '৳ ৮৫০', time: '২৫ মিনিট আগে' },
-                                { name: 'Xiaomi Earbuds', amount: '৳ ১,৫০০', time: '১ ঘন্টা আগে' },
-                              ].map((sale, i) => (
-                                <div key={i} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
-                                  <div>
-                                    <p className="text-sm font-bold">{sale.name}</p>
-                                    <p className="text-xs text-muted-foreground">{sale.time}</p>
-                                  </div>
-                                  <p className="text-sm font-extrabold text-primary">{sale.amount}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="rounded-2xl border border-border/60 bg-background/40 p-5">
-                            <div className="flex items-center justify-between mb-4">
-                              <p className="text-sm font-bold">লো স্টক অ্যালার্ট</p>
-                              <span className="inline-flex items-center gap-1 text-xs font-bold text-destructive">
-                                <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" /> ৫টি আইটেম
-                              </span>
-                            </div>
-                            <div className="space-y-3">
-                              {[
-                                { name: 'Samsung Charger 25W', stock: '৩টি বাকি' },
-                                { name: 'iPhone Lightning Cable', stock: '২টি বাকি' },
-                                { name: 'Redmi Power Bank', stock: '৫টি বাকি' },
-                              ].map((item, i) => (
-                                <div key={i} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
-                                  <p className="text-sm font-bold">{item.name}</p>
-                                  <span className="text-xs font-bold bg-destructive/15 text-destructive px-2 py-1 rounded-full">{item.stock}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
+                      <div className="relative">
+                        <img 
+                          src={dashboardPreview} 
+                          alt="ডিজিটাল বন্ধু ড্যাশবোর্ড প্রিভিউ" 
+                          className="w-full h-auto"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent" />
                       </div>
                     </div>
                   </div>
