@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Trash2, Loader2, Package, Calculator } from 'lucide-react';
+import { Plus, Trash2, Loader2, Package, Calculator, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -35,9 +36,10 @@ interface Product {
 interface PurchaseFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: PurchaseFormData) => void;
+  onSubmit: (data: PurchaseFormData & { deductFromBalance: boolean }) => void;
   suppliers: Supplier[];
   products: Product[];
+  currentBalance?: number;
 }
 
 interface PurchaseItemRow {
@@ -53,6 +55,7 @@ export function PurchaseFormDialog({
   onSubmit,
   suppliers,
   products,
+  currentBalance = 0,
 }: PurchaseFormDialogProps) {
   const [supplierId, setSupplierId] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -62,6 +65,7 @@ export function PurchaseFormDialog({
   const [paidAmount, setPaidAmount] = useState(0);
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deductFromBalance, setDeductFromBalance] = useState(true);
 
   // Reset form when dialog opens
   useEffect(() => {
@@ -73,6 +77,7 @@ export function PurchaseFormDialog({
       setDiscount(0);
       setPaidAmount(0);
       setNotes('');
+      setDeductFromBalance(true);
     }
   }, [open]);
 
@@ -82,6 +87,7 @@ export function PurchaseFormDialog({
 
   const total = subtotal - discount;
   const dueAmount = total - paidAmount;
+  const insufficientBalance = deductFromBalance && paidAmount > currentBalance;
 
   const addItem = () => {
     setItems([...items, { product_id: '', product_name: '', quantity: 1, unit_cost: 0 }]);
@@ -124,6 +130,7 @@ export function PurchaseFormDialog({
       discount,
       paid_amount: paidAmount,
       notes,
+      deductFromBalance: paidAmount > 0 ? deductFromBalance : false,
     });
     
     setIsSubmitting(false);
@@ -299,12 +306,50 @@ export function PurchaseFormDialog({
                   />
                 </div>
 
+                {paidAmount > 0 && (
+                  <div className="p-3 rounded-lg bg-background border space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="deductFromBalance"
+                        checked={deductFromBalance}
+                        onCheckedChange={(checked) => setDeductFromBalance(checked as boolean)}
+                      />
+                      <Label htmlFor="deductFromBalance" className="text-sm cursor-pointer flex items-center gap-2">
+                        <Wallet className="h-4 w-4" />
+                        ব্যালেন্স থেকে কাটুন
+                      </Label>
+                    </div>
+                    
+                    {deductFromBalance && (
+                      <div className="text-xs text-muted-foreground">
+                        বর্তমান ব্যালেন্স: <span className="font-medium">{formatBDT(currentBalance)}</span>
+                        {insufficientBalance && (
+                          <span className="text-destructive block mt-1">
+                            ⚠️ ব্যালেন্স পর্যাপ্ত নয়
+                          </span>
+                        )}
+                        {!insufficientBalance && (
+                          <span className="block mt-1">
+                            পরে থাকবে: {formatBDT(currentBalance - paidAmount)}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">{bn.sales.dueAmount}</span>
                   <span className={`font-bold ${dueAmount > 0 ? 'text-destructive' : 'text-green-600'}`}>
                     {formatBDT(dueAmount)}
                   </span>
                 </div>
+
+                {dueAmount > 0 && supplierId && (
+                  <div className="text-xs text-muted-foreground p-2 bg-destructive/10 rounded">
+                    ⚠️ সরবরাহকারীর বকেয়ায় {formatBDT(dueAmount)} যোগ হবে
+                  </div>
+                )}
               </div>
 
               {/* Notes */}
@@ -328,7 +373,7 @@ export function PurchaseFormDialog({
             >
               {bn.common.cancel}
             </Button>
-            <Button type="submit" disabled={isSubmitting || items.length === 0}>
+            <Button type="submit" disabled={isSubmitting || items.length === 0 || insufficientBalance}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

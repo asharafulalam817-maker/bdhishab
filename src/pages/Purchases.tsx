@@ -15,6 +15,8 @@ import { PurchaseTable } from '@/components/purchases/PurchaseTable';
 import { PurchaseFormDialog } from '@/components/purchases/PurchaseFormDialog';
 import { PurchaseViewDialog } from '@/components/purchases/PurchaseViewDialog';
 import { usePurchases, Purchase, PurchaseFormData } from '@/hooks/usePurchases';
+import { useSuppliers } from '@/hooks/useSuppliers';
+import { useBalance } from '@/hooks/useBalance';
 import { formatBDT, bn, formatNumberBn } from '@/lib/constants';
 import { toast } from 'sonner';
 
@@ -34,6 +36,9 @@ export default function Purchases() {
     products,
   } = usePurchases();
 
+  const { adjustDue } = useSuppliers();
+  const { balance, deductBalance, refreshBalance } = useBalance();
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
@@ -42,8 +47,20 @@ export default function Purchases() {
     setIsFormOpen(true);
   };
 
-  const handleFormSubmit = (data: PurchaseFormData) => {
-    addPurchase(data);
+  const handleFormSubmit = async (data: PurchaseFormData & { deductFromBalance: boolean }) => {
+    const purchase = addPurchase(data);
+    
+    // Update supplier due if there's due amount
+    if (purchase.due_amount > 0 && purchase.supplier_id) {
+      adjustDue(purchase.supplier_id, purchase.due_amount, 'add');
+    }
+    
+    // Deduct from balance if paid amount exists and option selected
+    if (data.paid_amount > 0 && data.deductFromBalance) {
+      await deductBalance(data.paid_amount, `ক্রয় পেমেন্ট - ${purchase.invoice_number}`);
+      await refreshBalance();
+    }
+    
     toast.success('নতুন ক্রয় সংরক্ষণ হয়েছে');
   };
 
@@ -184,6 +201,7 @@ export default function Purchases() {
         onSubmit={handleFormSubmit}
         suppliers={suppliers}
         products={products}
+        currentBalance={balance?.current_balance || 0}
       />
 
       <PurchaseViewDialog
