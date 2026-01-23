@@ -87,6 +87,10 @@ const translations: Record<Language, Record<string, string>> = {
     'quickAction.newPurchase': 'নতুন ক্রয়',
     'quickAction.quickStock': 'দ্রুত স্টক',
     'quickAction.customers': 'গ্রাহক',
+    'quickAction.sale': 'বিক্রয়',
+    'quickAction.purchase': 'ক্রয়',
+    'quickAction.stock': 'স্টক',
+    'quickAction.customer': 'গ্রাহক',
     
     // Products
     'products.title': 'পণ্য তালিকা',
@@ -321,6 +325,10 @@ const translations: Record<Language, Record<string, string>> = {
     'quickAction.newPurchase': 'New Purchase',
     'quickAction.quickStock': 'Quick Stock',
     'quickAction.customers': 'Customers',
+    'quickAction.sale': 'Sale',
+    'quickAction.purchase': 'Purchase',
+    'quickAction.stock': 'Stock',
+    'quickAction.customer': 'Customer',
     
     // Products
     'products.title': 'Products',

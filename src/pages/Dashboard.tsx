@@ -130,12 +130,12 @@ export default function Dashboard() {
     }
   };
 
-  // Quick actions
+  // Quick actions - Short labels
   const quickActions = [
-    { label: t('quickAction.newSale'), icon: ShoppingCart, path: '/pos', variant: 'primary' as const },
-    { label: t('quickAction.newPurchase'), icon: Truck, path: '/purchases/new', variant: 'default' as const },
-    { label: t('quickAction.quickStock'), icon: PackagePlus, path: '/quick-stock', variant: 'default' as const },
-    { label: t('quickAction.customers'), icon: Users, path: '/customers', variant: 'default' as const },
+    { label: t('quickAction.sale'), icon: ShoppingCart, path: '/pos', variant: 'primary' as const },
+    { label: t('quickAction.purchase'), icon: Truck, path: '/purchases/new', variant: 'default' as const },
+    { label: t('quickAction.stock'), icon: PackagePlus, path: '/quick-stock', variant: 'default' as const },
+    { label: t('quickAction.customer'), icon: Users, path: '/customers', variant: 'default' as const },
   ];
 
   return (
@@ -361,9 +361,9 @@ export default function Dashboard() {
                 <action.icon className="h-6 w-6 lg:h-7 lg:w-7 text-white" />
               </div>
               
-              {/* Label */}
+              {/* Label - Larger text */}
               <span className={cn(
-                'text-base lg:text-lg font-extrabold text-center leading-tight',
+                'text-xl lg:text-2xl font-extrabold text-center leading-tight',
                 style.accent
               )}>
                 {action.label}
