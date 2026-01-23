@@ -1,5 +1,6 @@
 import { InvoiceData } from '../types';
 import { formatBDT } from '@/lib/constants';
+import { InvoiceQRCode } from '../InvoiceQRCode';
 
 interface Props {
   invoice: InvoiceData;
@@ -95,9 +96,12 @@ export default function MinimalTemplate({ invoice }: Props) {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="text-center text-xs text-gray-500 mt-12 pt-4 border-t">
-        {invoice.footerNote || 'ধন্যবাদ'}
+      {/* Footer with QR Code */}
+      <div className="flex items-end justify-between mt-12 pt-4 border-t">
+        <div className="text-xs text-gray-500">
+          {invoice.footerNote || 'ধন্যবাদ'}
+        </div>
+        <InvoiceQRCode invoice={invoice} size={64} includeDetails />
       </div>
     </div>
   );

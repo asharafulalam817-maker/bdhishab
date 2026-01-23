@@ -1,5 +1,6 @@
 import { InvoiceData } from '../types';
 import { formatBDT } from '@/lib/constants';
+import { InvoiceQRCode } from '../InvoiceQRCode';
 
 interface Props {
   invoice: InvoiceData;
@@ -154,10 +155,13 @@ export default function ProfessionalTemplate({ invoice }: Props) {
           </div>
         )}
 
-        {/* Store Info Footer */}
-        <div className="mt-8 pt-4 border-t text-center text-xs text-slate-500">
-          {invoice.store.address && <p>{invoice.store.address}</p>}
-          {invoice.store.email && <p>{invoice.store.email}</p>}
+        {/* Store Info Footer with QR */}
+        <div className="mt-8 pt-4 border-t flex items-center justify-between">
+          <div className="text-xs text-slate-500">
+            {invoice.store.address && <p>{invoice.store.address}</p>}
+            {invoice.store.email && <p>{invoice.store.email}</p>}
+          </div>
+          <InvoiceQRCode invoice={invoice} size={64} includeDetails />
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { InvoiceData } from '../types';
 import { formatBDT } from '@/lib/constants';
+import { InvoiceQRCode } from '../InvoiceQRCode';
 
 interface Props {
   invoice: InvoiceData;
@@ -140,11 +141,12 @@ export default function ClassicTemplate({ invoice }: Props) {
         </div>
       )}
 
-      {/* Signature */}
-      <div className="flex justify-between mt-12 pt-4">
+      {/* Signature and QR Code */}
+      <div className="flex justify-between items-end mt-12 pt-4">
         <div className="text-center">
           <div className="border-t border-gray-400 w-40 pt-2">গ্রাহকের স্বাক্ষর</div>
         </div>
+        <InvoiceQRCode invoice={invoice} size={72} includeDetails />
         <div className="text-center">
           <div className="border-t border-gray-400 w-40 pt-2">অনুমোদিত স্বাক্ষর</div>
         </div>
