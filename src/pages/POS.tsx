@@ -11,6 +11,7 @@ import {
   CreditCard,
   Receipt,
   Check,
+  Printer,
 } from 'lucide-react';
 import { bn, formatBDT, formatNumberBn } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import POSInvoiceDialog from '@/components/pos/POSInvoiceDialog';
+import { InvoiceData, InvoiceTemplate } from '@/components/invoice/types';
 
 // Demo products
 const demoProducts = [
@@ -64,6 +67,8 @@ export default function POS() {
   const [paidAmount, setPaidAmount] = useState('');
   const [discount, setDiscount] = useState('');
   const [notes, setNotes] = useState('');
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [currentInvoice, setCurrentInvoice] = useState<InvoiceData | null>(null);
 
   const filteredProducts = demoProducts.filter(
     (p) =>
@@ -145,12 +150,64 @@ export default function POS() {
       return;
     }
 
+    // Generate invoice number
+    const now = new Date();
+    const invoiceNumber = `INV-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
+    
+    // Get customer info
+    const customer = demoCustomers.find(c => c.id === selectedCustomer);
+
+    // Create invoice data
+    const invoiceData: InvoiceData = {
+      id: crypto.randomUUID(),
+      invoiceNumber,
+      invoiceDate: now.toLocaleDateString('bn-BD'),
+      store: {
+        name: 'ডিজিটাল স্টোর',
+        phone: '০১৭১২৩৪৫৬৭৮',
+        address: 'মিরপুর-১০, ঢাকা',
+      },
+      customer: customer ? {
+        name: customer.name,
+        phone: customer.phone,
+      } : undefined,
+      items: cart.map(item => ({
+        id: item.productId,
+        name: item.name,
+        sku: item.sku,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        discount: item.discount,
+        total: item.price * item.quantity - item.discount,
+      })),
+      subtotal,
+      discount: discountAmount,
+      tax: 0,
+      total: grandTotal,
+      paidAmount: paid,
+      dueAmount: due,
+      paymentMethod: paymentMethod === 'cash' ? 'নগদ' : 
+                     paymentMethod === 'bkash' ? 'বিকাশ' : 
+                     paymentMethod === 'nagad' ? 'নগদ' : 
+                     paymentMethod === 'bank' ? 'ব্যাংক' : 'বাকি',
+      paymentStatus: due > 0 ? 'partial' : 'paid',
+      notes,
+      footerNote: 'ধন্যবাদ! আবার আসবেন।',
+    };
+
+    setCurrentInvoice(invoiceData);
+    setShowInvoice(true);
+
     toast({
       title: 'বিক্রয় সফল! ✓',
-      description: `চালান নং: INV-202501-005`,
+      description: `চালান নং: ${invoiceNumber}`,
     });
+  };
 
-    // Reset
+  const handleInvoiceClose = () => {
+    setShowInvoice(false);
+    setCurrentInvoice(null);
+    // Reset cart
     setCart([]);
     setPaidAmount('');
     setDiscount('');
@@ -390,6 +447,14 @@ export default function POS() {
           </Card>
         </div>
       </div>
+
+      {/* Invoice Preview Dialog */}
+      <POSInvoiceDialog
+        invoice={currentInvoice}
+        template="minimal"
+        open={showInvoice}
+        onClose={handleInvoiceClose}
+      />
     </motion.div>
   );
 }
