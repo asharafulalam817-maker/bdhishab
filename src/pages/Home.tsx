@@ -19,6 +19,7 @@ import {
   TrendingUp,
   FileText
 } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { motion } from 'framer-motion';
 
 const Home = () => {
@@ -270,6 +271,104 @@ const Home = () => {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section id="faq" className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">সাধারণ জিজ্ঞাসা</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              আমাদের সার্ভিস সম্পর্কে সচরাচর জিজ্ঞাসিত প্রশ্ন ও উত্তর
+            </p>
+          </div>
+
+          <div className="max-w-3xl mx-auto">
+            <Accordion type="single" collapsible className="w-full space-y-4">
+              <AccordionItem value="item-1" className="border rounded-lg px-4 bg-card">
+                <AccordionTrigger className="text-left hover:no-underline">
+                  ডিজিটাল বন্ধু কী ধরনের ব্যবসার জন্য উপযোগী?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  ডিজিটাল বন্ধু সব ধরনের খুচরা দোকান, পাইকারি ব্যবসা, ইলেকট্রনিক্স শপ, মোবাইল শপ, 
+                  হার্ডওয়্যার স্টোর, ফার্মেসি এবং অন্যান্য ছোট-মাঝারি ব্যবসার জন্য উপযোগী। 
+                  যেকোনো ব্যবসা যেখানে স্টক, বিক্রয় এবং কাস্টমার হিসাব রাখতে হয়।
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-2" className="border rounded-lg px-4 bg-card">
+                <AccordionTrigger className="text-left hover:no-underline">
+                  ফ্রি ট্রায়াল কিভাবে কাজ করে?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  আপনি সাইন আপ করার পর ৩ দিন ফ্রি ট্রায়াল পাবেন। এই সময়ে আপনি সব ফিচার ব্যবহার করতে পারবেন। 
+                  ট্রায়াল শেষে আপনার পছন্দমতো প্যাকেজ কিনতে পারবেন। কোনো ক্রেডিট কার্ড লাগবে না।
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-3" className="border rounded-lg px-4 bg-card">
+                <AccordionTrigger className="text-left hover:no-underline">
+                  পেমেন্ট কিভাবে করব?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  আপনি bKash, Nagad বা Rocket এর মাধ্যমে পেমেন্ট করতে পারবেন। পেমেন্ট করার পর 
+                  ট্রানজেকশন আইডি জমা দিন, আমরা ভেরিফাই করে আপনার সাবস্ক্রিপশন একটিভ করে দেব।
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-4" className="border rounded-lg px-4 bg-card">
+                <AccordionTrigger className="text-left hover:no-underline">
+                  একটি অ্যাকাউন্টে কতগুলো ডিভাইসে ব্যবহার করা যাবে?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  সব প্যাকেজে আপনি ৩টি ডিভাইসে একসাথে ব্যবহার করতে পারবেন। অর্থাৎ আপনি একই অ্যাকাউন্ট 
+                  দিয়ে ফোন, ট্যাবলেট এবং কম্পিউটারে লগইন করতে পারবেন।
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-5" className="border rounded-lg px-4 bg-card">
+                <AccordionTrigger className="text-left hover:no-underline">
+                  আমার ডেটা কি নিরাপদ?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  হ্যাঁ, আপনার সব ডেটা এনক্রিপ্টেড এবং সুরক্ষিত ক্লাউড সার্ভারে সংরক্ষিত। 
+                  আমরা নিয়মিত ব্যাকআপ রাখি এবং আপনার ডেটার নিরাপত্তা নিশ্চিত করি। 
+                  শুধুমাত্র আপনি আপনার ডেটা দেখতে পারবেন।
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-6" className="border rounded-lg px-4 bg-card">
+                <AccordionTrigger className="text-left hover:no-underline">
+                  ইন্টারনেট ছাড়া কি কাজ করবে?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  ডিজিটাল বন্ধু অনলাইন ভিত্তিক সফটওয়্যার, তাই ইন্টারনেট সংযোগ প্রয়োজন। 
+                  তবে খুব কম ইন্টারনেট স্পিডেও এটি ভালোভাবে কাজ করে। মোবাইল ডেটা দিয়েও ব্যবহার করা যায়।
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-7" className="border rounded-lg px-4 bg-card">
+                <AccordionTrigger className="text-left hover:no-underline">
+                  সাপোর্ট কিভাবে পাব?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  আমাদের ফোন নম্বর 01712-022987 এ কল করতে পারেন বা WhatsApp এ মেসেজ দিতে পারেন। 
+                  এছাড়াও অ্যাপের ভেতরে সাপোর্ট চ্যাট অপশন আছে। আমরা সকাল ৯টা থেকে রাত ১০টা পর্যন্ত সাপোর্ট দিই।
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-8" className="border rounded-lg px-4 bg-card">
+                <AccordionTrigger className="text-left hover:no-underline">
+                  সাবস্ক্রিপশন বাতিল করলে ডেটা কি হারিয়ে যাবে?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  না, সাবস্ক্রিপশন শেষ হলেও আপনার ডেটা ৩০ দিন পর্যন্ত সংরক্ষিত থাকবে। 
+                  এই সময়ের মধ্যে রিনিউ করলে সব ডেটা আগের মতোই পাবেন। শুধু নতুন এন্ট্রি করতে পারবেন না।
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Section */}
       <section id="contact" className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
@@ -334,6 +433,7 @@ const Home = () => {
               <ul className="space-y-2 text-muted-foreground">
                 <li><a href="#features" className="hover:text-primary transition-colors">সুবিধাসমূহ</a></li>
                 <li><a href="#pricing" className="hover:text-primary transition-colors">প্যাকেজ</a></li>
+                <li><a href="#faq" className="hover:text-primary transition-colors">জিজ্ঞাসা</a></li>
                 <li><a href="#contact" className="hover:text-primary transition-colors">যোগাযোগ</a></li>
               </ul>
             </div>
