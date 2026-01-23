@@ -179,6 +179,25 @@ export function useSales() {
     setSales(sales.map(s => s.id === id ? { ...s, ...saleData } : s));
   };
 
+  const recordDuePayment = (id: string, paymentAmount: number) => {
+    setSales(sales.map(s => {
+      if (s.id !== id) return s;
+      
+      const newPaidAmount = s.paidAmount + paymentAmount;
+      const newDueAmount = Math.max(0, s.total - newPaidAmount);
+      const newPaymentStatus: Sale['paymentStatus'] = 
+        newDueAmount === 0 ? 'paid' : 
+        newPaidAmount > 0 ? 'partial' : 'due';
+      
+      return {
+        ...s,
+        paidAmount: newPaidAmount,
+        dueAmount: newDueAmount,
+        paymentStatus: newPaymentStatus,
+      };
+    }));
+  };
+
   const deleteSale = (id: string) => {
     setSales(sales.filter(s => s.id !== id));
   };
@@ -199,6 +218,7 @@ export function useSales() {
     setDateFilter,
     createSale,
     updateSale,
+    recordDuePayment,
     deleteSale,
     getSaleById,
     generateInvoiceNumber,
