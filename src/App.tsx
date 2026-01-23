@@ -9,6 +9,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 // App Pages
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
+import StockManagement from "./pages/StockManagement";
 import Customers from "./pages/Customers";
 import Suppliers from "./pages/Suppliers";
 import Purchases from "./pages/Purchases";
@@ -36,11 +37,12 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
               <Route path="/products/new" element={<Products />} />
-              <Route path="/inventory/ledger" element={<Products />} />
-              <Route path="/inventory/stock-in" element={<Products />} />
-              <Route path="/inventory/stock-out" element={<Products />} />
-              <Route path="/inventory/adjustment" element={<Products />} />
-              <Route path="/inventory/low-stock" element={<Products />} />
+              <Route path="/stock" element={<StockManagement />} />
+              <Route path="/inventory/ledger" element={<StockManagement />} />
+              <Route path="/inventory/stock-in" element={<StockManagement />} />
+              <Route path="/inventory/stock-out" element={<StockManagement />} />
+              <Route path="/inventory/adjustment" element={<StockManagement />} />
+              <Route path="/inventory/low-stock" element={<StockManagement />} />
               <Route path="/suppliers" element={<Suppliers />} />
               <Route path="/purchases" element={<Purchases />} />
               <Route path="/purchases/new" element={<Purchases />} />
