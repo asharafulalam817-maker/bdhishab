@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Search, ShieldCheck, Printer } from 'lucide-react';
+import { Search, ShieldCheck, Printer, AlertTriangle, Plus } from 'lucide-react';
 import { bn } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { WarrantyCard } from '@/components/warranty/WarrantyCard';
 import { WarrantyPrintCard } from '@/components/warranty/WarrantyPrintCard';
+import { WarrantyClaimDialog, WarrantyClaim } from '@/components/warranty/WarrantyClaimDialog';
+import { WarrantyClaimCard } from '@/components/warranty/WarrantyClaimCard';
 import { toast } from 'sonner';
 
 interface WarrantyData {
@@ -30,10 +32,45 @@ const demoWarranties: WarrantyData[] = [
   { id: '4', invoiceNo: 'INV-202411-008', product: 'বেসাস চার্জার', customer: 'আবদুল হাকিম', phone: '01612345678', startDate: '2024-11-01', expiryDate: '2025-05-01', status: 'expiring' },
 ];
 
+// Demo claims data
+const demoClaims: WarrantyClaim[] = [
+  {
+    id: 'claim-1',
+    warrantyId: '1',
+    warrantyInfo: { invoiceNo: 'INV-202501-001', product: 'স্যামসাং গ্যালাক্সি A54', customer: 'মোহাম্মদ করিম', phone: '01712345678' },
+    claimDate: '2025-01-20',
+    issueDescription: 'ডিসপ্লে ঠিকমতো কাজ করছে না, টাচ রেসপন্স দিচ্ছে না।',
+    actionTaken: 'সার্ভিস সেন্টারে পাঠানো হয়েছে।',
+    status: 'in_progress',
+    createdAt: '2025-01-20T10:00:00Z',
+    updatedAt: '2025-01-21T14:00:00Z',
+  },
+  {
+    id: 'claim-2',
+    warrantyId: '2',
+    warrantyInfo: { invoiceNo: 'INV-202501-002', product: 'JBL ব্লুটুথ স্পিকার', customer: 'ফাতেমা বেগম', phone: '01812345678' },
+    claimDate: '2025-01-18',
+    issueDescription: 'ব্লুটুথ কানেক্ট হচ্ছে না।',
+    actionTaken: 'রিসেট করা হয়েছে এবং ফার্মওয়্যার আপডেট করা হয়েছে।',
+    resolution: 'সমস্যা সমাধান হয়েছে। ফার্মওয়্যার বাগ ছিল।',
+    status: 'resolved',
+    createdAt: '2025-01-18T09:00:00Z',
+    updatedAt: '2025-01-19T16:00:00Z',
+  },
+];
+
 export default function Warranty() {
   const [searchQuery, setSearchQuery] = useState('');
   const [printDialogOpen, setPrintDialogOpen] = useState(false);
   const [selectedWarranty, setSelectedWarranty] = useState<WarrantyData | null>(null);
+  const [mainTab, setMainTab] = useState('warranties');
+  
+  // Claim management state
+  const [claims, setClaims] = useState<WarrantyClaim[]>(demoClaims);
+  const [claimDialogOpen, setClaimDialogOpen] = useState(false);
+  const [selectedClaimWarranty, setSelectedClaimWarranty] = useState<WarrantyData | null>(null);
+  const [editingClaim, setEditingClaim] = useState<WarrantyClaim | null>(null);
+  
   const printRef = useRef<HTMLDivElement>(null);
 
   // Filter warranties based on search
@@ -48,8 +85,22 @@ export default function Warranty() {
     );
   });
 
+  // Filter claims based on search
+  const filteredClaims = claims.filter((c) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      c.warrantyInfo?.invoiceNo.toLowerCase().includes(query) ||
+      c.warrantyInfo?.product.toLowerCase().includes(query) ||
+      c.warrantyInfo?.customer.toLowerCase().includes(query) ||
+      c.issueDescription.toLowerCase().includes(query)
+    );
+  });
+
   const activeWarranties = filteredWarranties.filter((w) => w.status === 'active');
   const expiringWarranties = filteredWarranties.filter((w) => w.status === 'expiring');
+
+  const pendingClaims = filteredClaims.filter((c) => c.status === 'pending' || c.status === 'in_progress');
+  const resolvedClaims = filteredClaims.filter((c) => c.status === 'resolved' || c.status === 'rejected');
 
   const handleView = (warranty: WarrantyData) => {
     setSelectedWarranty(warranty);
@@ -59,6 +110,49 @@ export default function Warranty() {
   const handlePrint = (warranty: WarrantyData) => {
     setSelectedWarranty(warranty);
     setPrintDialogOpen(true);
+  };
+
+  const handleAddClaim = (warranty: WarrantyData) => {
+    setSelectedClaimWarranty(warranty);
+    setEditingClaim(null);
+    setClaimDialogOpen(true);
+  };
+
+  const handleEditClaim = (claim: WarrantyClaim) => {
+    setEditingClaim(claim);
+    setSelectedClaimWarranty(null);
+    setClaimDialogOpen(true);
+  };
+
+  const handleSaveClaim = (claimData: Partial<WarrantyClaim>) => {
+    if (claimData.id) {
+      // Update existing claim
+      setClaims(prev => prev.map(c => 
+        c.id === claimData.id 
+          ? { ...c, ...claimData, updatedAt: new Date().toISOString() }
+          : c
+      ));
+    } else {
+      // Add new claim
+      const newClaim: WarrantyClaim = {
+        id: `claim-${Date.now()}`,
+        warrantyId: claimData.warrantyId!,
+        warrantyInfo: selectedClaimWarranty ? {
+          invoiceNo: selectedClaimWarranty.invoiceNo,
+          product: selectedClaimWarranty.product,
+          customer: selectedClaimWarranty.customer,
+          phone: selectedClaimWarranty.phone,
+        } : undefined,
+        claimDate: claimData.claimDate || new Date().toISOString().split('T')[0],
+        issueDescription: claimData.issueDescription!,
+        actionTaken: claimData.actionTaken,
+        resolution: claimData.resolution,
+        status: claimData.status || 'pending',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      setClaims(prev => [newClaim, ...prev]);
+    }
   };
 
   const printWarrantyCard = () => {
@@ -125,7 +219,34 @@ export default function Warranty() {
               warranty={warranty}
               onView={handleView}
               onPrint={handlePrint}
+              onAddClaim={handleAddClaim}
             />
+          </motion.div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderClaimList = (claimsList: WarrantyClaim[]) => {
+    if (claimsList.length === 0) {
+      return (
+        <div className="text-center py-12 text-muted-foreground">
+          <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          কোনো ক্লেম পাওয়া যায়নি
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid gap-4">
+        {claimsList.map((claim, i) => (
+          <motion.div
+            key={claim.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+          >
+            <WarrantyClaimCard claim={claim} onEdit={handleEditClaim} />
           </motion.div>
         ))}
       </div>
@@ -140,7 +261,7 @@ export default function Warranty() {
             <ShieldCheck className="h-6 w-6" />
             {bn.warranty.title}
           </h1>
-          <p className="text-muted-foreground">ওয়ারেন্টি তথ্য খুঁজুন এবং ট্র্যাক করুন</p>
+          <p className="text-muted-foreground">ওয়ারেন্টি তথ্য খুঁজুন এবং ক্লেম ট্র্যাক করুন</p>
         </div>
       </div>
 
@@ -158,29 +279,75 @@ export default function Warranty() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="all">
-        <TabsList>
-          <TabsTrigger value="all">
-            সব ({filteredWarranties.length})
+      {/* Main Tabs: Warranties vs Claims */}
+      <Tabs value={mainTab} onValueChange={setMainTab}>
+        <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsTrigger value="warranties" className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4" />
+            ওয়ারেন্টি ({filteredWarranties.length})
           </TabsTrigger>
-          <TabsTrigger value="active">
-            সক্রিয় ({activeWarranties.length})
-          </TabsTrigger>
-          <TabsTrigger value="expiring">
-            মেয়াদ শেষ হচ্ছে ({expiringWarranties.length})
+          <TabsTrigger value="claims" className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4" />
+            ক্লেম ({filteredClaims.length})
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="mt-4">
-          {renderWarrantyList(filteredWarranties)}
+        {/* Warranties Tab */}
+        <TabsContent value="warranties" className="mt-4">
+          <Tabs defaultValue="all">
+            <TabsList>
+              <TabsTrigger value="all">
+                সব ({filteredWarranties.length})
+              </TabsTrigger>
+              <TabsTrigger value="active">
+                সক্রিয় ({activeWarranties.length})
+              </TabsTrigger>
+              <TabsTrigger value="expiring">
+                মেয়াদ শেষ হচ্ছে ({expiringWarranties.length})
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="all" className="mt-4">
+              {renderWarrantyList(filteredWarranties)}
+            </TabsContent>
+
+            <TabsContent value="active" className="mt-4">
+              {renderWarrantyList(activeWarranties)}
+            </TabsContent>
+
+            <TabsContent value="expiring" className="mt-4">
+              {renderWarrantyList(expiringWarranties)}
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
-        <TabsContent value="active" className="mt-4">
-          {renderWarrantyList(activeWarranties)}
-        </TabsContent>
+        {/* Claims Tab */}
+        <TabsContent value="claims" className="mt-4">
+          <Tabs defaultValue="all">
+            <TabsList>
+              <TabsTrigger value="all">
+                সব ({filteredClaims.length})
+              </TabsTrigger>
+              <TabsTrigger value="pending">
+                চলমান ({pendingClaims.length})
+              </TabsTrigger>
+              <TabsTrigger value="resolved">
+                সমাধান ({resolvedClaims.length})
+              </TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="expiring" className="mt-4">
-          {renderWarrantyList(expiringWarranties)}
+            <TabsContent value="all" className="mt-4">
+              {renderClaimList(filteredClaims)}
+            </TabsContent>
+
+            <TabsContent value="pending" className="mt-4">
+              {renderClaimList(pendingClaims)}
+            </TabsContent>
+
+            <TabsContent value="resolved" className="mt-4">
+              {renderClaimList(resolvedClaims)}
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
 
@@ -220,6 +387,15 @@ export default function Warranty() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Claim Dialog */}
+      <WarrantyClaimDialog
+        open={claimDialogOpen}
+        onOpenChange={setClaimDialogOpen}
+        warranty={selectedClaimWarranty || undefined}
+        existingClaim={editingClaim || undefined}
+        onSave={handleSaveClaim}
+      />
     </motion.div>
   );
 }
