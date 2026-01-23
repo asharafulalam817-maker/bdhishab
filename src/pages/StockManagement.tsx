@@ -23,12 +23,14 @@ import {
   XCircle,
   TrendingUp,
   TrendingDown,
+  ScanLine,
 } from 'lucide-react';
 import { useStockManagement } from '@/hooks/useStockManagement';
 import { StockLedgerTable } from '@/components/stock/StockLedgerTable';
 import { StockInDialog } from '@/components/stock/StockInDialog';
 import { StockOutDialog } from '@/components/stock/StockOutDialog';
 import { StockAdjustmentDialog } from '@/components/stock/StockAdjustmentDialog';
+import { BarcodeScanner } from '@/components/pos/BarcodeScanner';
 import { toast } from 'sonner';
 
 export default function StockManagement() {
@@ -49,6 +51,46 @@ export default function StockManagement() {
   const [stockOutOpen, setStockOutOpen] = useState(false);
   const [adjustmentOpen, setAdjustmentOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [scanAction, setScanAction] = useState<'in' | 'out'>('in');
+  const [preselectedProductId, setPreselectedProductId] = useState<string | undefined>();
+
+  const handleBarcodeScan = (barcode: string) => {
+    // Find product by barcode or SKU
+    const product = products.find(
+      (p) => p.barcode === barcode || p.sku === barcode
+    );
+
+    if (product) {
+      setPreselectedProductId(product.id);
+      setIsScannerOpen(false);
+      
+      if (scanAction === 'in') {
+        setStockInOpen(true);
+        toast.success(`"${product.name}" স্টক ইন এর জন্য সিলেক্ট হয়েছে`);
+      } else {
+        if (product.stock > 0) {
+          setStockOutOpen(true);
+          toast.success(`"${product.name}" স্টক আউট এর জন্য সিলেক্ট হয়েছে`);
+        } else {
+          toast.error(`"${product.name}" এর স্টক নেই`);
+        }
+      }
+    } else {
+      setIsScannerOpen(false);
+      toast.error(`বারকোড "${barcode}" দিয়ে কোনো পণ্য পাওয়া যায়নি`);
+    }
+  };
+
+  const openScannerForStockIn = () => {
+    setScanAction('in');
+    setIsScannerOpen(true);
+  };
+
+  const openScannerForStockOut = () => {
+    setScanAction('out');
+    setIsScannerOpen(true);
+  };
 
   const handleStockIn = (
     productId: string,
@@ -97,20 +139,46 @@ export default function StockManagement() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button
-            onClick={() => setStockInOpen(true)}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            <PackagePlus className="h-4 w-4 mr-2" />
-            স্টক ইন
-          </Button>
-          <Button
-            onClick={() => setStockOutOpen(true)}
-            variant="destructive"
-          >
-            <PackageMinus className="h-4 w-4 mr-2" />
-            স্টক আউট
-          </Button>
+          <div className="flex gap-1">
+            <Button
+              onClick={() => {
+                setPreselectedProductId(undefined);
+                setStockInOpen(true);
+              }}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <PackagePlus className="h-4 w-4 mr-2" />
+              স্টক ইন
+            </Button>
+            <Button
+              onClick={openScannerForStockIn}
+              size="icon"
+              className="bg-green-600 hover:bg-green-700"
+              title="বারকোড স্ক্যান করে স্টক ইন"
+            >
+              <ScanLine className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex gap-1">
+            <Button
+              onClick={() => {
+                setPreselectedProductId(undefined);
+                setStockOutOpen(true);
+              }}
+              variant="destructive"
+            >
+              <PackageMinus className="h-4 w-4 mr-2" />
+              স্টক আউট
+            </Button>
+            <Button
+              onClick={openScannerForStockOut}
+              size="icon"
+              variant="destructive"
+              title="বারকোড স্ক্যান করে স্টক আউট"
+            >
+              <ScanLine className="h-4 w-4" />
+            </Button>
+          </div>
           <Button
             onClick={() => setAdjustmentOpen(true)}
             variant="outline"
@@ -335,16 +403,24 @@ export default function StockManagement() {
       {/* Dialogs */}
       <StockInDialog
         open={stockInOpen}
-        onOpenChange={setStockInOpen}
+        onOpenChange={(open) => {
+          setStockInOpen(open);
+          if (!open) setPreselectedProductId(undefined);
+        }}
         products={products}
         onSubmit={handleStockIn}
+        preselectedProductId={preselectedProductId}
       />
 
       <StockOutDialog
         open={stockOutOpen}
-        onOpenChange={setStockOutOpen}
+        onOpenChange={(open) => {
+          setStockOutOpen(open);
+          if (!open) setPreselectedProductId(undefined);
+        }}
         products={products}
         onSubmit={handleStockOut}
+        preselectedProductId={preselectedProductId}
       />
 
       <StockAdjustmentDialog
@@ -352,6 +428,12 @@ export default function StockManagement() {
         onOpenChange={setAdjustmentOpen}
         products={products}
         onSubmit={handleAdjustment}
+      />
+
+      <BarcodeScanner
+        open={isScannerOpen}
+        onOpenChange={setIsScannerOpen}
+        onScan={handleBarcodeScan}
       />
     </motion.div>
   );

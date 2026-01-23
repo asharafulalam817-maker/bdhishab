@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -28,6 +28,7 @@ interface StockInDialogProps {
     quantity: number,
     options?: { batchNumber?: string; serialNumber?: string; notes?: string }
   ) => void;
+  preselectedProductId?: string;
 }
 
 export function StockInDialog({
@@ -35,12 +36,20 @@ export function StockInDialog({
   onOpenChange,
   products,
   onSubmit,
+  preselectedProductId,
 }: StockInDialogProps) {
   const [productId, setProductId] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [batchNumber, setBatchNumber] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
   const [notes, setNotes] = useState('');
+
+  // Set preselected product when dialog opens
+  React.useEffect(() => {
+    if (open && preselectedProductId) {
+      setProductId(preselectedProductId);
+    }
+  }, [open, preselectedProductId]);
 
   const selectedProduct = products.find(p => p.id === productId);
 
