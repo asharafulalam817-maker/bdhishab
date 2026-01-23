@@ -301,25 +301,29 @@ export default function Dashboard() {
         />
       </motion.div>
 
-      {/* Quick Actions - Obvious Clickable Buttons */}
+      {/* Quick Actions - Premium Vibrant Buttons */}
       <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-5">
         {quickActions.map((action, index) => {
           const styles = [
             {
-              bg: 'bg-blue-600 hover:bg-blue-700',
-              shadow: 'shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40',
+              bg: 'bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700',
+              glow: 'shadow-[0_8px_30px_rgb(59,130,246,0.5)] hover:shadow-[0_12px_40px_rgb(59,130,246,0.6)]',
+              ring: 'ring-2 ring-blue-400/30',
             },
             {
-              bg: 'bg-purple-600 hover:bg-purple-700',
-              shadow: 'shadow-lg shadow-purple-600/30 hover:shadow-xl hover:shadow-purple-600/40',
+              bg: 'bg-gradient-to-br from-purple-500 via-purple-600 to-violet-700',
+              glow: 'shadow-[0_8px_30px_rgb(147,51,234,0.5)] hover:shadow-[0_12px_40px_rgb(147,51,234,0.6)]',
+              ring: 'ring-2 ring-purple-400/30',
             },
             {
-              bg: 'bg-teal-600 hover:bg-teal-700',
-              shadow: 'shadow-lg shadow-teal-600/30 hover:shadow-xl hover:shadow-teal-600/40',
+              bg: 'bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-700',
+              glow: 'shadow-[0_8px_30px_rgb(20,184,166,0.5)] hover:shadow-[0_12px_40px_rgb(20,184,166,0.6)]',
+              ring: 'ring-2 ring-teal-400/30',
             },
             {
-              bg: 'bg-rose-600 hover:bg-rose-700',
-              shadow: 'shadow-lg shadow-rose-600/30 hover:shadow-xl hover:shadow-rose-600/40',
+              bg: 'bg-gradient-to-br from-rose-500 via-pink-600 to-fuchsia-700',
+              glow: 'shadow-[0_8px_30px_rgb(244,63,94,0.5)] hover:shadow-[0_12px_40px_rgb(244,63,94,0.6)]',
+              ring: 'ring-2 ring-rose-400/30',
             },
           ];
           
@@ -328,33 +332,37 @@ export default function Dashboard() {
           return (
             <motion.button
               key={action.path}
-              whileHover={{ scale: 1.03, y: -3 }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.05, y: -4 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => navigate(action.path)}
               className={cn(
-                'group relative flex flex-col items-center justify-center gap-2 lg:gap-3 p-4 lg:p-5 rounded-xl text-white font-bold transition-all duration-200 cursor-pointer active:scale-95',
+                'group relative flex flex-col items-center justify-center gap-2 lg:gap-3 p-4 lg:p-5 rounded-2xl text-white font-bold transition-all duration-300 cursor-pointer overflow-hidden',
                 style.bg,
-                style.shadow
+                style.glow,
+                style.ring
               )}
             >
-              {/* Plus badge - indicates action */}
-              <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
-                <span className="text-lg font-black text-gray-800">+</span>
+              {/* Shimmer effect overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              
+              {/* Plus badge - premium style */}
+              <div className="absolute -top-1 -right-1 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg ring-2 ring-white/50">
+                <span className="text-lg font-black bg-gradient-to-br from-gray-700 to-gray-900 bg-clip-text text-transparent">+</span>
               </div>
               
-              {/* Icon */}
-              <div className="p-3 rounded-full bg-white/20">
-                <action.icon className="h-6 w-6 lg:h-7 lg:w-7" />
+              {/* Icon with glass effect */}
+              <div className="p-3 rounded-full bg-white/25 backdrop-blur-sm border border-white/30 shadow-inner">
+                <action.icon className="h-6 w-6 lg:h-7 lg:w-7 drop-shadow-sm" />
               </div>
               
               {/* Label */}
-              <span className="text-sm lg:text-base font-bold text-center leading-tight">
+              <span className="text-sm lg:text-base font-bold text-center leading-tight drop-shadow-md">
                 {action.label}
               </span>
               
-              {/* Click hint */}
-              <span className="text-[10px] lg:text-xs opacity-80 font-medium">
-                {t('common.clickHere')}
+              {/* Click hint with arrow */}
+              <span className="text-[10px] lg:text-xs opacity-90 font-semibold flex items-center gap-1">
+                {t('common.clickHere')} →
               </span>
             </motion.button>
           );
