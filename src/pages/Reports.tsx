@@ -11,6 +11,7 @@ import {
   Download,
   ArrowUp,
   ArrowDown,
+  PieChart,
 } from 'lucide-react';
 import { bn, formatBDT, formatNumberBn, formatDateBn } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useReports } from '@/hooks/useReports';
+import { ProfitLossReport } from '@/components/reports/ProfitLossReport';
 import {
   AreaChart,
   Area,
@@ -40,6 +42,7 @@ import {
 
 export default function Reports() {
   const { summary, chartData, topProducts, customerDues, profitMargin } = useReports();
+  const [activeTab, setActiveTab] = useState('overview');
 
   const statCards = [
     {
@@ -97,7 +100,20 @@ export default function Reports() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="overview" className="gap-2">
+            <ShoppingBag className="h-4 w-4" />
+            সারসংক্ষেপ
+          </TabsTrigger>
+          <TabsTrigger value="profit-loss" className="gap-2">
+            <PieChart className="h-4 w-4" />
+            লাভ-ক্ষতি
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {statCards.map((stat, index) => (
           <motion.div
@@ -275,6 +291,12 @@ export default function Reports() {
           </CardContent>
         </Card>
       </div>
+        </TabsContent>
+
+        <TabsContent value="profit-loss">
+          <ProfitLossReport />
+        </TabsContent>
+      </Tabs>
     </motion.div>
   );
 }
