@@ -301,45 +301,89 @@ export default function Dashboard() {
         />
       </motion.div>
 
-      {/* Quick Actions - Highlighted Buttons */}
-      <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4">
+      {/* Quick Actions - Premium Buttons */}
+      <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-5">
         {quickActions.map((action, index) => {
-          const gradients = [
-            'bg-gradient-to-br from-blue-600 via-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-blue-500/30',
-            'bg-gradient-to-br from-purple-600 via-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 shadow-purple-500/30',
-            'bg-gradient-to-br from-teal-600 via-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 shadow-teal-500/30',
-            'bg-gradient-to-br from-rose-600 via-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 shadow-rose-500/30',
+          const styles = [
+            {
+              gradient: 'from-blue-500 via-blue-600 to-indigo-600',
+              shadow: 'shadow-blue-500/40',
+              glow: 'bg-blue-400',
+              ring: 'ring-blue-400/30',
+            },
+            {
+              gradient: 'from-violet-500 via-purple-600 to-fuchsia-600',
+              shadow: 'shadow-purple-500/40',
+              glow: 'bg-purple-400',
+              ring: 'ring-purple-400/30',
+            },
+            {
+              gradient: 'from-emerald-500 via-teal-600 to-cyan-600',
+              shadow: 'shadow-teal-500/40',
+              glow: 'bg-teal-400',
+              ring: 'ring-teal-400/30',
+            },
+            {
+              gradient: 'from-rose-500 via-pink-600 to-red-600',
+              shadow: 'shadow-rose-500/40',
+              glow: 'bg-rose-400',
+              ring: 'ring-rose-400/30',
+            },
           ];
+          
+          const style = styles[index];
           
           return (
             <motion.button
               key={action.path}
-              whileHover={{ scale: 1.03, y: -2 }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.05, y: -4 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => navigate(action.path)}
               className={cn(
-                'relative group flex flex-col items-center justify-center gap-2 lg:gap-3 p-4 lg:p-5 rounded-xl text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer border-0',
-                gradients[index]
+                'relative group flex flex-col items-center justify-center gap-3 lg:gap-4 p-5 lg:p-6 rounded-2xl text-white font-medium transition-all duration-300 cursor-pointer overflow-hidden',
+                `bg-gradient-to-br ${style.gradient}`,
+                `shadow-xl ${style.shadow} hover:shadow-2xl`,
+                `ring-2 ${style.ring} hover:ring-4`
               )}
             >
-              {/* Glow effect */}
-              <div className="absolute inset-0 rounded-xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Animated background glow */}
+              <div className={cn(
+                'absolute -inset-1 rounded-2xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500',
+                style.glow
+              )} />
               
-              {/* Icon with background */}
-              <div className="relative p-3 rounded-full bg-white/20 group-hover:bg-white/30 transition-colors">
-                <action.icon className="h-6 w-6 lg:h-7 lg:w-7" />
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               </div>
               
-              {/* Label */}
-              <span className="relative text-sm lg:text-base font-bold text-center leading-tight">
+              {/* Decorative circles */}
+              <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-white/10 blur-sm" />
+              <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-white/5 blur-sm" />
+              
+              {/* Icon with animated ring */}
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full bg-white/30 blur group-hover:blur-md transition-all duration-300 scale-110" />
+                <div className="relative p-4 rounded-full bg-white/25 backdrop-blur-sm group-hover:bg-white/35 transition-all duration-300 ring-2 ring-white/30">
+                  <action.icon className="h-7 w-7 lg:h-8 lg:w-8 drop-shadow-lg" />
+                </div>
+              </div>
+              
+              {/* Label with shadow */}
+              <span className="relative text-base lg:text-lg font-extrabold text-center leading-tight drop-shadow-md">
                 {action.label}
               </span>
               
-              {/* Arrow indicator */}
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+              {/* Bottom accent line */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-white/40 rounded-full opacity-0 group-hover:opacity-100 group-hover:w-20 transition-all duration-300" />
+              
+              {/* Corner arrow indicator */}
+              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <div className="p-1.5 rounded-full bg-white/20 backdrop-blur-sm">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </div>
               </div>
             </motion.button>
           );
