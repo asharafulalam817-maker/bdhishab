@@ -956,6 +956,57 @@ export type Database = {
           },
         ]
       }
+      store_subscriptions: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          is_active: boolean
+          package_id: string | null
+          start_date: string
+          store_id: string
+          subscription_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          is_active?: boolean
+          package_id?: string | null
+          start_date?: string
+          store_id: string
+          subscription_type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          is_active?: boolean
+          package_id?: string | null
+          start_date?: string
+          store_id?: string
+          subscription_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_subscriptions_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_subscriptions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stores: {
         Row: {
           address: string | null
@@ -1042,6 +1093,108 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      subscription_packages: {
+        Row: {
+          created_at: string
+          duration_months: number
+          features: Json | null
+          id: string
+          is_active: boolean
+          max_devices: number
+          name: string
+          name_bn: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration_months: number
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          max_devices?: number
+          name: string
+          name_bn: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration_months?: number
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          max_devices?: number
+          name?: string
+          name_bn?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscription_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          package_id: string
+          payment_method: string
+          rejection_reason: string | null
+          sender_number: string
+          status: string
+          store_id: string
+          transaction_id: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          package_id: string
+          payment_method: string
+          rejection_reason?: string | null
+          sender_number: string
+          status?: string
+          store_id: string
+          transaction_id: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          package_id?: string
+          payment_method?: string
+          rejection_reason?: string | null
+          sender_number?: string
+          status?: string
+          store_id?: string
+          transaction_id?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_payments_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_payments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       suppliers: {
         Row: {
@@ -1335,7 +1488,10 @@ export type Database = {
         Args: { _store_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      has_active_subscription: { Args: { _store_id: string }; Returns: boolean }
+      has_paid_subscription: { Args: { _store_id: string }; Returns: boolean }
       is_manager_or_owner: { Args: { _store_id: string }; Returns: boolean }
+      is_on_trial: { Args: { _store_id: string }; Returns: boolean }
       is_owner: { Args: { _store_id: string }; Returns: boolean }
       is_platform_admin: { Args: { _user_id?: string }; Returns: boolean }
       is_staff_or_higher: { Args: { _store_id: string }; Returns: boolean }
