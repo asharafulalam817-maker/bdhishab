@@ -17,6 +17,7 @@ import {
   Receipt,
   CreditCard,
   PiggyBank,
+  PackagePlus,
 } from 'lucide-react';
 import { bn, formatBDT, formatNumberBn } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -129,7 +130,7 @@ export default function Dashboard() {
   const quickActions = [
     { label: 'নতুন বিক্রয়', icon: ShoppingCart, path: '/pos', variant: 'primary' as const },
     { label: 'নতুন ক্রয়', icon: Truck, path: '/purchases/new', variant: 'default' as const },
-    { label: 'পণ্য যোগ', icon: Package, path: '/products/new', variant: 'default' as const },
+    { label: 'দ্রুত স্টক', icon: PackagePlus, path: '/quick-stock', variant: 'default' as const },
     { label: 'গ্রাহক', icon: Users, path: '/customers', variant: 'default' as const },
   ];
 

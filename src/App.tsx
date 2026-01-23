@@ -20,6 +20,7 @@ import Warranty from "./pages/Warranty";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
+import QuickStock from "./pages/QuickStock";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/inventory/stock-out" element={<StockManagement />} />
               <Route path="/inventory/adjustment" element={<StockManagement />} />
               <Route path="/inventory/low-stock" element={<StockManagement />} />
+              <Route path="/quick-stock" element={<QuickStock />} />
               <Route path="/suppliers" element={<Suppliers />} />
               <Route path="/purchases" element={<Purchases />} />
               <Route path="/purchases/new" element={<Purchases />} />
