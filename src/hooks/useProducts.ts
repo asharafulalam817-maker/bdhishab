@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 export interface Product {
   id: string;
   name: string;
+  description?: string;
   sku: string;
   barcode?: string;
   category: string;
