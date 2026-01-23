@@ -148,10 +148,10 @@ export default function Dashboard() {
       {/* Minimal Header */}
       <motion.div variants={item} className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl lg:text-2xl font-bold text-foreground">
+          <h1 className="text-2xl lg:text-3xl font-extrabold text-foreground">
             {t('dashboard.welcome')}, {demoProfile.full_name?.split(' ')[0]}! 👋
           </h1>
-          <p className="text-sm text-muted-foreground hidden sm:block">
+          <p className="text-base font-medium text-muted-foreground hidden sm:block">
             {format(new Date(), 'd MMMM yyyy', { locale: dateLocale })}
           </p>
         </div>
@@ -159,9 +159,9 @@ export default function Dashboard() {
           variant="ghost" 
           size="icon" 
           onClick={() => refetchStats()}
-          className="h-9 w-9"
+          className="h-10 w-10"
         >
-          <RefreshCw className="h-4 w-4" />
+          <RefreshCw className="h-5 w-5" />
         </Button>
       </motion.div>
 
@@ -169,19 +169,19 @@ export default function Dashboard() {
       <motion.div variants={item} className="grid grid-cols-2 md:grid-cols-4 gap-2 lg:gap-3">
         {/* Total Cash */}
         <Card className="bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground border-0 shadow-lg shadow-primary/20">
-          <CardContent className="p-3 lg:p-4">
+          <CardContent className="p-4 lg:p-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">{t('dashboard.totalCash')}</p>
-                <p className="text-lg lg:text-2xl font-bold tracking-tight">
+                <p className="text-sm font-bold opacity-90 mb-1 truncate">{t('dashboard.totalCash')}</p>
+                <p className="text-xl lg:text-3xl font-extrabold tracking-tight">
                   {balanceLoading ? '...' : formatBDT(balance?.current_balance || 0)}
                 </p>
-                <p className="text-[10px] opacity-75 mt-0.5 truncate">
+                <p className="text-xs font-medium opacity-75 mt-1 truncate">
                   {t('dashboard.cashOnHand')}
                 </p>
               </div>
-              <div className="p-2 rounded-lg bg-white/20 shrink-0">
-                <Wallet className="h-4 w-4" />
+              <div className="p-2.5 rounded-lg bg-white/20 shrink-0">
+                <Wallet className="h-5 w-5" />
               </div>
             </div>
           </CardContent>
@@ -189,19 +189,19 @@ export default function Dashboard() {
 
         {/* Total Stock Value */}
         <Card className="bg-gradient-to-br from-emerald-600 via-emerald-600 to-emerald-500 text-white border-0 shadow-lg shadow-emerald-600/20">
-          <CardContent className="p-3 lg:p-4">
+          <CardContent className="p-4 lg:p-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">{t('dashboard.totalStockValue')}</p>
-                <p className="text-lg lg:text-2xl font-bold tracking-tight">
+                <p className="text-sm font-bold opacity-90 mb-1 truncate">{t('dashboard.totalStockValue')}</p>
+                <p className="text-xl lg:text-3xl font-extrabold tracking-tight">
                   {isLoadingExtras ? '...' : formatBDT(totalStockValue)}
                 </p>
-                <p className="text-[10px] opacity-75 mt-0.5 truncate">
+                <p className="text-xs font-medium opacity-75 mt-1 truncate">
                   {t('dashboard.allProductsValue')}
                 </p>
               </div>
-              <div className="p-2 rounded-lg bg-white/20 shrink-0">
-                <Package className="h-4 w-4" />
+              <div className="p-2.5 rounded-lg bg-white/20 shrink-0">
+                <Package className="h-5 w-5" />
               </div>
             </div>
           </CardContent>
@@ -209,19 +209,19 @@ export default function Dashboard() {
 
         {/* Total Due Amount */}
         <Card className="bg-gradient-to-br from-orange-500 via-orange-500 to-orange-400 text-white border-0 shadow-lg shadow-orange-500/20">
-          <CardContent className="p-3 lg:p-4">
+          <CardContent className="p-4 lg:p-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">{t('dashboard.totalReceivables')}</p>
-                <p className="text-lg lg:text-2xl font-bold tracking-tight">
+                <p className="text-sm font-bold opacity-90 mb-1 truncate">{t('dashboard.totalReceivables')}</p>
+                <p className="text-xl lg:text-3xl font-extrabold tracking-tight">
                   {isLoadingExtras ? '...' : formatBDT(totalDueAmount)}
                 </p>
-                <p className="text-[10px] opacity-75 mt-0.5 truncate">
+                <p className="text-xs font-medium opacity-75 mt-1 truncate">
                   {t('dashboard.customerDues')}
                 </p>
               </div>
-              <div className="p-2 rounded-lg bg-white/20 shrink-0">
-                <CreditCard className="h-4 w-4" />
+              <div className="p-2.5 rounded-lg bg-white/20 shrink-0">
+                <CreditCard className="h-5 w-5" />
               </div>
             </div>
           </CardContent>
@@ -229,19 +229,19 @@ export default function Dashboard() {
 
         {/* Total Capital (Combined) - 4th position */}
         <Card className="bg-gradient-to-br from-violet-600 via-violet-600 to-violet-500 text-white border-0 shadow-lg shadow-violet-600/20">
-          <CardContent className="p-3 lg:p-4">
+          <CardContent className="p-4 lg:p-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">{t('dashboard.totalCapital')}</p>
-                <p className="text-lg lg:text-2xl font-bold tracking-tight">
+                <p className="text-sm font-bold opacity-90 mb-1 truncate">{t('dashboard.totalCapital')}</p>
+                <p className="text-xl lg:text-3xl font-extrabold tracking-tight">
                   {(balanceLoading || isLoadingExtras) ? '...' : formatBDT((balance?.current_balance || 0) + totalStockValue + totalDueAmount)}
                 </p>
-                <p className="text-[10px] opacity-75 mt-0.5 truncate">
+                <p className="text-xs font-medium opacity-75 mt-1 truncate">
                   {t('dashboard.combined')}
                 </p>
               </div>
-              <div className="p-2 rounded-lg bg-white/20 shrink-0">
-                <PiggyBank className="h-4 w-4" />
+              <div className="p-2.5 rounded-lg bg-white/20 shrink-0">
+                <PiggyBank className="h-5 w-5" />
               </div>
             </div>
           </CardContent>
@@ -331,7 +331,7 @@ export default function Dashboard() {
               </div>
               
               {/* Label */}
-              <span className="relative text-xs lg:text-sm font-semibold text-center leading-tight">
+              <span className="relative text-sm lg:text-base font-bold text-center leading-tight">
                 {action.label}
               </span>
               
@@ -352,7 +352,7 @@ export default function Dashboard() {
         <motion.div variants={item}>
           <Card className="h-full">
             <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <CardTitle className="text-base lg:text-lg font-semibold">{t('dashboard.recentSales')}</CardTitle>
+              <CardTitle className="text-lg lg:text-xl font-bold">{t('dashboard.recentSales')}</CardTitle>
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -382,13 +382,13 @@ export default function Dashboard() {
                           <FileText className="h-4 w-4 text-primary" />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-sm truncate">{sale.customer_name || t('sales.walkIn')}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="font-bold text-base truncate">{sale.customer_name || t('sales.walkIn')}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
                             {sale.invoice_number} • {formatTime(sale.created_at)}
                           </p>
                         </div>
                       </div>
-                      <span className="font-semibold text-sm shrink-0">{formatBDT(sale.total)}</span>
+                      <span className="font-bold text-base shrink-0">{formatBDT(sale.total)}</span>
                     </div>
                   ))}
                 </div>
@@ -414,8 +414,8 @@ export default function Dashboard() {
         <motion.div variants={item}>
           <Card className="h-full">
             <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <CardTitle className="text-base lg:text-lg font-semibold flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-warning" />
+              <CardTitle className="text-lg lg:text-xl font-bold flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-warning" />
                 {t('dashboard.alerts')}
               </CardTitle>
               <Button 
@@ -431,14 +431,14 @@ export default function Dashboard() {
               {/* Stats Row */}
               <div className="grid grid-cols-2 gap-3 px-4 pb-3">
                 <div className="rounded-lg bg-destructive/10 p-3 border border-destructive/20">
-                  <p className="text-xs text-muted-foreground">{t('dashboard.lowStock')}</p>
-                  <p className="text-xl font-bold text-destructive">
+                  <p className="text-sm font-bold text-muted-foreground">{t('dashboard.lowStock')}</p>
+                  <p className="text-2xl font-extrabold text-destructive">
                     {statsLoading ? '...' : formatNumberBn(stats?.lowStockCount || 0)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-warning/10 p-3 border border-warning/20">
-                  <p className="text-xs text-muted-foreground">{t('dashboard.warrantyExpiring')}</p>
-                  <p className="text-xl font-bold text-warning">
+                  <p className="text-sm font-bold text-muted-foreground">{t('dashboard.warrantyExpiring')}</p>
+                  <p className="text-2xl font-extrabold text-warning">
                     {statsLoading ? '...' : formatNumberBn(stats?.warrantyExpiring7 || 0)}
                   </p>
                 </div>
@@ -460,10 +460,10 @@ export default function Dashboard() {
                       onClick={() => navigate('/products')}
                     >
                       <div className="min-w-0">
-                        <p className="font-medium text-sm truncate">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">SKU: {item.sku || 'N/A'}</p>
+                        <p className="font-bold text-base truncate">{item.name}</p>
+                        <p className="text-sm font-medium text-muted-foreground">SKU: {item.sku || 'N/A'}</p>
                       </div>
-                      <Badge variant="destructive" className="shrink-0">
+                      <Badge variant="destructive" className="shrink-0 text-sm font-bold">
                         {formatNumberBn(item.current_stock)} {t('dashboard.pieces')}
                       </Badge>
                     </div>
@@ -519,16 +519,16 @@ function StatCard({ title, value, subtitle, icon: Icon, trend, loading }: StatCa
 
   return (
     <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-3 lg:p-4">
-        <div className="flex items-start justify-between mb-1.5 lg:mb-2">
-          <p className="text-[10px] lg:text-xs text-muted-foreground font-medium leading-tight">{title}</p>
-          <div className={cn('p-1.5 rounded-lg', getTrendColors())}>
-            <Icon className="h-3 w-3 lg:h-3.5 lg:w-3.5" />
+      <CardContent className="p-4 lg:p-5">
+        <div className="flex items-start justify-between mb-2 lg:mb-2.5">
+          <p className="text-xs lg:text-sm text-muted-foreground font-bold leading-tight">{title}</p>
+          <div className={cn('p-2 rounded-lg', getTrendColors())}>
+            <Icon className="h-4 w-4 lg:h-5 lg:w-5" />
           </div>
         </div>
-        <p className="text-base lg:text-lg font-bold text-foreground leading-tight">{value}</p>
+        <p className="text-lg lg:text-xl font-extrabold text-foreground leading-tight">{value}</p>
         {subtitle && (
-          <p className="text-[9px] lg:text-[10px] text-muted-foreground mt-0.5">{subtitle}</p>
+          <p className="text-xs lg:text-sm text-muted-foreground font-medium mt-1">{subtitle}</p>
         )}
       </CardContent>
     </Card>
