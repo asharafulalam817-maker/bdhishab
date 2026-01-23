@@ -301,22 +301,49 @@ export default function Dashboard() {
         />
       </motion.div>
 
-      {/* Quick Actions */}
-      <motion.div variants={item} className="grid grid-cols-4 gap-2 lg:gap-3">
-        {quickActions.map((action) => (
-          <Button
-            key={action.path}
-            variant={action.variant === 'primary' ? 'default' : 'outline'}
-            className={cn(
-              'h-auto py-3 lg:py-4 flex-col gap-1.5 lg:gap-2',
-              action.variant === 'primary' && 'bg-primary hover:bg-primary/90'
-            )}
-            onClick={() => navigate(action.path)}
-          >
-            <action.icon className="h-5 w-5 lg:h-6 lg:w-6" />
-            <span className="text-[11px] lg:text-xs font-medium">{action.label}</span>
-          </Button>
-        ))}
+      {/* Quick Actions - Highlighted Buttons */}
+      <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4">
+        {quickActions.map((action, index) => {
+          const gradients = [
+            'bg-gradient-to-br from-blue-600 via-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-blue-500/30',
+            'bg-gradient-to-br from-purple-600 via-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 shadow-purple-500/30',
+            'bg-gradient-to-br from-teal-600 via-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 shadow-teal-500/30',
+            'bg-gradient-to-br from-rose-600 via-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 shadow-rose-500/30',
+          ];
+          
+          return (
+            <motion.button
+              key={action.path}
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => navigate(action.path)}
+              className={cn(
+                'relative group flex flex-col items-center justify-center gap-2 lg:gap-3 p-4 lg:p-5 rounded-xl text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer border-0',
+                gradients[index]
+              )}
+            >
+              {/* Glow effect */}
+              <div className="absolute inset-0 rounded-xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              {/* Icon with background */}
+              <div className="relative p-3 rounded-full bg-white/20 group-hover:bg-white/30 transition-colors">
+                <action.icon className="h-6 w-6 lg:h-7 lg:w-7" />
+              </div>
+              
+              {/* Label */}
+              <span className="relative text-xs lg:text-sm font-semibold text-center leading-tight">
+                {action.label}
+              </span>
+              
+              {/* Arrow indicator */}
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </motion.button>
+          );
+        })}
       </motion.div>
 
       {/* Two Column Layout */}
