@@ -16,6 +16,7 @@ import { bn, formatBDT, formatNumberBn, formatDateBn } from '@/lib/constants';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { QuickActionButton } from '@/components/dashboard/QuickActionButton';
 import { BalanceCard } from '@/components/balance/BalanceCard';
+import { ExpenseCard } from '@/components/expense/ExpenseCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -179,10 +180,15 @@ export default function Dashboard() {
       </Card>
 
       {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Balance Card */}
         <div className="lg:col-span-1">
           <BalanceCard />
+        </div>
+
+        {/* Expense Card */}
+        <div className="lg:col-span-1">
+          <ExpenseCard />
         </div>
 
         {/* Recent Sales */}

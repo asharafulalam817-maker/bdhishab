@@ -220,6 +220,53 @@ export type Database = {
           },
         ]
       }
+      expenses: {
+        Row: {
+          amount: number
+          category: Database["public"]["Enums"]["expense_category"]
+          created_at: string
+          created_by: string | null
+          description: string | null
+          expense_date: string
+          id: string
+          notes: string | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category?: Database["public"]["Enums"]["expense_category"]
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expense_date?: string
+          id?: string
+          notes?: string | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: Database["public"]["Enums"]["expense_category"]
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expense_date?: string
+          id?: string
+          notes?: string | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           created_at: string
@@ -1297,6 +1344,15 @@ export type Database = {
     Enums: {
       app_role: "owner" | "manager" | "staff" | "platform_admin"
       duration_unit: "days" | "months" | "years"
+      expense_category:
+        | "rent"
+        | "utilities"
+        | "salary"
+        | "inventory"
+        | "maintenance"
+        | "marketing"
+        | "transport"
+        | "other"
       payment_method: "cash" | "bkash" | "nagad" | "bank" | "due" | "mixed"
       payment_status: "paid" | "partial" | "due"
       stock_transaction_type:
@@ -1439,6 +1495,16 @@ export const Constants = {
     Enums: {
       app_role: ["owner", "manager", "staff", "platform_admin"],
       duration_unit: ["days", "months", "years"],
+      expense_category: [
+        "rent",
+        "utilities",
+        "salary",
+        "inventory",
+        "maintenance",
+        "marketing",
+        "transport",
+        "other",
+      ],
       payment_method: ["cash", "bkash", "nagad", "bank", "due", "mixed"],
       payment_status: ["paid", "partial", "due"],
       stock_transaction_type: [
