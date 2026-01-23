@@ -92,7 +92,7 @@ export default function Dashboard() {
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-4 lg:space-y-6 max-w-7xl mx-auto"
+      className="space-y-4 lg:space-y-6 w-full"
     >
       {/* Minimal Header */}
       <motion.div variants={item} className="flex items-center justify-between">

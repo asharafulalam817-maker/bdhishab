@@ -17,11 +17,13 @@ export function DashboardLayout() {
         storeName={demoStore.name}
       />
       
-      <div className="flex flex-1 flex-col lg:ml-0">
+      <div className="flex flex-1 flex-col min-w-0">
         <AppHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
         
-        <main className="flex-1 overflow-auto p-4 lg:p-6">
-          <Outlet />
+        <main className="flex-1 overflow-auto p-4 lg:p-6 xl:p-8">
+          <div className="w-full max-w-[1600px] mx-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
       
