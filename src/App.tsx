@@ -26,6 +26,7 @@ import QuickStock from "./pages/QuickStock";
 
 const queryClient = new QueryClient();
 
+
 // Demo Mode: All routes are accessible without authentication
 const App = () => (
   <QueryClientProvider client={queryClient}>
