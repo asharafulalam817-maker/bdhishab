@@ -112,14 +112,12 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
       </AnimatePresence>
 
       {/* Sidebar */}
-      <motion.aside
-        initial={false}
-        animate={{ x: isOpen ? 0 : -280 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      <aside
         className={cn(
-          'fixed left-0 top-0 z-50 h-full w-[280px] bg-card border-r border-border shadow-lg lg:shadow-none',
-          'flex flex-col',
-          'lg:translate-x-0 lg:static lg:z-auto'
+          'fixed left-0 top-0 z-50 h-full w-[280px] bg-card border-r border-border shadow-lg',
+          'flex flex-col transition-transform duration-300 ease-in-out',
+          'lg:relative lg:translate-x-0 lg:shadow-none lg:z-auto',
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
         {/* Header */}
@@ -232,7 +230,7 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
             </div>
           </div>
         </div>
-      </motion.aside>
+      </aside>
     </>
   );
 }

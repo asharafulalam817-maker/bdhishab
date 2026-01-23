@@ -11,19 +11,19 @@ export function DashboardLayout() {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
+      {/* Sidebar - always visible on lg+ */}
       <AppSidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         storeName={demoStore.name}
       />
       
-      <div className="flex flex-1 flex-col min-w-0">
+      {/* Main content area */}
+      <div className="flex flex-1 flex-col min-w-0 lg:ml-0">
         <AppHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
         
         <main className="flex-1 overflow-auto p-4 lg:p-6 xl:p-8">
-          <div className="w-full max-w-[1600px] mx-auto">
-            <Outlet />
-          </div>
+          <Outlet />
         </main>
       </div>
       
