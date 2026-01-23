@@ -12,7 +12,8 @@ import {
   Filter,
   CreditCard,
 } from 'lucide-react';
-import { bn, formatBDT, formatDateBn, formatNumberBn } from '@/lib/constants';
+import { formatBDT, formatDateBn, formatNumberBn } from '@/lib/constants';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,6 +47,7 @@ import { DuePaymentDialog } from '@/components/sales/DuePaymentDialog';
 import { toast } from 'sonner';
 
 export default function Sales() {
+  const { t } = useLanguage();
   const {
     filteredSales,
     stats,
@@ -84,37 +86,37 @@ export default function Sales() {
       await refreshBalance();
     }
     
-    toast.success(`৳${amount.toLocaleString('bn-BD')} বাকি পরিশোধ সফল হয়েছে!`);
+    toast.success(`৳${amount.toLocaleString('bn-BD')} ${t('sales.duePaymentSuccess')}`);
   };
 
   const handleDeleteSale = (sale: Sale) => {
     deleteSale(sale.id);
-    toast.success(`চালান ${sale.invoiceNumber} মুছে ফেলা হয়েছে`);
+    toast.success(`${t('invoices.invoiceNo')} ${sale.invoiceNumber} ${t('sales.invoiceDeleted')}`);
   };
 
   const handlePrint = (sale: Sale) => {
-    toast.success(`চালান ${sale.invoiceNumber} প্রিন্ট হচ্ছে...`);
+    toast.success(`${t('invoices.invoiceNo')} ${sale.invoiceNumber} ${t('sales.printing')}...`);
   };
 
   const getStatusBadge = (status: Sale['paymentStatus']) => {
     switch (status) {
       case 'paid':
-        return <Badge className="badge-success">পরিশোধিত</Badge>;
+        return <Badge className="badge-success">{t('sales.paid')}</Badge>;
       case 'partial':
-        return <Badge className="badge-warning">আংশিক</Badge>;
+        return <Badge className="badge-warning">{t('sales.partial')}</Badge>;
       case 'due':
-        return <Badge variant="destructive">বাকি</Badge>;
+        return <Badge variant="destructive">{t('common.due')}</Badge>;
     }
   };
 
   const getPaymentMethodLabel = (method: Sale['paymentMethod']) => {
     const labels: Record<Sale['paymentMethod'], string> = {
-      cash: 'নগদ',
-      bkash: 'বিকাশ',
-      nagad: 'নগদ',
-      bank: 'ব্যাংক',
-      due: 'বাকি',
-      mixed: 'মিশ্র',
+      cash: t('pos.cash'),
+      bkash: t('pos.bkash'),
+      nagad: t('pos.nagad'),
+      bank: t('pos.bank'),
+      due: t('pos.due'),
+      mixed: t('sales.partial'),
     };
     return labels[method];
   };
@@ -130,9 +132,9 @@ export default function Sales() {
         <div>
           <h1 className="page-title flex items-center gap-2">
             <Receipt className="h-6 w-6" />
-            {bn.sales.title}
+            {t('sales.title')}
           </h1>
-          <p className="text-muted-foreground">সব বিক্রয় এবং চালান দেখুন</p>
+          <p className="text-muted-foreground">{t('sales.description')}</p>
         </div>
       </div>
 
@@ -141,16 +143,16 @@ export default function Sales() {
         <Card>
           <CardContent className="p-4">
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">আজকের বিক্রয়</p>
+              <p className="text-sm text-muted-foreground">{t('sales.todaySales')}</p>
               <p className="text-2xl font-bold text-primary">{formatBDT(stats.todayTotal)}</p>
-              <p className="text-xs text-muted-foreground">{formatNumberBn(stats.todaySalesCount)} টি চালান</p>
+              <p className="text-xs text-muted-foreground">{formatNumberBn(stats.todaySalesCount)} {t('sales.invoices')}</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">এই মাসের বিক্রয়</p>
+              <p className="text-sm text-muted-foreground">{t('sales.monthlySales')}</p>
               <p className="text-2xl font-bold">{formatBDT(stats.monthTotal)}</p>
             </div>
           </CardContent>
@@ -158,7 +160,7 @@ export default function Sales() {
         <Card>
           <CardContent className="p-4">
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">মোট বাকি</p>
+              <p className="text-sm text-muted-foreground">{t('sales.totalDue')}</p>
               <p className="text-2xl font-bold text-destructive">{formatBDT(stats.totalDue)}</p>
             </div>
           </CardContent>
@@ -166,7 +168,7 @@ export default function Sales() {
         <Card>
           <CardContent className="p-4">
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">মোট চালান</p>
+              <p className="text-sm text-muted-foreground">{t('sales.totalInvoices')}</p>
               <p className="text-2xl font-bold">{formatNumberBn(stats.totalSales)}</p>
             </div>
           </CardContent>
@@ -180,7 +182,7 @@ export default function Sales() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="চালান নং, গ্রাহক বা ফোন দিয়ে খুঁজুন..."
+                placeholder={t('sales.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -188,13 +190,13 @@ export default function Sales() {
             </div>
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
               <SelectTrigger className="w-full sm:w-[160px]">
-                <SelectValue placeholder="স্ট্যাটাস" />
+                <SelectValue placeholder={t('common.status')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">সব স্ট্যাটাস</SelectItem>
-                <SelectItem value="paid">পরিশোধিত</SelectItem>
-                <SelectItem value="partial">আংশিক</SelectItem>
-                <SelectItem value="due">বাকি</SelectItem>
+                <SelectItem value="all">{t('sales.allStatus')}</SelectItem>
+                <SelectItem value="paid">{t('sales.paid')}</SelectItem>
+                <SelectItem value="partial">{t('sales.partial')}</SelectItem>
+                <SelectItem value="due">{t('common.due')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -208,21 +210,21 @@ export default function Sales() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{bn.invoices.invoiceNo}</TableHead>
-                  <TableHead>{bn.invoices.date}</TableHead>
-                  <TableHead>{bn.invoices.customer}</TableHead>
-                  <TableHead className="text-right">{bn.invoices.total}</TableHead>
-                  <TableHead className="text-right">{bn.sales.paidAmount}</TableHead>
-                  <TableHead className="text-right">{bn.sales.dueAmount}</TableHead>
-                  <TableHead>{bn.common.status}</TableHead>
-                  <TableHead className="text-right">{bn.common.actions}</TableHead>
+                  <TableHead>{t('invoices.invoiceNo')}</TableHead>
+                  <TableHead>{t('invoices.date')}</TableHead>
+                  <TableHead>{t('invoices.customer')}</TableHead>
+                  <TableHead className="text-right">{t('invoices.total')}</TableHead>
+                  <TableHead className="text-right">{t('pos.paidAmount')}</TableHead>
+                  <TableHead className="text-right">{t('pos.dueAmount')}</TableHead>
+                  <TableHead>{t('common.status')}</TableHead>
+                  <TableHead className="text-right">{t('common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredSales.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                      কোনো বিক্রয় পাওয়া যায়নি
+                      {t('sales.noSales')}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -243,7 +245,7 @@ export default function Sales() {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{sale.customerName || 'ওয়াক-ইন'}</p>
+                          <p className="font-medium">{sale.customerName || t('sales.walkIn')}</p>
                           {sale.customerPhone && (
                             <p className="text-xs text-muted-foreground">{sale.customerPhone}</p>
                           )}
@@ -269,22 +271,22 @@ export default function Sales() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleViewSale(sale)} className="gap-2">
                               <Eye className="h-4 w-4" />
-                              {bn.common.view}
+                              {t('common.view')}
                             </DropdownMenuItem>
                             {sale.dueAmount > 0 && (
                               <DropdownMenuItem onClick={() => handlePayDue(sale)} className="gap-2 text-success">
                                 <CreditCard className="h-4 w-4" />
-                                বাকি পরিশোধ
+                                {t('sales.payDue')}
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuItem onClick={() => handlePrint(sale)} className="gap-2">
                               <Printer className="h-4 w-4" />
-                              {bn.invoices.print}
+                              {t('sales.print')}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handleDeleteSale(sale)} className="gap-2 text-destructive">
                               <Trash2 className="h-4 w-4" />
-                              {bn.common.delete}
+                              {t('common.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

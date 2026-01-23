@@ -13,7 +13,8 @@ import {
   Layers,
   ScanLine,
 } from 'lucide-react';
-import { bn, formatBDT, formatNumberBn } from '@/lib/constants';
+import { formatBDT, formatNumberBn } from '@/lib/constants';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,6 +48,7 @@ import { BarcodeScanner } from '@/components/pos/BarcodeScanner';
 import { toast } from 'sonner';
 
 export default function Products() {
+  const { t } = useLanguage();
   const {
     filteredProducts,
     categories,
@@ -77,7 +79,7 @@ export default function Products() {
     // Search for product with matching barcode or SKU
     setSearchQuery(barcode);
     setIsScannerOpen(false);
-    toast.success(`বারকোড স্ক্যান হয়েছে: ${barcode}`);
+    toast.success(`${t('products.barcodeScanned')}: ${barcode}`);
   };
 
   const handleAddProduct = () => {
@@ -97,23 +99,24 @@ export default function Products() {
 
   const handleDeleteProduct = (product: Product) => {
     deleteProduct(product.id);
-    toast.success(`${product.name} মুছে ফেলা হয়েছে`);
+    toast.success(`${product.name} ${t('products.deleted')}`);
   };
 
   const handleFormSubmit = (data: Omit<Product, 'id'>) => {
     if (selectedProduct) {
       updateProduct(selectedProduct.id, data);
-      toast.success('পণ্য আপডেট হয়েছে');
+      toast.success(t('products.updated'));
     } else {
       addProduct(data);
-      toast.success('নতুন পণ্য যোগ হয়েছে');
+      toast.success(t('products.added'));
     }
     setIsFormOpen(false);
   };
 
   const getWarrantyLabel = (product: Product) => {
-    if (product.warrantyType === 'none') return 'নেই';
-    const unit = product.warrantyUnit === 'days' ? 'দিন' : product.warrantyUnit === 'months' ? 'মাস' : 'বছর';
+    if (product.warrantyType === 'none') return t('products.warrantyNone');
+    const unit = product.warrantyUnit === 'days' ? t('products.days') : 
+                 product.warrantyUnit === 'months' ? t('products.months') : t('products.years');
     return `${product.warrantyDuration} ${unit}`;
   };
 
@@ -126,17 +129,17 @@ export default function Products() {
       {/* Page Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">{bn.products.title}</h1>
-          <p className="text-muted-foreground">আপনার সব পণ্য এখানে দেখুন এবং পরিচালনা করুন</p>
+          <h1 className="page-title">{t('products.title')}</h1>
+          <p className="text-muted-foreground">{t('products.description')}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setIsCategoryDialogOpen(true)} className="gap-2">
             <Tags className="h-4 w-4" />
-            ক্যাটাগরি/ব্র্যান্ড
+            {t('products.categoryBrand')}
           </Button>
           <Button onClick={handleAddProduct} className="gap-2">
             <Plus className="h-4 w-4" />
-            {bn.products.addNew}
+            {t('products.addProduct')}
           </Button>
         </div>
       </div>
@@ -151,7 +154,7 @@ export default function Products() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{formatNumberBn(stats.totalProducts)}</p>
-                <p className="text-sm text-muted-foreground">মোট পণ্য</p>
+                <p className="text-sm text-muted-foreground">{t('products.totalProducts')}</p>
               </div>
             </div>
           </CardContent>
@@ -164,7 +167,7 @@ export default function Products() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-warning">{formatNumberBn(stats.lowStockCount)}</p>
-                <p className="text-sm text-muted-foreground">কম স্টক</p>
+                <p className="text-sm text-muted-foreground">{t('products.lowStock')}</p>
               </div>
             </div>
           </CardContent>
@@ -177,7 +180,7 @@ export default function Products() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-destructive">{formatNumberBn(stats.outOfStockCount)}</p>
-                <p className="text-sm text-muted-foreground">স্টক শেষ</p>
+                <p className="text-sm text-muted-foreground">{t('products.outOfStock')}</p>
               </div>
             </div>
           </CardContent>
@@ -190,7 +193,7 @@ export default function Products() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{formatBDT(stats.totalStockValue)}</p>
-                <p className="text-sm text-muted-foreground">স্টক মূল্য</p>
+                <p className="text-sm text-muted-foreground">{t('products.stockValue')}</p>
               </div>
             </div>
           </CardContent>
@@ -205,7 +208,7 @@ export default function Products() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="পণ্যের নাম, SKU বা বারকোড দিয়ে খুঁজুন..."
+                  placeholder={t('products.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9"
@@ -215,17 +218,17 @@ export default function Products() {
                 variant="outline"
                 size="icon"
                 onClick={() => setIsScannerOpen(true)}
-                title="বারকোড স্ক্যান করুন"
+                title={t('pos.scanBarcode')}
               >
                 <ScanLine className="h-4 w-4" />
               </Button>
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="ক্যাটাগরি" />
+                <SelectValue placeholder={t('products.category')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{bn.common.all} ক্যাটাগরি</SelectItem>
+                <SelectItem value="all">{t('products.allCategories')}</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
                 ))}
@@ -233,12 +236,12 @@ export default function Products() {
             </Select>
             <Select value={stockFilter} onValueChange={(v) => setStockFilter(v as any)}>
               <SelectTrigger className="w-full sm:w-[150px]">
-                <SelectValue placeholder="স্টক স্ট্যাটাস" />
+                <SelectValue placeholder={t('common.status')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">সব স্টক</SelectItem>
-                <SelectItem value="low">কম স্টক</SelectItem>
-                <SelectItem value="out">স্টক শেষ</SelectItem>
+                <SelectItem value="all">{t('products.allStock')}</SelectItem>
+                <SelectItem value="low">{t('products.lowStock')}</SelectItem>
+                <SelectItem value="out">{t('products.outOfStock')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -252,21 +255,21 @@ export default function Products() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{bn.products.name}</TableHead>
-                  <TableHead>{bn.products.sku}</TableHead>
-                  <TableHead>{bn.products.category}</TableHead>
-                  <TableHead className="text-right">{bn.products.purchaseCost}</TableHead>
-                  <TableHead className="text-right">{bn.products.salePrice}</TableHead>
-                  <TableHead className="text-center">{bn.products.currentStock}</TableHead>
-                  <TableHead>{bn.products.warranty}</TableHead>
-                  <TableHead className="text-right">{bn.common.actions}</TableHead>
+                  <TableHead>{t('products.name')}</TableHead>
+                  <TableHead>{t('products.sku')}</TableHead>
+                  <TableHead>{t('products.category')}</TableHead>
+                  <TableHead className="text-right">{t('products.purchaseCost')}</TableHead>
+                  <TableHead className="text-right">{t('products.salePrice')}</TableHead>
+                  <TableHead className="text-center">{t('products.currentStock')}</TableHead>
+                  <TableHead>{t('products.warranty')}</TableHead>
+                  <TableHead className="text-right">{t('common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredProducts.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                      কোনো পণ্য পাওয়া যায়নি
+                      {t('products.noProducts')}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -326,15 +329,15 @@ export default function Products() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleViewProduct(product)} className="gap-2">
                               <Eye className="h-4 w-4" />
-                              {bn.common.view}
+                              {t('common.view')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleEditProduct(product)} className="gap-2">
                               <Edit className="h-4 w-4" />
-                              {bn.common.edit}
+                              {t('common.edit')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleDeleteProduct(product)} className="gap-2 text-destructive">
                               <Trash2 className="h-4 w-4" />
-                              {bn.common.delete}
+                              {t('common.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

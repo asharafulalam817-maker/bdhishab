@@ -14,7 +14,8 @@ import {
   Printer,
   ScanLine,
 } from 'lucide-react';
-import { bn, formatBDT, formatNumberBn } from '@/lib/constants';
+import { formatBDT, formatNumberBn } from '@/lib/constants';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -64,6 +65,7 @@ interface CartItem {
 export default function POS() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { addSaleToBalance, balance, refreshBalance } = useBalance();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState('');
@@ -90,12 +92,12 @@ export default function POS() {
     
     if (product) {
       addToCart(product);
-      sonnerToast.success(`${product.name} যোগ হয়েছে`, {
-        description: `বারকোড: ${barcode}`,
+      sonnerToast.success(`${product.name} ${t('pos.productAdded')}`, {
+        description: `${t('products.barcode')}: ${barcode}`,
       });
     } else {
-      sonnerToast.error('পণ্য পাওয়া যায়নি', {
-        description: `বারকোড: ${barcode}`,
+      sonnerToast.error(t('pos.productNotFound'), {
+        description: `${t('products.barcode')}: ${barcode}`,
       });
     }
   };
@@ -105,8 +107,8 @@ export default function POS() {
     if (existingItem) {
       if (existingItem.quantity >= product.stock) {
         toast({
-          title: bn.sales.insufficientStock,
-          description: `মাত্র ${product.stock} পিস স্টক আছে`,
+          title: t('pos.insufficientStock'),
+          description: `${t('pos.onlyXInStock').replace('{count}', String(product.stock))}`,
           variant: 'destructive',
         });
         return;
@@ -142,7 +144,7 @@ export default function POS() {
           if (newQty <= 0) return item;
           if (newQty > item.stock) {
             toast({
-              title: bn.sales.insufficientStock,
+              title: t('pos.insufficientStock'),
               variant: 'destructive',
             });
             return item;
@@ -167,8 +169,8 @@ export default function POS() {
   const handleCheckout = async () => {
     if (cart.length === 0) {
       toast({
-        title: 'কার্ট খালি!',
-        description: 'অনুগ্রহ করে পণ্য যোগ করুন',
+        title: t('pos.emptyCart'),
+        description: t('common.add') + ' ' + t('products.title').toLowerCase(),
         variant: 'destructive',
       });
       return;
@@ -210,10 +212,10 @@ export default function POS() {
       total: grandTotal,
       paidAmount: paid,
       dueAmount: due,
-      paymentMethod: paymentMethod === 'cash' ? 'নগদ' : 
-                     paymentMethod === 'bkash' ? 'বিকাশ' : 
-                     paymentMethod === 'nagad' ? 'নগদ' : 
-                     paymentMethod === 'bank' ? 'ব্যাংক' : 'বাকি',
+      paymentMethod: paymentMethod === 'cash' ? t('pos.cash') : 
+                     paymentMethod === 'bkash' ? t('pos.bkash') : 
+                     paymentMethod === 'nagad' ? t('pos.nagad') : 
+                     paymentMethod === 'bank' ? t('pos.bank') : t('pos.due'),
       paymentStatus: due > 0 ? 'partial' : 'paid',
       notes,
       footerNote: 'ধন্যবাদ! আবার আসবেন।',
@@ -228,8 +230,8 @@ export default function POS() {
     setShowInvoice(true);
 
     toast({
-      title: 'বিক্রয় সফল! ✓',
-      description: `চালান নং: ${invoiceNumber}${paid > 0 ? ` • ৳${paid.toLocaleString('bn-BD')} ব্যালেন্সে যোগ হয়েছে` : ''}`,
+      title: `${t('pos.saleSuccess')} ✓`,
+      description: `${t('pos.invoiceNo')}: ${invoiceNumber}${paid > 0 ? ` • ৳${paid.toLocaleString('bn-BD')} ${t('pos.addedToBalance')}` : ''}`,
     });
   };
 
@@ -255,7 +257,7 @@ export default function POS() {
         <div>
           <h1 className="page-title flex items-center gap-2">
             <ShoppingCart className="h-6 w-6" />
-            {bn.nav.pos}
+            {t('pos.title')}
           </h1>
         </div>
       </div>
@@ -270,7 +272,7 @@ export default function POS() {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    placeholder="পণ্যের নাম, SKU বা বারকোড দিয়ে খুঁজুন..."
+                    placeholder={t('pos.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-9"
@@ -281,7 +283,7 @@ export default function POS() {
                   size="icon"
                   onClick={() => setScannerOpen(true)}
                   className="shrink-0"
-                  title="বারকোড স্ক্যান করুন"
+                  title={t('pos.scanBarcode')}
                 >
                   <ScanLine className="h-5 w-5" />
                 </Button>
@@ -304,7 +306,7 @@ export default function POS() {
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-primary">{formatBDT(product.price)}</span>
                   <Badge variant={product.stock < 5 ? 'destructive' : 'secondary'} className="text-xs">
-                    {product.stock} পিস
+                    {product.stock} {t('dashboard.pieces')}
                   </Badge>
                 </div>
               </motion.button>
@@ -319,13 +321,13 @@ export default function POS() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <User className="h-4 w-4" />
-                {bn.sales.selectCustomer}
+                {t('pos.selectCustomer')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
                 <SelectTrigger>
-                  <SelectValue placeholder="গ্রাহক নির্বাচন করুন" />
+                  <SelectValue placeholder={t('pos.selectCustomer')} />
                 </SelectTrigger>
                 <SelectContent>
                   {demoCustomers.map((customer) => (
@@ -344,15 +346,15 @@ export default function POS() {
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
                   <ShoppingCart className="h-4 w-4" />
-                  কার্ট
+                  {t('pos.cart')}
                 </span>
-                <Badge variant="secondary">{cart.length} আইটেম</Badge>
+                <Badge variant="secondary">{cart.length} {t('pos.items')}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 max-h-[300px] overflow-y-auto">
               {cart.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  কার্ট খালি
+                  {t('pos.emptyCart')}
                 </div>
               ) : (
                 cart.map((item) => (
@@ -407,11 +409,11 @@ export default function POS() {
               {/* Totals */}
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{bn.sales.subtotal}</span>
+                  <span className="text-muted-foreground">{t('pos.subtotal')}</span>
                   <span>{formatBDT(subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{bn.sales.discount}</span>
+                  <span className="text-muted-foreground">{t('pos.discount')}</span>
                   <Input
                     type="number"
                     placeholder="০"
@@ -421,31 +423,31 @@ export default function POS() {
                   />
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t">
-                  <span>{bn.sales.grandTotal}</span>
+                  <span>{t('pos.grandTotal')}</span>
                   <span className="text-primary">{formatBDT(grandTotal)}</span>
                 </div>
               </div>
 
               {/* Payment Method */}
               <div className="space-y-2">
-                <Label>{bn.sales.paymentMethod}</Label>
+                <Label>{t('pos.paymentMethod')}</Label>
                 <Select value={paymentMethod} onValueChange={setPaymentMethod}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cash">{bn.sales.cash}</SelectItem>
-                    <SelectItem value="bkash">{bn.sales.bkash}</SelectItem>
-                    <SelectItem value="nagad">{bn.sales.nagad}</SelectItem>
-                    <SelectItem value="bank">{bn.sales.bank}</SelectItem>
-                    <SelectItem value="due">{bn.sales.due}</SelectItem>
+                    <SelectItem value="cash">{t('pos.cash')}</SelectItem>
+                    <SelectItem value="bkash">{t('pos.bkash')}</SelectItem>
+                    <SelectItem value="nagad">{t('pos.nagad')}</SelectItem>
+                    <SelectItem value="bank">{t('pos.bank')}</SelectItem>
+                    <SelectItem value="due">{t('pos.due')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Paid Amount */}
               <div className="space-y-2">
-                <Label>{bn.sales.paidAmount}</Label>
+                <Label>{t('pos.paidAmount')}</Label>
                 <Input
                   type="number"
                   placeholder="০"
@@ -457,46 +459,48 @@ export default function POS() {
               {/* Due */}
               {due > 0 && (
                 <div className="flex justify-between text-sm font-medium text-warning">
-                  <span>{bn.sales.dueAmount}</span>
+                  <span>{t('pos.dueAmount')}</span>
                   <span>{formatBDT(due)}</span>
                 </div>
               )}
 
               {/* Notes */}
               <div className="space-y-2">
-                <Label>{bn.sales.notes}</Label>
+                <Label>{t('pos.notes')}</Label>
                 <Textarea
-                  placeholder="নোট (ঐচ্ছিক)"
+                  placeholder={t('pos.notesOptional')}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  rows={2}
+                  className="h-16"
                 />
               </div>
 
               {/* Checkout Button */}
-              <Button
-                className="w-full gap-2"
+              <Button 
+                onClick={handleCheckout} 
+                className="w-full gap-2" 
                 size="lg"
-                onClick={handleCheckout}
                 disabled={cart.length === 0}
               >
-                <Receipt className="h-5 w-5" />
-                বিক্রয় সম্পন্ন করুন
+                <Check className="h-5 w-5" />
+                {t('pos.checkout')}
               </Button>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* Invoice Preview Dialog */}
-      <POSInvoiceDialog
-        invoice={currentInvoice}
-        template="minimal"
-        open={showInvoice}
-        onClose={handleInvoiceClose}
-      />
+      {/* Invoice Dialog */}
+      {currentInvoice && (
+        <POSInvoiceDialog
+          invoice={currentInvoice}
+          template="modern"
+          open={showInvoice}
+          onClose={handleInvoiceClose}
+        />
+      )}
 
-      {/* Barcode Scanner Dialog */}
+      {/* Barcode Scanner */}
       <BarcodeScanner
         open={scannerOpen}
         onOpenChange={setScannerOpen}
