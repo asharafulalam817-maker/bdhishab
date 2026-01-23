@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   Tags,
   Layers,
+  ScanLine,
 } from 'lucide-react';
 import { bn, formatBDT, formatNumberBn } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,7 @@ import { useProducts, Product } from '@/hooks/useProducts';
 import { ProductFormDialog } from '@/components/products/ProductFormDialog';
 import { ProductViewDialog } from '@/components/products/ProductViewDialog';
 import { CategoryBrandDialog } from '@/components/products/CategoryBrandDialog';
+import { BarcodeScanner } from '@/components/pos/BarcodeScanner';
 import { toast } from 'sonner';
 
 export default function Products() {
@@ -68,7 +70,15 @@ export default function Products() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const handleBarcodeScan = (barcode: string) => {
+    // Search for product with matching barcode or SKU
+    setSearchQuery(barcode);
+    setIsScannerOpen(false);
+    toast.success(`বারকোড স্ক্যান হয়েছে: ${barcode}`);
+  };
 
   const handleAddProduct = () => {
     setSelectedProduct(null);
@@ -191,14 +201,24 @@ export default function Products() {
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="পণ্যের নাম, SKU বা বারকোড দিয়ে খুঁজুন..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
+            <div className="relative flex-1 flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="পণ্যের নাম, SKU বা বারকোড দিয়ে খুঁজুন..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setIsScannerOpen(true)}
+                title="বারকোড স্ক্যান করুন"
+              >
+                <ScanLine className="h-4 w-4" />
+              </Button>
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
@@ -353,6 +373,12 @@ export default function Products() {
         onDeleteCategory={deleteCategory}
         onAddBrand={addBrand}
         onDeleteBrand={deleteBrand}
+      />
+
+      <BarcodeScanner
+        open={isScannerOpen}
+        onOpenChange={setIsScannerOpen}
+        onScan={handleBarcodeScan}
       />
     </motion.div>
   );
