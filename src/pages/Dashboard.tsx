@@ -4,31 +4,31 @@ import {
   ShoppingCart,
   Truck,
   Package,
-  Printer,
   TrendingUp,
   AlertTriangle,
-  ShieldAlert,
   Wallet,
   RefreshCw,
-  Loader2,
+  ArrowUpRight,
+  ArrowDownRight,
+  Users,
+  FileText,
+  ChevronRight,
 } from 'lucide-react';
 import { bn, formatBDT, formatNumberBn, formatDateBn } from '@/lib/constants';
-import { StatsCard } from '@/components/dashboard/StatsCard';
-import { QuickActionButton } from '@/components/dashboard/QuickActionButton';
-import { BalanceCard } from '@/components/balance/BalanceCard';
-import { ExpenseCard } from '@/components/expense/ExpenseCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { useDemo } from '@/contexts/DemoContext';
 import { 
   useDashboardStats, 
   useRecentSales, 
   useLowStockItems,
-  useExpiringWarranties 
 } from '@/hooks/useDashboard';
+import { useBalance } from '@/hooks/useBalance';
 import { format } from 'date-fns';
 import { bn as bnLocale } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -49,20 +49,22 @@ export default function Dashboard() {
     data: lowStockItems, 
     isLoading: lowStockLoading 
   } = useLowStockItems(5);
-  
-  const { 
-    data: expiringWarranties, 
-    isLoading: warrantiesLoading 
-  } = useExpiringWarranties(30, 5);
+
+  const { balance, isLoading: balanceLoading } = useBalance();
 
   const container = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.08,
       },
     },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 },
   };
 
   const formatTime = (dateStr: string) => {
@@ -73,329 +75,282 @@ export default function Dashboard() {
     }
   };
 
+  // Quick actions
+  const quickActions = [
+    { label: 'নতুন বিক্রয়', icon: ShoppingCart, path: '/pos', variant: 'primary' as const },
+    { label: 'নতুন ক্রয়', icon: Truck, path: '/purchases/new', variant: 'default' as const },
+    { label: 'পণ্য যোগ', icon: Package, path: '/products/new', variant: 'default' as const },
+    { label: 'গ্রাহক', icon: Users, path: '/customers', variant: 'default' as const },
+  ];
+
   return (
     <motion.div
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-6"
+      className="space-y-4 lg:space-y-6 max-w-7xl mx-auto"
     >
-      {/* Page Header */}
-      <div className="page-header flex items-center justify-between">
+      {/* Minimal Header */}
+      <motion.div variants={item} className="flex items-center justify-between">
         <div>
-          <h1 className="page-title">
-            {bn.dashboard.welcome}, {demoProfile.full_name}! 👋
+          <h1 className="text-xl lg:text-2xl font-bold text-foreground">
+            {bn.dashboard.welcome}, {demoProfile.full_name?.split(' ')[0]}! 👋
           </h1>
-          <p className="text-muted-foreground">
-            {demoStore.name} - আজকের ব্যবসার সারসংক্ষেপ
+          <p className="text-sm text-muted-foreground hidden sm:block">
+            {format(new Date(), 'd MMMM yyyy', { locale: bnLocale })}
           </p>
         </div>
         <Button 
-          variant="outline" 
-          size="sm" 
+          variant="ghost" 
+          size="icon" 
           onClick={() => refetchStats()}
-          className="gap-2"
+          className="h-9 w-9"
         >
           <RefreshCw className="h-4 w-4" />
-          রিফ্রেশ
         </Button>
-      </div>
+      </motion.div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statsLoading ? (
-          <>
-            {[...Array(4)].map((_, i) => (
-              <Card key={i} className="p-6">
-                <Skeleton className="h-4 w-24 mb-2" />
-                <Skeleton className="h-8 w-32 mb-1" />
-                <Skeleton className="h-3 w-20" />
-              </Card>
-            ))}
-          </>
-        ) : (
-          <>
-            <StatsCard
-              title={bn.dashboard.todaySales}
-              value={formatBDT(stats?.todaySales || 0)}
-              subtitle={`${formatNumberBn(stats?.todayInvoices || 0)} ${bn.dashboard.invoiceCount}`}
-              icon={TrendingUp}
-              variant="primary"
-            />
-            <StatsCard
-              title={bn.dashboard.monthSales}
-              value={formatBDT(stats?.monthSales || 0)}
-              subtitle={`${formatNumberBn(stats?.monthInvoices || 0)} ${bn.dashboard.invoiceCount}`}
-              icon={Wallet}
-              variant="success"
-            />
-            <StatsCard
-              title={bn.dashboard.totalDue}
-              value={formatBDT((stats?.customerDue || 0) + (stats?.supplierDue || 0))}
-              subtitle={`গ্রাহক: ${formatBDT(stats?.customerDue || 0)}`}
-              icon={AlertTriangle}
-              variant="warning"
-            />
-            <StatsCard
-              title={bn.dashboard.lowStock}
-              value={formatNumberBn(stats?.lowStockCount || 0)}
-              subtitle={bn.dashboard.items}
-              icon={Package}
-              variant="danger"
-            />
-          </>
-        )}
-      </div>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">{bn.dashboard.quickActions}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <QuickActionButton
-              label={bn.dashboard.newSale}
-              icon={ShoppingCart}
-              variant="primary"
-              onClick={() => navigate('/pos')}
-            />
-            <QuickActionButton
-              label={bn.dashboard.newPurchase}
-              icon={Truck}
-              onClick={() => navigate('/purchases/new')}
-            />
-            <QuickActionButton
-              label={bn.dashboard.addProduct}
-              icon={Package}
-              onClick={() => navigate('/products/new')}
-            />
-            <QuickActionButton
-              label={bn.dashboard.printLastInvoice}
-              icon={Printer}
-              onClick={() => navigate('/invoices')}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Content Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Balance Card */}
-        <div className="lg:col-span-1">
-          <BalanceCard />
-        </div>
-
-        {/* Expense Card */}
-        <div className="lg:col-span-1">
-          <ExpenseCard />
-        </div>
-
-        {/* Recent Sales */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-lg">সাম্প্রতিক বিক্রয়</CardTitle>
-            <button
-              onClick={() => navigate('/sales')}
-              className="text-sm text-primary hover:underline"
-            >
-              সব দেখুন
-            </button>
-          </CardHeader>
-          <CardContent className="p-0">
-            {salesLoading ? (
-              <div className="p-6 space-y-3">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="flex justify-between">
-                    <Skeleton className="h-10 w-40" />
-                    <Skeleton className="h-6 w-20" />
-                  </div>
-                ))}
-              </div>
-            ) : recentSales && recentSales.length > 0 ? (
-              <div className="divide-y divide-border">
-                {recentSales.map((sale, index) => (
-                  <motion.div
-                    key={sale.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center justify-between px-6 py-3 hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={() => navigate(`/invoices/${sale.id}`)}
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-medium text-foreground">{sale.customer_name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {sale.invoice_number} • {formatTime(sale.created_at)}
-                      </span>
-                    </div>
-                    <span className="font-semibold text-foreground">{formatBDT(sale.total)}</span>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <div className="p-6 text-center text-muted-foreground">
-                <ShoppingCart className="h-10 w-10 mx-auto mb-2 opacity-50" />
-                <p>আজ কোন বিক্রয় হয়নি</p>
-                <Button 
-                  variant="link" 
-                  onClick={() => navigate('/pos')}
-                  className="mt-2"
-                >
-                  নতুন বিক্রয় করুন
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Low Stock Alerts */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-warning" />
-              কম স্টক সতর্কতা
-            </CardTitle>
-            <button
-              onClick={() => navigate('/inventory/low-stock')}
-              className="text-sm text-primary hover:underline"
-            >
-              সব দেখুন
-            </button>
-          </CardHeader>
-          <CardContent className="p-0">
-            {lowStockLoading ? (
-              <div className="p-6 space-y-3">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="flex justify-between">
-                    <Skeleton className="h-10 w-40" />
-                    <Skeleton className="h-6 w-16" />
-                  </div>
-                ))}
-              </div>
-            ) : lowStockItems && lowStockItems.length > 0 ? (
-              <div className="divide-y divide-border">
-                {lowStockItems.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center justify-between px-6 py-3 hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={() => navigate(`/products/${item.id}`)}
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-medium text-foreground">{item.name}</span>
-                      <span className="text-xs text-muted-foreground">SKU: {item.sku || 'N/A'}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="font-semibold text-destructive">
-                        {formatNumberBn(item.current_stock)} পিস
-                      </span>
-                      <p className="text-xs text-muted-foreground">
-                        সীমা: {formatNumberBn(item.low_stock_threshold)}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <div className="p-6 text-center text-muted-foreground">
-                <Package className="h-10 w-10 mx-auto mb-2 opacity-50" />
-                <p>সব পণ্যের স্টক পর্যাপ্ত আছে! 🎉</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Warranty Expiring */}
-        <Card className="lg:col-span-3">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <ShieldAlert className="h-5 w-5 text-info" />
-              {bn.dashboard.warrantyExpiring}
-            </CardTitle>
-            <button
-              onClick={() => navigate('/warranty')}
-              className="text-sm text-primary hover:underline"
-            >
-              সব দেখুন
-            </button>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <div className="flex items-center justify-between rounded-lg bg-warning/10 p-4 border border-warning/20">
-                <div>
-                  <p className="text-sm text-muted-foreground">{bn.dashboard.next7Days}</p>
-                  <p className="text-2xl font-bold text-warning">
-                    {statsLoading ? (
-                      <Loader2 className="h-6 w-6 animate-spin" />
-                    ) : (
-                      formatNumberBn(stats?.warrantyExpiring7 || 0)
-                    )}
-                  </p>
+      {/* Main Stats Grid */}
+      <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        {/* Balance Card - Highlighted */}
+        <Card className="col-span-2 bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground border-0 shadow-lg shadow-primary/20">
+          <CardContent className="p-4 lg:p-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium opacity-90 mb-1">মোট ব্যালেন্স</p>
+                <p className="text-3xl lg:text-4xl font-bold tracking-tight">
+                  {balanceLoading ? '...' : formatBDT(balance?.current_balance || 0)}
+                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-0 text-xs">
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    আজকের আয়: {statsLoading ? '...' : formatBDT(stats?.todaySales || 0)}
+                  </Badge>
                 </div>
-                <ShieldAlert className="h-10 w-10 text-warning/50" />
               </div>
-              <div className="flex items-center justify-between rounded-lg bg-info/10 p-4 border border-info/20">
-                <div>
-                  <p className="text-sm text-muted-foreground">{bn.dashboard.next30Days}</p>
-                  <p className="text-2xl font-bold text-info">
-                    {statsLoading ? (
-                      <Loader2 className="h-6 w-6 animate-spin" />
-                    ) : (
-                      formatNumberBn(stats?.warrantyExpiring30 || 0)
-                    )}
-                  </p>
-                </div>
-                <ShieldAlert className="h-10 w-10 text-info/50" />
+              <div className="p-3 rounded-xl bg-white/20">
+                <Wallet className="h-6 w-6" />
               </div>
             </div>
-
-            {/* Expiring warranties list */}
-            {warrantiesLoading ? (
-              <div className="space-y-2">
-                {[...Array(2)].map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-full" />
-                ))}
-              </div>
-            ) : expiringWarranties && expiringWarranties.length > 0 ? (
-              <div className="rounded-lg border border-border overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/50">
-                    <tr>
-                      <th className="text-left p-3 font-medium">পণ্য</th>
-                      <th className="text-left p-3 font-medium">গ্রাহক</th>
-                      <th className="text-left p-3 font-medium hidden sm:table-cell">ফোন</th>
-                      <th className="text-right p-3 font-medium">মেয়াদ শেষ</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {expiringWarranties.map((warranty) => (
-                      <tr 
-                        key={warranty.id} 
-                        className="hover:bg-muted/30 cursor-pointer"
-                        onClick={() => navigate('/warranty')}
-                      >
-                        <td className="p-3">{warranty.product_name}</td>
-                        <td className="p-3">{warranty.customer_name}</td>
-                        <td className="p-3 hidden sm:table-cell">{warranty.customer_phone}</td>
-                        <td className="p-3 text-right text-warning">
-                          {formatDateBn(warranty.warranty_expiry)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-center py-4 text-muted-foreground">
-                <p>আগামী ৩০ দিনে কোন ওয়ারেন্টি শেষ হচ্ছে না</p>
-              </div>
-            )}
           </CardContent>
         </Card>
+
+        {/* Today's Sales */}
+        <StatCard
+          title="আজকের বিক্রয়"
+          value={statsLoading ? '...' : formatBDT(stats?.todaySales || 0)}
+          subtitle={`${formatNumberBn(stats?.todayInvoices || 0)} ইনভয়েস`}
+          icon={ArrowUpRight}
+          trend="up"
+          loading={statsLoading}
+        />
+
+        {/* Total Due */}
+        <StatCard
+          title="মোট বাকি"
+          value={statsLoading ? '...' : formatBDT((stats?.customerDue || 0) + (stats?.supplierDue || 0))}
+          subtitle={`গ্রাহক: ${formatBDT(stats?.customerDue || 0)}`}
+          icon={ArrowDownRight}
+          trend="down"
+          loading={statsLoading}
+        />
+      </motion.div>
+
+      {/* Quick Actions */}
+      <motion.div variants={item} className="grid grid-cols-4 gap-2 lg:gap-3">
+        {quickActions.map((action) => (
+          <Button
+            key={action.path}
+            variant={action.variant === 'primary' ? 'default' : 'outline'}
+            className={cn(
+              'h-auto py-3 lg:py-4 flex-col gap-1.5 lg:gap-2',
+              action.variant === 'primary' && 'bg-primary hover:bg-primary/90'
+            )}
+            onClick={() => navigate(action.path)}
+          >
+            <action.icon className="h-5 w-5 lg:h-6 lg:w-6" />
+            <span className="text-[11px] lg:text-xs font-medium">{action.label}</span>
+          </Button>
+        ))}
+      </motion.div>
+
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+        {/* Recent Sales */}
+        <motion.div variants={item}>
+          <Card className="h-full">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <CardTitle className="text-base lg:text-lg font-semibold">সাম্প্রতিক বিক্রয়</CardTitle>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs gap-1"
+                onClick={() => navigate('/sales')}
+              >
+                সব দেখুন <ChevronRight className="h-3 w-3" />
+              </Button>
+            </CardHeader>
+            <CardContent className="p-0">
+              {salesLoading ? (
+                <div className="px-4 pb-4 space-y-3">
+                  {[...Array(4)].map((_, i) => (
+                    <Skeleton key={i} className="h-14 w-full" />
+                  ))}
+                </div>
+              ) : recentSales && recentSales.length > 0 ? (
+                <div className="divide-y divide-border">
+                  {recentSales.map((sale) => (
+                    <div
+                      key={sale.id}
+                      className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/sales`)}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <FileText className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm truncate">{sale.customer_name || 'ওয়াক-ইন'}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {sale.invoice_number} • {formatTime(sale.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-sm shrink-0">{formatBDT(sale.total)}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center text-muted-foreground">
+                  <ShoppingCart className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm">আজ কোন বিক্রয় হয়নি</p>
+                  <Button 
+                    variant="link" 
+                    size="sm"
+                    onClick={() => navigate('/pos')}
+                    className="mt-2"
+                  >
+                    নতুন বিক্রয় করুন
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Alerts Section */}
+        <motion.div variants={item}>
+          <Card className="h-full">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <CardTitle className="text-base lg:text-lg font-semibold flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-warning" />
+                সতর্কতা
+              </CardTitle>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs gap-1"
+                onClick={() => navigate('/inventory/low-stock')}
+              >
+                সব দেখুন <ChevronRight className="h-3 w-3" />
+              </Button>
+            </CardHeader>
+            <CardContent className="p-0">
+              {/* Stats Row */}
+              <div className="grid grid-cols-2 gap-3 px-4 pb-3">
+                <div className="rounded-lg bg-destructive/10 p-3 border border-destructive/20">
+                  <p className="text-xs text-muted-foreground">কম স্টক</p>
+                  <p className="text-xl font-bold text-destructive">
+                    {statsLoading ? '...' : formatNumberBn(stats?.lowStockCount || 0)}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-warning/10 p-3 border border-warning/20">
+                  <p className="text-xs text-muted-foreground">ওয়ারেন্টি শেষ</p>
+                  <p className="text-xl font-bold text-warning">
+                    {statsLoading ? '...' : formatNumberBn(stats?.warrantyExpiring7 || 0)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Low Stock Items */}
+              {lowStockLoading ? (
+                <div className="px-4 pb-4 space-y-2">
+                  {[...Array(3)].map((_, i) => (
+                    <Skeleton key={i} className="h-12 w-full" />
+                  ))}
+                </div>
+              ) : lowStockItems && lowStockItems.length > 0 ? (
+                <div className="divide-y divide-border">
+                  {lowStockItems.slice(0, 4).map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between px-4 py-2.5 hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => navigate('/products')}
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{item.name}</p>
+                        <p className="text-xs text-muted-foreground">SKU: {item.sku || 'N/A'}</p>
+                      </div>
+                      <Badge variant="destructive" className="shrink-0">
+                        {formatNumberBn(item.current_stock)} পিস
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-6 text-center text-muted-foreground">
+                  <Package className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm">সব পণ্যের স্টক পর্যাপ্ত 🎉</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     </motion.div>
+  );
+}
+
+// Stat Card Component
+interface StatCardProps {
+  title: string;
+  value: string;
+  subtitle?: string;
+  icon: React.ElementType;
+  trend?: 'up' | 'down';
+  loading?: boolean;
+}
+
+function StatCard({ title, value, subtitle, icon: Icon, trend, loading }: StatCardProps) {
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-4">
+          <Skeleton className="h-4 w-20 mb-2" />
+          <Skeleton className="h-7 w-28 mb-1" />
+          <Skeleton className="h-3 w-16" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="p-3 lg:p-4">
+        <div className="flex items-start justify-between mb-2">
+          <p className="text-xs lg:text-sm text-muted-foreground font-medium">{title}</p>
+          <div className={cn(
+            'p-1.5 lg:p-2 rounded-lg',
+            trend === 'up' ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'
+          )}>
+            <Icon className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+          </div>
+        </div>
+        <p className="text-lg lg:text-xl font-bold text-foreground">{value}</p>
+        {subtitle && (
+          <p className="text-[10px] lg:text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

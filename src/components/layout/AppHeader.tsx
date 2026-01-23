@@ -1,7 +1,7 @@
-import { useNavigate } from 'react-router-dom';
-import { Menu, Bell, Search, User, Settings, Store } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Menu, Bell, Search, User, Settings, Home, Command } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { bn } from '@/lib/constants';
 import { useDemo } from '@/contexts/DemoContext';
 import {
@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { GlobalSearchDialog } from '@/components/search/GlobalSearchDialog';
 
 interface AppHeaderProps {
   onMenuClick: () => void;
@@ -21,51 +22,77 @@ interface AppHeaderProps {
 export function AppHeader({ onMenuClick }: AppHeaderProps) {
   const { demoProfile, demoStore } = useDemo();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // Keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const isOnDashboard = location.pathname === '/dashboard' || location.pathname === '/';
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-card px-4 lg:px-6">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="lg:hidden"
-        onClick={onMenuClick}
-      >
-        <Menu className="h-5 w-5" />
-      </Button>
-
-      {/* Store Name */}
-      <div className="hidden sm:flex items-center gap-2">
-        <Button variant="outline" size="sm" className="gap-2">
-          <Store className="h-4 w-4" />
-          <span className="max-w-[120px] truncate">{demoStore.name}</span>
+    <>
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 px-3 lg:px-4">
+        {/* Left side - Menu button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden h-9 w-9"
+          onClick={onMenuClick}
+        >
+          <Menu className="h-5 w-5" />
         </Button>
-      </div>
 
-      {/* Search */}
-      <div className="flex-1 max-w-md">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder={bn.common.search}
-            className="pl-9 bg-muted/50 border-0 focus-visible:ring-1"
-          />
-        </div>
-      </div>
+        {/* Home button - visible when not on dashboard */}
+        {!isOnDashboard && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            onClick={() => navigate('/dashboard')}
+            title="ড্যাশবোর্ডে যান"
+          >
+            <Home className="h-5 w-5" />
+          </Button>
+        )}
 
-      {/* Right Side */}
-      <div className="flex items-center gap-2">
-        {/* Role Badge */}
-        <div className="hidden md:block">
-          <Badge variant="secondary" className="bg-primary/10 text-primary">
-            {bn.roles.owner}
-          </Badge>
+        {/* Store name - desktop only */}
+        <div className="hidden md:flex items-center">
+          <span className="text-sm font-medium text-muted-foreground truncate max-w-[150px]">
+            {demoStore.name}
+          </span>
         </div>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Search button */}
+        <Button
+          variant="outline"
+          className="gap-2 h-9 px-3 text-muted-foreground hover:text-foreground"
+          onClick={() => setSearchOpen(true)}
+        >
+          <Search className="h-4 w-4" />
+          <span className="hidden sm:inline text-sm">সার্চ...</span>
+          <kbd className="hidden md:inline-flex h-5 items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+            <Command className="h-3 w-3" />K
+          </kbd>
+        </Button>
 
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative h-9 w-9">
               <Bell className="h-5 w-5" />
               <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground flex items-center justify-center">
                 3
@@ -93,7 +120,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full">
+            <Button variant="ghost" size="icon" className="rounded-full h-9 w-9">
               <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <User className="h-4 w-4 text-primary" />
               </div>
@@ -109,13 +136,20 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+              <Home className="h-4 w-4 mr-2" />
+              ড্যাশবোর্ড
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/settings')}>
               <Settings className="h-4 w-4 mr-2" />
               {bn.nav.settings}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
-    </header>
+      </header>
+
+      {/* Global Search Dialog */}
+      <GlobalSearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+    </>
   );
 }
