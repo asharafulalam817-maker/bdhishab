@@ -567,7 +567,7 @@ function StatCard({ title, value, subtitle, icon: Icon, trend, loading }: StatCa
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4 lg:p-5">
         <div className="flex items-start justify-between mb-2 lg:mb-3">
-          <p className="text-lg lg:text-xl text-muted-foreground font-black leading-tight">{title}</p>
+          <p className="text-xl lg:text-2xl text-muted-foreground font-black leading-tight">{title}</p>
           <div className={cn('p-2 rounded-lg', getTrendColors())}>
             <Icon className="h-4 w-4 lg:h-5 lg:w-5" />
           </div>
