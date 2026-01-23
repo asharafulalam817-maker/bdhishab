@@ -232,8 +232,8 @@ export function SimplePurchaseForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[95vh] p-0">
-        <DialogHeader className="p-6 pb-0">
+      <DialogContent className="sm:max-w-[600px] max-h-[95vh] p-0 flex flex-col">
+        <DialogHeader className="p-6 pb-0 flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
             নতুন ক্রয় এন্ট্রি
@@ -243,9 +243,9 @@ export function SimplePurchaseForm({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
-          <ScrollArea className="max-h-[calc(95vh-180px)] px-6">
-            <div className="space-y-5 py-4">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+          <ScrollArea className="flex-1 px-6">
+            <div className="space-y-5 py-4 pb-6">
               
               {/* Supplier Section */}
               <Card className="border-primary/20">
@@ -600,7 +600,7 @@ export function SimplePurchaseForm({
             </div>
           </ScrollArea>
 
-          <DialogFooter className="p-6 pt-4 border-t">
+          <DialogFooter className="p-6 pt-4 border-t flex-shrink-0">
             <Button
               type="button"
               variant="outline"
