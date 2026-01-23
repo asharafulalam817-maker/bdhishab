@@ -10,10 +10,12 @@ import {
   ShieldAlert,
   Wallet,
   RefreshCw,
+  Loader2,
 } from 'lucide-react';
 import { bn, formatBDT, formatNumberBn, formatDateBn } from '@/lib/constants';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { QuickActionButton } from '@/components/dashboard/QuickActionButton';
+import { BalanceCard } from '@/components/balance/BalanceCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,7 +28,6 @@ import {
 } from '@/hooks/useDashboard';
 import { format } from 'date-fns';
 import { bn as bnLocale } from 'date-fns/locale';
-import { Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -178,9 +179,14 @@ export default function Dashboard() {
       </Card>
 
       {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Balance Card */}
+        <div className="lg:col-span-1">
+          <BalanceCard />
+        </div>
+
         {/* Recent Sales */}
-        <Card>
+        <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-lg">সাম্প্রতিক বিক্রয়</CardTitle>
             <button
@@ -297,7 +303,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Warranty Expiring */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-3">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <ShieldAlert className="h-5 w-5 text-info" />
