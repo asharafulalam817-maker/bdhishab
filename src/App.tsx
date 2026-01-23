@@ -13,6 +13,8 @@ import Customers from "./pages/Customers";
 import Suppliers from "./pages/Suppliers";
 import Purchases from "./pages/Purchases";
 import POS from "./pages/POS";
+import Sales from "./pages/Sales";
+import Reports from "./pages/Reports";
 import Warranty from "./pages/Warranty";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -44,10 +46,11 @@ const App = () => (
               <Route path="/purchases/new" element={<Purchases />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/pos" element={<POS />} />
-              <Route path="/sales" element={<Products />} />
-              <Route path="/invoices" element={<Products />} />
+              <Route path="/sales" element={<Sales />} />
+              <Route path="/invoices" element={<Sales />} />
               <Route path="/warranty" element={<Warranty />} />
-              <Route path="/reports/*" element={<Products />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/reports/*" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
             
