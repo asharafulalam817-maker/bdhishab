@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Package, Phone, Calendar, ShieldCheck, Printer, Eye } from 'lucide-react';
+import { Package, Phone, Calendar, ShieldCheck, Printer, Eye, AlertTriangle } from 'lucide-react';
 import { formatDateBn } from '@/lib/constants';
 import { WarrantyQRCode } from './WarrantyQRCode';
 
@@ -21,9 +21,10 @@ interface WarrantyCardProps {
   warranty: WarrantyData;
   onView?: (warranty: WarrantyData) => void;
   onPrint?: (warranty: WarrantyData) => void;
+  onAddClaim?: (warranty: WarrantyData) => void;
 }
 
-export function WarrantyCard({ warranty, onView, onPrint }: WarrantyCardProps) {
+export function WarrantyCard({ warranty, onView, onPrint, onAddClaim }: WarrantyCardProps) {
   const getStatusBadge = () => {
     switch (warranty.status) {
       case 'active':
@@ -82,7 +83,7 @@ export function WarrantyCard({ warranty, onView, onPrint }: WarrantyCardProps) {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2 pt-2">
+            <div className="flex flex-wrap gap-2 pt-2">
               {onView && (
                 <Button
                   variant="outline"
@@ -101,6 +102,17 @@ export function WarrantyCard({ warranty, onView, onPrint }: WarrantyCardProps) {
                 >
                   <Printer className="h-4 w-4 mr-1" />
                   প্রিন্ট
+                </Button>
+              )}
+              {onAddClaim && warranty.status !== 'expired' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onAddClaim(warranty)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <AlertTriangle className="h-4 w-4 mr-1" />
+                  ক্লেম
                 </Button>
               )}
             </div>
