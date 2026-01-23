@@ -232,7 +232,12 @@ export function SimplePurchaseForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[95vh] p-0 flex flex-col">
+      {/*
+        NOTE:
+        ScrollArea needs a real height (not only max-height) to compute its viewport.
+        Without this, on some browsers the content won't scroll.
+      */}
+      <DialogContent className="sm:max-w-[600px] h-[95vh] max-h-[95vh] p-0 flex flex-col">
         <DialogHeader className="p-6 pb-0 flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -244,7 +249,7 @@ export function SimplePurchaseForm({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
-          <ScrollArea className="flex-1 px-6">
+          <ScrollArea className="flex-1 px-6 overscroll-contain touch-pan-y">
             <div className="space-y-5 py-4 pb-6">
               
               {/* Supplier Section */}
