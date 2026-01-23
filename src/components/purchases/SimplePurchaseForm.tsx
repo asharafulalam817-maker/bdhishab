@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Plus, Loader2, User, Calendar, Package, Image, Hash, Tag, Shield, Wallet, UserPlus } from 'lucide-react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Plus, Loader2, User, Calendar, Package, Upload, Hash, Tag, Shield, Wallet, UserPlus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +26,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { formatBDT } from '@/lib/constants';
 import type { Supplier } from '@/hooks/useSuppliers';
 import { DEMO_CATEGORIES, DEMO_BRANDS } from '@/hooks/useProducts';
+
+// Categories that typically have warranty
+const WARRANTY_CATEGORIES = ['1', '2', '3', '4', '7', '8', '9', '10']; // Mobile, Accessories, Electronics, Laptop, Gaming, Home Appliances, Camera, Networking
 
 interface SimplePurchaseFormProps {
   open: boolean;
@@ -75,7 +78,9 @@ export function SimplePurchaseForm({
   
   // Product info
   const [productName, setProductName] = useState('');
-  const [productImage, setProductImage] = useState('');
+  const [productImage, setProductImage] = useState<string | null>(null);
+  const [productImageFile, setProductImageFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [categoryId, setCategoryId] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [purchaseCost, setPurchaseCost] = useState(0);
@@ -108,8 +113,8 @@ export function SimplePurchaseForm({
       setPurchaseDate(new Date().toISOString().split('T')[0]);
       setInvoiceNumber('');
       setProductName('');
-      setProductImage('');
-      setCategoryId('');
+      setProductImage(null);
+      setProductImageFile(null);
       setQuantity(1);
       setPurchaseCost(0);
       setSalePrice(0);
@@ -127,6 +132,30 @@ export function SimplePurchaseForm({
   const profit = useMemo(() => totalSale - totalCost, [totalSale, totalCost]);
   const dueAmount = useMemo(() => totalCost - paidAmount, [totalCost, paidAmount]);
   const insufficientBalance = deductFromBalance && paidAmount > currentBalance;
+  
+  // Check if selected category supports warranty
+  const showWarrantySection = useMemo(() => WARRANTY_CATEGORIES.includes(categoryId), [categoryId]);
+
+  // Handle image upload
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProductImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProductImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setProductImage(null);
+    setProductImageFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleAddNewSupplier = () => {
     if (!newSupplierName.trim()) return;
@@ -340,14 +369,41 @@ export function SimplePurchaseForm({
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Image className="h-3 w-3" />
-                        ছবি URL (ঐচ্ছিক)
+                        <Upload className="h-3 w-3" />
+                        পণ্যের ছবি (ঐচ্ছিক)
                       </Label>
-                      <Input
-                        placeholder="https://..."
-                        value={productImage}
-                        onChange={(e) => setProductImage(e.target.value)}
-                      />
+                      <div className="flex flex-col gap-2">
+                        {productImage ? (
+                          <div className="relative w-24 h-24 group">
+                            <img 
+                              src={productImage} 
+                              alt="Product preview" 
+                              className="w-full h-full object-cover rounded-lg border"
+                            />
+                            <button
+                              type="button"
+                              onClick={removeImage}
+                              className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="flex items-center justify-center w-24 h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                            <div className="text-center">
+                              <Upload className="h-6 w-6 mx-auto text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">ছবি দিন</span>
+                            </div>
+                          </label>
+                        )}
+                      </div>
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs text-muted-foreground flex items-center gap-1">
@@ -368,17 +424,6 @@ export function SimplePurchaseForm({
                       </Select>
                     </div>
                   </div>
-
-                  {productImage && (
-                    <div className="flex justify-center">
-                      <img 
-                        src={productImage} 
-                        alt="Product preview" 
-                        className="h-20 w-20 object-cover rounded-lg border"
-                        onError={(e) => (e.currentTarget.style.display = 'none')}
-                      />
-                    </div>
-                  )}
 
                   <Separator />
 
@@ -422,62 +467,64 @@ export function SimplePurchaseForm({
                 </CardContent>
               </Card>
 
-              {/* Warranty Section */}
-              <Card className="border-primary/20">
-                <CardContent className="pt-4 space-y-3">
-                  <Label className="text-sm font-medium flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    ওয়ারেন্টি
-                  </Label>
-                  
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">ধরন</Label>
-                      <Select value={warrantyType} onValueChange={(v) => setWarrantyType(v as typeof warrantyType)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {warrantyTypes.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              {type.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+              {/* Warranty Section - Only show for warranty-eligible categories */}
+              {showWarrantySection && (
+                <Card className="border-primary/20">
+                  <CardContent className="pt-4 space-y-3">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      ওয়ারেন্টি
+                    </Label>
                     
-                    {warrantyType !== 'none' && (
-                      <>
-                        <div className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">মেয়াদ</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={warrantyDuration}
-                            onChange={(e) => setWarrantyDuration(parseInt(e.target.value) || 0)}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">একক</Label>
-                          <Select value={warrantyUnit} onValueChange={(v) => setWarrantyUnit(v as typeof warrantyUnit)}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {warrantyUnits.map((unit) => (
-                                <SelectItem key={unit.value} value={unit.value}>
-                                  {unit.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">ধরন</Label>
+                        <Select value={warrantyType} onValueChange={(v) => setWarrantyType(v as typeof warrantyType)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {warrantyTypes.map((type) => (
+                              <SelectItem key={type.value} value={type.value}>
+                                {type.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {warrantyType !== 'none' && (
+                        <>
+                          <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">মেয়াদ</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              value={warrantyDuration}
+                              onChange={(e) => setWarrantyDuration(parseInt(e.target.value) || 0)}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">একক</Label>
+                            <Select value={warrantyUnit} onValueChange={(v) => setWarrantyUnit(v as typeof warrantyUnit)}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {warrantyUnits.map((unit) => (
+                                  <SelectItem key={unit.value} value={unit.value}>
+                                    {unit.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Payment Summary */}
               <Card className="border-primary/20 bg-primary/5">
