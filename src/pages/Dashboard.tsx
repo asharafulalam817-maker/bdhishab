@@ -130,10 +130,10 @@ export default function Dashboard() {
     }
   };
 
-  // Quick actions - Short labels
+  // Quick actions - Short labels (Order: ক্রয়, বিক্রয়, স্টক, গ্রাহক)
   const quickActions = [
-    { label: t('quickAction.sale'), icon: ShoppingCart, path: '/pos', variant: 'primary' as const },
     { label: t('quickAction.purchase'), icon: Truck, path: '/purchases/new', variant: 'default' as const },
+    { label: t('quickAction.sale'), icon: ShoppingCart, path: '/pos', variant: 'primary' as const },
     { label: t('quickAction.stock'), icon: PackagePlus, path: '/quick-stock', variant: 'default' as const },
     { label: t('quickAction.customer'), icon: Users, path: '/customers', variant: 'default' as const },
   ];
@@ -361,9 +361,9 @@ export default function Dashboard() {
                 <action.icon className="h-6 w-6 lg:h-7 lg:w-7 text-white" />
               </div>
               
-              {/* Label - Larger text */}
+              {/* Label - Extra Large text especially on mobile */}
               <span className={cn(
-                'text-xl lg:text-2xl font-extrabold text-center leading-tight',
+                'text-2xl sm:text-2xl lg:text-3xl font-extrabold text-center leading-tight',
                 style.accent
               )}>
                 {action.label}
