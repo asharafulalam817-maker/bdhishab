@@ -17,6 +17,7 @@ import {
   CreditCard,
   X,
   Store,
+  Shield,
 } from 'lucide-react';
 import { bn } from '@/lib/constants';
 import { cn } from '@/lib/utils';
@@ -71,6 +72,7 @@ const navItems: NavItem[] = [
     ],
   },
   { label: bn.nav.settings, icon: Settings, href: '/settings' },
+  { label: 'এডমিন প্যানেল', icon: Shield, href: '/admin' },
 ];
 
 interface AppSidebarProps {
