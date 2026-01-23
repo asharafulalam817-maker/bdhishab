@@ -33,6 +33,8 @@ import { useBalance } from '@/hooks/useBalance';
 import { format } from 'date-fns';
 import { bn as bnLocale } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from 'react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -55,6 +57,50 @@ export default function Dashboard() {
   } = useLowStockItems(5);
 
   const { balance, isLoading: balanceLoading } = useBalance();
+
+  // Fetch total stock value and customer dues
+  const [totalStockValue, setTotalStockValue] = useState(0);
+  const [totalDueAmount, setTotalDueAmount] = useState(0);
+  const [isLoadingExtras, setIsLoadingExtras] = useState(true);
+
+  useEffect(() => {
+    const fetchExtras = async () => {
+      if (!demoStore?.id) return;
+      setIsLoadingExtras(true);
+      
+      try {
+        // Fetch products for stock value
+        const { data: products } = await supabase
+          .from('products')
+          .select('current_stock, sale_price')
+          .eq('store_id', demoStore.id);
+        
+        if (products) {
+          const stockValue = products.reduce((sum, p) => {
+            return sum + ((p.current_stock || 0) * (p.sale_price || 0));
+          }, 0);
+          setTotalStockValue(stockValue);
+        }
+
+        // Fetch customers for due amount
+        const { data: customers } = await supabase
+          .from('customers')
+          .select('due_amount')
+          .eq('store_id', demoStore.id);
+        
+        if (customers) {
+          const dueAmount = customers.reduce((sum, c) => sum + (c.due_amount || 0), 0);
+          setTotalDueAmount(dueAmount);
+        }
+      } catch (error) {
+        console.error('Error fetching extras:', error);
+      } finally {
+        setIsLoadingExtras(false);
+      }
+    };
+
+    fetchExtras();
+  }, [demoStore?.id]);
 
   const container = {
     hidden: { opacity: 0 },
@@ -114,25 +160,63 @@ export default function Dashboard() {
         </Button>
       </motion.div>
 
-      {/* Balance Card - Full Width Highlighted */}
-      <motion.div variants={item}>
+      {/* Balance & Summary Cards */}
+      <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* Total Balance */}
         <Card className="bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground border-0 shadow-lg shadow-primary/20">
-          <CardContent className="p-4 lg:p-6">
+          <CardContent className="p-4 lg:p-5">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium opacity-90 mb-1">মোট ব্যালেন্স</p>
-                <p className="text-3xl lg:text-4xl font-bold tracking-tight">
+                <p className="text-2xl lg:text-3xl font-bold tracking-tight">
                   {balanceLoading ? '...' : formatBDT(balance?.current_balance || 0)}
                 </p>
-                <div className="flex flex-wrap items-center gap-2 mt-2">
-                  <Badge variant="secondary" className="bg-white/20 text-white border-0 text-xs">
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    আজকের লাভ: {statsLoading ? '...' : formatBDT(stats?.todayProfit || 0)}
-                  </Badge>
-                </div>
+                <p className="text-xs opacity-75 mt-1">
+                  হাতে নগদ
+                </p>
               </div>
-              <div className="p-3 rounded-xl bg-white/20">
-                <Wallet className="h-6 w-6" />
+              <div className="p-2.5 rounded-xl bg-white/20">
+                <Wallet className="h-5 w-5" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Total Stock Value */}
+        <Card className="bg-gradient-to-br from-emerald-600 via-emerald-600 to-emerald-500 text-white border-0 shadow-lg shadow-emerald-600/20">
+          <CardContent className="p-4 lg:p-5">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium opacity-90 mb-1">মোট স্টক মূল্য</p>
+                <p className="text-2xl lg:text-3xl font-bold tracking-tight">
+                  {isLoadingExtras ? '...' : formatBDT(totalStockValue)}
+                </p>
+                <p className="text-xs opacity-75 mt-1">
+                  সব পণ্যের মূল্য
+                </p>
+              </div>
+              <div className="p-2.5 rounded-xl bg-white/20">
+                <Package className="h-5 w-5" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Total Due Amount */}
+        <Card className="bg-gradient-to-br from-orange-500 via-orange-500 to-orange-400 text-white border-0 shadow-lg shadow-orange-500/20">
+          <CardContent className="p-4 lg:p-5">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium opacity-90 mb-1">মোট বাকি পাওনা</p>
+                <p className="text-2xl lg:text-3xl font-bold tracking-tight">
+                  {isLoadingExtras ? '...' : formatBDT(totalDueAmount)}
+                </p>
+                <p className="text-xs opacity-75 mt-1">
+                  গ্রাহকদের বকেয়া
+                </p>
+              </div>
+              <div className="p-2.5 rounded-xl bg-white/20">
+                <CreditCard className="h-5 w-5" />
               </div>
             </div>
           </CardContent>
