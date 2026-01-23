@@ -5,6 +5,7 @@ import { InvoiceData, InvoiceTemplate } from './types';
 import InvoiceRenderer from './InvoiceRenderer';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface Props {
   invoice: InvoiceData | null;
@@ -15,6 +16,7 @@ interface Props {
 
 export default function InvoicePreviewDialog({ invoice, template, open, onClose }: Props) {
   const printRef = useRef<HTMLDivElement>(null);
+  const { isPaid } = useSubscription();
 
   if (!invoice) return null;
 
@@ -121,7 +123,11 @@ export default function InvoicePreviewDialog({ invoice, template, open, onClose 
             {/* Invoice Preview */}
             <div className="flex-1 overflow-auto p-4 bg-muted/30">
               <div ref={printRef} className="shadow-lg">
-                <InvoiceRenderer invoice={invoice} template={template} />
+                <InvoiceRenderer 
+                  invoice={invoice} 
+                  template={template} 
+                  showWatermark={!isPaid()}
+                />
               </div>
             </div>
           </motion.div>

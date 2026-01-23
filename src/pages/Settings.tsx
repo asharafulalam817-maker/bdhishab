@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings as SettingsIcon, Store, Receipt, Shield, Users, Bell } from 'lucide-react';
+import { Settings as SettingsIcon, Store, Receipt, Shield, Users, Bell, Crown } from 'lucide-react';
 import { bn } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,15 +13,15 @@ import InvoiceTemplateSelector from '@/components/invoice/InvoiceTemplateSelecto
 import { InvoiceTemplate } from '@/components/invoice/types';
 import { toast } from 'sonner';
 import NotificationSettings from '@/components/warranty/NotificationSettings';
-
+import { SubscriptionDialog } from '@/components/subscription/SubscriptionDialog';
 export default function Settings() {
   const [selectedTemplate, setSelectedTemplate] = useState<InvoiceTemplate>('classic');
+  const [subscriptionOpen, setSubscriptionOpen] = useState(false);
 
   const handleTemplateChange = (template: InvoiceTemplate) => {
     setSelectedTemplate(template);
     toast.success(`${template} টেমপ্লেট সিলেক্ট করা হয়েছে`);
   };
-
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="page-header">
@@ -32,8 +32,9 @@ export default function Settings() {
       </div>
 
       <Tabs defaultValue="store">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="store" className="gap-2"><Store className="h-4 w-4" />স্টোর</TabsTrigger>
+          <TabsTrigger value="subscription" className="gap-2"><Crown className="h-4 w-4" />সাবস্ক্রিপশন</TabsTrigger>
           <TabsTrigger value="invoice" className="gap-2"><Receipt className="h-4 w-4" />চালান</TabsTrigger>
           <TabsTrigger value="warranty" className="gap-2"><Shield className="h-4 w-4" />ওয়ারেন্টি</TabsTrigger>
           <TabsTrigger value="notifications" className="gap-2"><Bell className="h-4 w-4" />নোটিফিকেশন</TabsTrigger>
@@ -63,6 +64,26 @@ export default function Settings() {
                 </div>
               </div>
               <Button>{bn.common.save}</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="subscription" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Crown className="h-5 w-5 text-yellow-500" />
+                সাবস্ক্রিপশন ও প্যাকেজ
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                আপনার সাবস্ক্রিপশন প্যাকেজ দেখুন এবং আপগ্রেড করুন
+              </p>
+              <Button onClick={() => setSubscriptionOpen(true)} className="gap-2">
+                <Crown className="h-4 w-4" />
+                সাবস্ক্রিপশন দেখুন
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -136,6 +157,8 @@ export default function Settings() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <SubscriptionDialog open={subscriptionOpen} onOpenChange={setSubscriptionOpen} />
     </motion.div>
   );
 }
