@@ -20,9 +20,14 @@ import {
   FileText,
   UserPlus,
   Store,
-  Rocket
+  Rocket,
+  CreditCard,
+  Receipt,
+  Wallet,
+  PieChart
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { motion } from 'framer-motion';
 
 const Home = () => {
@@ -384,6 +389,350 @@ const Home = () => {
             <Link to="/signup">
               <Button size="lg" className="gap-2 text-base font-bold">
                 এখনই শুরু করুন <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* App Demo Carousel Section */}
+      <section id="demo" className="py-20 bg-muted/20 overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/50 px-4 py-2 backdrop-blur mb-4">
+                <Smartphone className="h-4 w-4 text-primary" />
+                <span className="text-sm font-bold text-foreground/90">অ্যাপ ডেমো</span>
+              </div>
+              <h2 className="text-3xl lg:text-5xl font-extrabold mb-4 tracking-tight">অ্যাপটি দেখুন</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-semibold">
+                আমাদের প্রিমিয়াম ফিচারগুলো এক নজরে দেখুন
+              </p>
+            </motion.div>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="max-w-5xl mx-auto"
+          >
+            <Carousel
+              opts={{
+                align: "center",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {/* Dashboard Demo */}
+                <CarouselItem className="pl-2 md:pl-4 md:basis-4/5 lg:basis-3/4">
+                  <div className="relative">
+                    <div className="absolute -inset-3 rounded-3xl bg-primary/15 blur-2xl" />
+                    <div className="relative rounded-3xl border border-border/60 bg-card/50 backdrop-blur-xl shadow-2xl overflow-hidden">
+                      <div className="p-4 border-b border-border/60 flex items-center gap-3 bg-background/40">
+                        <div className="flex gap-1.5">
+                          <div className="h-3 w-3 rounded-full bg-red-500/80" />
+                          <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
+                          <div className="h-3 w-3 rounded-full bg-green-500/80" />
+                        </div>
+                        <span className="text-sm font-bold text-muted-foreground flex-1 text-center">ড্যাশবোর্ড - ডিজিটাল বন্ধু</span>
+                      </div>
+                      <div className="p-6 lg:p-8 space-y-6">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                          <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-primary/15 to-primary/5 p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <TrendingUp className="h-4 w-4 text-primary" />
+                              <p className="text-xs font-bold text-muted-foreground">আজকের বিক্রয়</p>
+                            </div>
+                            <p className="text-2xl lg:text-3xl font-extrabold text-primary">৳ ৪৫,৮৫০</p>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Package className="h-4 w-4 text-muted-foreground" />
+                              <p className="text-xs font-bold text-muted-foreground">মোট প্রোডাক্ট</p>
+                            </div>
+                            <p className="text-2xl lg:text-3xl font-extrabold">১,২৪৫</p>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Users className="h-4 w-4 text-muted-foreground" />
+                              <p className="text-xs font-bold text-muted-foreground">কাস্টমার</p>
+                            </div>
+                            <p className="text-2xl lg:text-3xl font-extrabold">৩৮৭</p>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Wallet className="h-4 w-4 text-muted-foreground" />
+                              <p className="text-xs font-bold text-muted-foreground">বাকি আদায়</p>
+                            </div>
+                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ২৮,৫০০</p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                          <div className="rounded-2xl border border-border/60 bg-background/40 p-5">
+                            <div className="flex items-center justify-between mb-4">
+                              <p className="text-sm font-bold">সাম্প্রতিক বিক্রয়</p>
+                              <span className="text-xs font-bold text-primary">সব দেখুন</span>
+                            </div>
+                            <div className="space-y-3">
+                              {[
+                                { name: 'Samsung Galaxy A54', amount: '৳ ৩২,৫০০', time: '১০ মিনিট আগে' },
+                                { name: 'iPhone 14 Pro Case', amount: '৳ ৮৫০', time: '২৫ মিনিট আগে' },
+                                { name: 'Xiaomi Earbuds', amount: '৳ ১,৫০০', time: '১ ঘন্টা আগে' },
+                              ].map((sale, i) => (
+                                <div key={i} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
+                                  <div>
+                                    <p className="text-sm font-bold">{sale.name}</p>
+                                    <p className="text-xs text-muted-foreground">{sale.time}</p>
+                                  </div>
+                                  <p className="text-sm font-extrabold text-primary">{sale.amount}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-background/40 p-5">
+                            <div className="flex items-center justify-between mb-4">
+                              <p className="text-sm font-bold">লো স্টক অ্যালার্ট</p>
+                              <span className="inline-flex items-center gap-1 text-xs font-bold text-destructive">
+                                <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" /> ৫টি আইটেম
+                              </span>
+                            </div>
+                            <div className="space-y-3">
+                              {[
+                                { name: 'Samsung Charger 25W', stock: '৩টি বাকি' },
+                                { name: 'iPhone Lightning Cable', stock: '২টি বাকি' },
+                                { name: 'Redmi Power Bank', stock: '৫টি বাকি' },
+                              ].map((item, i) => (
+                                <div key={i} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
+                                  <p className="text-sm font-bold">{item.name}</p>
+                                  <span className="text-xs font-bold bg-destructive/15 text-destructive px-2 py-1 rounded-full">{item.stock}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+
+                {/* POS Demo */}
+                <CarouselItem className="pl-2 md:pl-4 md:basis-4/5 lg:basis-3/4">
+                  <div className="relative">
+                    <div className="absolute -inset-3 rounded-3xl bg-primary/15 blur-2xl" />
+                    <div className="relative rounded-3xl border border-border/60 bg-card/50 backdrop-blur-xl shadow-2xl overflow-hidden">
+                      <div className="p-4 border-b border-border/60 flex items-center gap-3 bg-background/40">
+                        <div className="flex gap-1.5">
+                          <div className="h-3 w-3 rounded-full bg-red-500/80" />
+                          <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
+                          <div className="h-3 w-3 rounded-full bg-green-500/80" />
+                        </div>
+                        <span className="text-sm font-bold text-muted-foreground flex-1 text-center">POS সিস্টেম - দ্রুত বিক্রয়</span>
+                      </div>
+                      <div className="p-6 lg:p-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                          <div className="lg:col-span-3 space-y-4">
+                            <div className="rounded-xl border border-border/60 bg-background/40 p-4">
+                              <div className="flex items-center gap-3 mb-4">
+                                <div className="flex-1 rounded-xl border border-border/60 bg-card/50 px-4 py-3 flex items-center gap-2">
+                                  <Package className="h-4 w-4 text-muted-foreground" />
+                                  <span className="text-sm text-muted-foreground">বারকোড স্ক্যান বা সার্চ করুন...</span>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                                {[
+                                  { name: 'Samsung A54', price: '৳ ৩২,৫০০' },
+                                  { name: 'iPhone Case', price: '৳ ৮৫০' },
+                                  { name: 'Earbuds Pro', price: '৳ ২,৫০০' },
+                                  { name: 'Power Bank', price: '৳ ১,৮০০' },
+                                  { name: 'USB Cable', price: '৳ ২৫০' },
+                                  { name: 'Charger 25W', price: '৳ ৯৫০' },
+                                ].map((product, i) => (
+                                  <div key={i} className="rounded-xl border border-border/60 bg-card/50 p-4 text-center hover:border-primary/50 transition-colors cursor-pointer">
+                                    <div className="h-10 w-10 rounded-lg bg-primary/15 mx-auto mb-2 flex items-center justify-center">
+                                      <Package className="h-5 w-5 text-primary" />
+                                    </div>
+                                    <p className="text-sm font-bold truncate">{product.name}</p>
+                                    <p className="text-xs text-primary font-bold mt-1">{product.price}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="lg:col-span-2">
+                            <div className="rounded-xl border border-border/60 bg-background/40 p-5 space-y-4">
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm font-bold">কার্ট</p>
+                                <span className="text-xs font-bold bg-primary/15 text-primary px-2 py-1 rounded-full">৩টি আইটেম</span>
+                              </div>
+                              <div className="space-y-3">
+                                {[
+                                  { name: 'Samsung A54', qty: 1, price: '৩২,৫০০' },
+                                  { name: 'iPhone Case', qty: 2, price: '১,৭০০' },
+                                  { name: 'USB Cable', qty: 3, price: '৭৫০' },
+                                ].map((item, i) => (
+                                  <div key={i} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
+                                    <div>
+                                      <p className="text-sm font-bold">{item.name}</p>
+                                      <p className="text-xs text-muted-foreground">x{item.qty}</p>
+                                    </div>
+                                    <p className="text-sm font-bold">৳ {item.price}</p>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="pt-3 border-t border-border/60">
+                                <div className="flex items-center justify-between mb-4">
+                                  <p className="text-lg font-extrabold">মোট</p>
+                                  <p className="text-2xl font-extrabold text-primary">৳ ৩৪,৯৫০</p>
+                                </div>
+                                <div className="grid grid-cols-3 gap-2">
+                                  <div className="rounded-lg border border-border/60 bg-card/50 p-2 text-center">
+                                    <CreditCard className="h-4 w-4 text-muted-foreground mx-auto mb-1" />
+                                    <p className="text-xs font-bold">bKash</p>
+                                  </div>
+                                  <div className="rounded-lg border border-primary/50 bg-primary/15 p-2 text-center">
+                                    <Wallet className="h-4 w-4 text-primary mx-auto mb-1" />
+                                    <p className="text-xs font-bold text-primary">ক্যাশ</p>
+                                  </div>
+                                  <div className="rounded-lg border border-border/60 bg-card/50 p-2 text-center">
+                                    <Receipt className="h-4 w-4 text-muted-foreground mx-auto mb-1" />
+                                    <p className="text-xs font-bold">বাকি</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+
+                {/* Reports Demo */}
+                <CarouselItem className="pl-2 md:pl-4 md:basis-4/5 lg:basis-3/4">
+                  <div className="relative">
+                    <div className="absolute -inset-3 rounded-3xl bg-primary/15 blur-2xl" />
+                    <div className="relative rounded-3xl border border-border/60 bg-card/50 backdrop-blur-xl shadow-2xl overflow-hidden">
+                      <div className="p-4 border-b border-border/60 flex items-center gap-3 bg-background/40">
+                        <div className="flex gap-1.5">
+                          <div className="h-3 w-3 rounded-full bg-red-500/80" />
+                          <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
+                          <div className="h-3 w-3 rounded-full bg-green-500/80" />
+                        </div>
+                        <span className="text-sm font-bold text-muted-foreground flex-1 text-center">রিপোর্ট ও অ্যানালিটিক্স</span>
+                      </div>
+                      <div className="p-6 lg:p-8 space-y-6">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                          <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-green-500/15 to-green-500/5 p-4">
+                            <p className="text-xs font-bold text-muted-foreground mb-1">মোট আয়</p>
+                            <p className="text-xl lg:text-2xl font-extrabold text-green-500">৳ ৩,৪৫,০০০</p>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-red-500/15 to-red-500/5 p-4">
+                            <p className="text-xs font-bold text-muted-foreground mb-1">মোট ব্যয়</p>
+                            <p className="text-xl lg:text-2xl font-extrabold text-red-500">৳ ২,৮৫,০০০</p>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-primary/15 to-primary/5 p-4">
+                            <p className="text-xs font-bold text-muted-foreground mb-1">নিট লাভ</p>
+                            <p className="text-xl lg:text-2xl font-extrabold text-primary">৳ ৬০,০০০</p>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+                            <p className="text-xs font-bold text-muted-foreground mb-1">লাভের হার</p>
+                            <p className="text-xl lg:text-2xl font-extrabold">১৭.৪%</p>
+                          </div>
+                        </div>
+                        <div className="rounded-2xl border border-border/60 bg-background/40 p-5">
+                          <div className="flex items-center justify-between mb-6">
+                            <p className="text-sm font-bold">মাসিক বিক্রয় চার্ট</p>
+                            <div className="flex gap-2">
+                              <span className="text-xs font-bold bg-card/60 px-3 py-1 rounded-full border border-border/60">জানুয়ারি ২০২৫</span>
+                            </div>
+                          </div>
+                          <div className="flex items-end gap-2 h-32">
+                            {[40, 65, 45, 80, 55, 90, 70, 85, 60, 75, 95, 88].map((height, i) => (
+                              <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                                <div 
+                                  className="w-full rounded-t-lg bg-gradient-to-t from-primary/80 to-primary/40"
+                                  style={{ height: `${height}%` }}
+                                />
+                                <span className="text-[10px] text-muted-foreground">{i + 1}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                          <div className="rounded-2xl border border-border/60 bg-background/40 p-5">
+                            <p className="text-sm font-bold mb-4">টপ সেলিং প্রোডাক্ট</p>
+                            <div className="space-y-3">
+                              {[
+                                { name: 'Samsung Galaxy A54', sold: '৪৫টি', revenue: '৳ ১৪,৬২,৫০০' },
+                                { name: 'iPhone 14 Pro Max', sold: '২৮টি', revenue: '৳ ৩৯,২০,০০০' },
+                                { name: 'Xiaomi Redmi Note 12', sold: '৬২টি', revenue: '৳ ১৫,৫০,০০০' },
+                              ].map((product, i) => (
+                                <div key={i} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
+                                  <div className="flex items-center gap-3">
+                                    <span className="h-8 w-8 rounded-full bg-primary/15 flex items-center justify-center text-sm font-bold text-primary">{i + 1}</span>
+                                    <div>
+                                      <p className="text-sm font-bold">{product.name}</p>
+                                      <p className="text-xs text-muted-foreground">{product.sold} বিক্রি</p>
+                                    </div>
+                                  </div>
+                                  <p className="text-sm font-bold text-primary">{product.revenue}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-background/40 p-5">
+                            <p className="text-sm font-bold mb-4">পেমেন্ট মেথড</p>
+                            <div className="flex items-center justify-center gap-6">
+                              <div className="text-center">
+                                <div className="relative h-24 w-24 mx-auto">
+                                  <PieChart className="h-24 w-24 text-primary/20" />
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <span className="text-lg font-extrabold">৬৫%</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="h-3 w-3 rounded-full bg-primary" />
+                                  <span className="text-sm font-bold">ক্যাশ (৬৫%)</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="h-3 w-3 rounded-full bg-pink-500" />
+                                  <span className="text-sm font-bold">bKash (২৫%)</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="h-3 w-3 rounded-full bg-orange-500" />
+                                  <span className="text-sm font-bold">Nagad (১০%)</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+              </CarouselContent>
+              
+              <div className="flex items-center justify-center gap-4 mt-8">
+                <CarouselPrevious className="static translate-y-0 h-12 w-12 border-border/60 bg-card/50 backdrop-blur hover:bg-card/70" />
+                <CarouselNext className="static translate-y-0 h-12 w-12 border-border/60 bg-card/50 backdrop-blur hover:bg-card/70" />
+              </div>
+            </Carousel>
+          </motion.div>
+
+          <div className="text-center mt-12">
+            <Link to="/signup">
+              <Button size="lg" className="gap-2 text-base font-bold">
+                ফ্রি ট্রায়াল শুরু করুন <ArrowRight className="h-5 w-5" />
               </Button>
             </Link>
           </div>
