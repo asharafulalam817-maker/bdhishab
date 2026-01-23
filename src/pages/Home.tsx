@@ -29,7 +29,6 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { motion } from 'framer-motion';
-import dashboardPreview from '@/assets/dashboard-preview.jpg';
 
 const Home = () => {
   const features = [
@@ -432,7 +431,7 @@ const Home = () => {
               className="w-full"
             >
               <CarouselContent className="-ml-2 md:-ml-4">
-                {/* Dashboard Screenshot */}
+                {/* Dashboard Demo */}
                 <CarouselItem className="pl-2 md:pl-4 md:basis-4/5 lg:basis-3/4">
                   <div className="relative">
                     <div className="absolute -inset-3 rounded-3xl bg-primary/15 blur-2xl" />
@@ -445,13 +444,73 @@ const Home = () => {
                         </div>
                         <span className="text-sm font-bold text-muted-foreground flex-1 text-center">ড্যাশবোর্ড - ডিজিটাল বন্ধু</span>
                       </div>
-                      <div className="relative">
-                        <img 
-                          src={dashboardPreview} 
-                          alt="ডিজিটাল বন্ধু ড্যাশবোর্ড প্রিভিউ" 
-                          className="w-full h-auto"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent" />
+                      <div className="p-6 lg:p-8 space-y-6">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                          <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-blue-500/20 to-blue-500/5 p-4">
+                            <p className="text-xs font-bold text-muted-foreground mb-1">ক্যাশ আছে</p>
+                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ০</p>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-green-500/20 to-green-500/5 p-4">
+                            <p className="text-xs font-bold text-muted-foreground mb-1">স্টক মূল্য</p>
+                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ০</p>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-orange-500/20 to-orange-500/5 p-4">
+                            <p className="text-xs font-bold text-muted-foreground mb-1">বাকি পাওনা</p>
+                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ০</p>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-purple-500/20 to-purple-500/5 p-4">
+                            <p className="text-xs font-bold text-muted-foreground mb-1">মূলধন</p>
+                            <p className="text-2xl lg:text-3xl font-extrabold">৳ ০</p>
+                          </div>
+                        </div>
+                        <div className="rounded-2xl border border-border/60 bg-background/40 p-5">
+                          <p className="text-sm font-bold mb-4">আজকের হিসেব 📊</p>
+                          <div className="grid grid-cols-5 gap-3">
+                            <div className="text-center p-3 rounded-xl border border-border/40">
+                              <ShoppingCart className="h-5 w-5 mx-auto text-blue-400 mb-2" />
+                              <p className="text-lg font-extrabold">৳ ১৮,৫০০</p>
+                              <p className="text-xs text-muted-foreground">ক্রয়</p>
+                            </div>
+                            <div className="text-center p-3 rounded-xl border border-border/40">
+                              <Receipt className="h-5 w-5 mx-auto text-purple-400 mb-2" />
+                              <p className="text-lg font-extrabold">৳ ২৫,৬০০</p>
+                              <p className="text-xs text-muted-foreground">বিক্রয়</p>
+                            </div>
+                            <div className="text-center p-3 rounded-xl border border-border/40">
+                              <Wallet className="h-5 w-5 mx-auto text-orange-400 mb-2" />
+                              <p className="text-lg font-extrabold">৳ ৪,২০০</p>
+                              <p className="text-xs text-muted-foreground">বাকি</p>
+                            </div>
+                            <div className="text-center p-3 rounded-xl border border-border/40">
+                              <TrendingUp className="h-5 w-5 mx-auto text-green-400 mb-2" />
+                              <p className="text-lg font-extrabold">৳ ৪,৬০০</p>
+                              <p className="text-xs text-muted-foreground">লাভ</p>
+                            </div>
+                            <div className="text-center p-3 rounded-xl border border-border/40">
+                              <BarChart3 className="h-5 w-5 mx-auto text-red-400 mb-2" />
+                              <p className="text-lg font-extrabold">৳ ২,৫০০</p>
+                              <p className="text-xs text-muted-foreground">খরচ</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-4 gap-4">
+                          <div className="rounded-xl border border-blue-500/30 bg-slate-900/80 p-4 text-center hover:scale-105 transition-transform cursor-pointer">
+                            <ShoppingCart className="h-8 w-8 mx-auto text-blue-400 mb-2" />
+                            <p className="text-lg font-extrabold">ক্রয়</p>
+                          </div>
+                          <div className="rounded-xl border border-purple-500/30 bg-slate-900/80 p-4 text-center hover:scale-105 transition-transform cursor-pointer">
+                            <Receipt className="h-8 w-8 mx-auto text-purple-400 mb-2" />
+                            <p className="text-lg font-extrabold">বিক্রয়</p>
+                          </div>
+                          <div className="rounded-xl border border-emerald-500/30 bg-slate-900/80 p-4 text-center hover:scale-105 transition-transform cursor-pointer">
+                            <Package className="h-8 w-8 mx-auto text-emerald-400 mb-2" />
+                            <p className="text-lg font-extrabold">স্টক</p>
+                          </div>
+                          <div className="rounded-xl border border-rose-500/30 bg-slate-900/80 p-4 text-center hover:scale-105 transition-transform cursor-pointer">
+                            <Users className="h-8 w-8 mx-auto text-rose-400 mb-2" />
+                            <p className="text-lg font-extrabold">গ্রাহক</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
