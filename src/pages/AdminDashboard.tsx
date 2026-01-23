@@ -5,6 +5,8 @@ import {
   AlertCircle, Search, Eye, Send, X, Ban, CheckCircle2,
   Package, ShoppingCart, TrendingUp, Calendar
 } from 'lucide-react';
+import { useAdminNotifications } from '@/hooks/useAdminNotifications';
+import { AdminNotificationBell } from '@/components/admin/AdminNotificationBell';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -71,6 +73,17 @@ const ADMIN_USER_ID = '00000000-0000-0000-0000-000000000001';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Admin notifications
+  const {
+    notifications,
+    unreadCount,
+    soundEnabled,
+    setSoundEnabled,
+    markAsRead,
+    markAllAsRead,
+    clearAll
+  } = useAdminNotifications();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [stores, setStores] = useState<StoreData[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
@@ -411,12 +424,35 @@ export default function AdminDashboard() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       {/* Header */}
-      <div className="page-header">
-        <h1 className="page-title flex items-center gap-2">
-          <Shield className="h-6 w-6" />
-          এডমিন ড্যাশবোর্ড
-        </h1>
-        <p className="text-muted-foreground">প্ল্যাটফর্ম পরিচালনা ও সাপোর্ট ম্যানেজমেন্ট</p>
+      <div className="page-header flex items-start justify-between">
+        <div>
+          <h1 className="page-title flex items-center gap-2">
+            <Shield className="h-6 w-6" />
+            এডমিন ড্যাশবোর্ড
+          </h1>
+          <p className="text-muted-foreground">প্ল্যাটফর্ম পরিচালনা ও সাপোর্ট ম্যানেজমেন্ট</p>
+        </div>
+        <AdminNotificationBell
+          notifications={notifications}
+          unreadCount={unreadCount}
+          soundEnabled={soundEnabled}
+          onSoundToggle={() => setSoundEnabled(!soundEnabled)}
+          onMarkAsRead={markAsRead}
+          onMarkAllAsRead={markAllAsRead}
+          onClearAll={clearAll}
+          onNotificationClick={(notification) => {
+            if (notification.type === 'new_message' || notification.type === 'new_conversation') {
+              setActiveTab('support');
+              // Find and open the conversation
+              const conv = conversations.find(c => c.id === notification.data?.conversationId);
+              if (conv) {
+                openConversation(conv);
+              }
+            } else if (notification.type === 'new_store') {
+              setActiveTab('stores');
+            }
+          }}
+        />
       </div>
 
       {/* Main Tabs */}
