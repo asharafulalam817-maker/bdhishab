@@ -288,6 +288,33 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_admins: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string | null
+          user_id: string
+          whatsapp_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string | null
+          user_id: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string | null
+          user_id?: string
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           barcode: string | null
@@ -925,6 +952,74 @@ export type Database = {
           },
         ]
       }
+      support_conversations: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          status: string
+          store_id: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          status?: string
+          store_id: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          status?: string
+          store_id?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      support_messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          sender_id: string
+          sender_role: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          sender_id: string
+          sender_role: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          sender_id?: string
+          sender_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "support_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       warranty_claims: {
         Row: {
           action_taken: string | null
@@ -1107,11 +1202,12 @@ export type Database = {
       }
       is_manager_or_owner: { Args: { _store_id: string }; Returns: boolean }
       is_owner: { Args: { _store_id: string }; Returns: boolean }
+      is_platform_admin: { Args: { _user_id?: string }; Returns: boolean }
       is_staff_or_higher: { Args: { _store_id: string }; Returns: boolean }
       is_store_member: { Args: { _store_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "owner" | "manager" | "staff"
+      app_role: "owner" | "manager" | "staff" | "platform_admin"
       duration_unit: "days" | "months" | "years"
       payment_method: "cash" | "bkash" | "nagad" | "bank" | "due" | "mixed"
       payment_status: "paid" | "partial" | "due"
@@ -1253,7 +1349,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["owner", "manager", "staff"],
+      app_role: ["owner", "manager", "staff", "platform_admin"],
       duration_unit: ["days", "months", "years"],
       payment_method: ["cash", "bkash", "nagad", "bank", "due", "mixed"],
       payment_status: ["paid", "partial", "due"],
