@@ -32,11 +32,15 @@ import {
   useLowStockItems,
 } from '@/hooks/useDashboard';
 import { useBalance } from '@/hooks/useBalance';
+import { useSubscription } from '@/hooks/useSubscription';
 import { format } from 'date-fns';
 import { bn as bnLocale, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useState, useEffect } from 'react';
+import { SubscriptionExpiredBanner } from '@/components/subscription/SubscriptionExpiredBanner';
+import { useReadOnly } from '@/contexts/ReadOnlyContext';
+import { toast } from 'sonner';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -60,6 +64,8 @@ export default function Dashboard() {
   } = useLowStockItems(5);
 
   const { balance, isLoading: balanceLoading } = useBalance();
+  const { isSubscriptionExpired, getDaysExpired, isLoading: subscriptionLoading } = useSubscription();
+  const { isReadOnly, showReadOnlyToast } = useReadOnly();
 
   // Fetch total stock value and customer dues
   const [totalStockValue, setTotalStockValue] = useState(0);
@@ -67,6 +73,7 @@ export default function Dashboard() {
   const [isLoadingExtras, setIsLoadingExtras] = useState(true);
 
   const dateLocale = language === 'bn' ? bnLocale : enUS;
+  const showExpiredBanner = !subscriptionLoading && isSubscriptionExpired();
 
   useEffect(() => {
     const fetchExtras = async () => {
@@ -131,11 +138,12 @@ export default function Dashboard() {
   };
 
   // Quick actions - Short labels (Order: ক্রয়, বিক্রয়, স্টক, গ্রাহক)
+  // Note: readOnly actions (purchase, sale, stock) will show toast if subscription expired
   const quickActions = [
-    { label: t('quickAction.purchase'), icon: Truck, path: '/purchases/new', variant: 'default' as const },
-    { label: t('quickAction.sale'), icon: ShoppingCart, path: '/pos', variant: 'primary' as const },
-    { label: t('quickAction.stock'), icon: PackagePlus, path: '/quick-stock', variant: 'default' as const },
-    { label: t('quickAction.customer'), icon: Users, path: '/customers', variant: 'default' as const },
+    { label: t('quickAction.purchase'), icon: Truck, path: '/purchases/new', variant: 'default' as const, requiresActive: true },
+    { label: t('quickAction.sale'), icon: ShoppingCart, path: '/pos', variant: 'primary' as const, requiresActive: true },
+    { label: t('quickAction.stock'), icon: PackagePlus, path: '/quick-stock', variant: 'default' as const, requiresActive: true },
+    { label: t('quickAction.customer'), icon: Users, path: '/customers', variant: 'default' as const, requiresActive: false },
   ];
 
   return (
@@ -145,6 +153,13 @@ export default function Dashboard() {
       animate="show"
       className="space-y-4 lg:space-y-6 w-full"
     >
+      {/* Subscription Expired Banner */}
+      {showExpiredBanner && (
+        <motion.div variants={item}>
+          <SubscriptionExpiredBanner daysExpired={getDaysExpired()} />
+        </motion.div>
+      )}
+
       {/* Minimal Header */}
       <motion.div variants={item} className="flex items-center justify-between">
         <div>
@@ -345,15 +360,25 @@ export default function Dashboard() {
           ];
           
           const style = styles[index];
+          const isDisabled = action.requiresActive && isReadOnly;
+          
+          const handleClick = () => {
+            if (isDisabled) {
+              showReadOnlyToast();
+              return;
+            }
+            navigate(action.path);
+          };
           
           return (
             <motion.button
               key={action.path}
-              whileHover={{ scale: 1.03, y: -2 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => navigate(action.path)}
+              whileHover={isDisabled ? {} : { scale: 1.03, y: -2 }}
+              whileTap={isDisabled ? {} : { scale: 0.97 }}
+              onClick={handleClick}
               className={cn(
-                'group relative flex flex-col items-center justify-center gap-3 lg:gap-4 p-5 lg:p-6 rounded-2xl font-bold transition-all duration-200 cursor-pointer border-2 shadow-xl hover:shadow-2xl',
+                'group relative flex flex-col items-center justify-center gap-3 lg:gap-4 p-5 lg:p-6 rounded-2xl font-bold transition-all duration-200 border-2 shadow-xl',
+                isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-2xl',
                 style.bg,
                 style.border
               )}
@@ -361,7 +386,8 @@ export default function Dashboard() {
               {/* Accent badge */}
               <div className={cn(
                 'absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center shadow-lg',
-                style.accentBg
+                style.accentBg,
+                isDisabled && 'opacity-50'
               )}>
                 <span className="text-white text-lg font-black">+</span>
               </div>
@@ -369,7 +395,8 @@ export default function Dashboard() {
               {/* Icon */}
               <div className={cn(
                 'p-3 lg:p-4 rounded-xl',
-                style.accentBg
+                style.accentBg,
+                isDisabled && 'opacity-50'
               )}>
                 <action.icon className="h-6 w-6 lg:h-7 lg:w-7 text-white" />
               </div>
@@ -377,14 +404,15 @@ export default function Dashboard() {
               {/* Label - Extra Large text especially on mobile */}
               <span className={cn(
                 'text-2xl sm:text-2xl lg:text-3xl font-extrabold text-center leading-tight',
-                style.accent
+                style.accent,
+                isDisabled && 'opacity-50'
               )}>
                 {action.label}
               </span>
               
               {/* Click hint */}
               <span className="text-xs lg:text-sm text-slate-400 font-semibold flex items-center gap-1">
-                {t('common.clickHere')} →
+                {isDisabled ? '🔒' : `${t('common.clickHere')} →`}
               </span>
             </motion.button>
           );

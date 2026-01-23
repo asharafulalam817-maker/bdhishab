@@ -19,6 +19,7 @@ import { useSuppliers } from '@/hooks/useSuppliers';
 import { useBalance } from '@/hooks/useBalance';
 import { formatBDT, bn, formatNumberBn } from '@/lib/constants';
 import { toast } from 'sonner';
+import { ReadOnlyGuard } from '@/components/subscription/ReadOnlyGuard';
 
 export default function Purchases() {
   const {
@@ -101,6 +102,7 @@ export default function Purchases() {
   };
 
   return (
+    <ReadOnlyGuard featureName="নতুন ক্রয়">
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -236,5 +238,6 @@ export default function Purchases() {
         purchase={selectedPurchase}
       />
     </div>
+    </ReadOnlyGuard>
   );
 }
