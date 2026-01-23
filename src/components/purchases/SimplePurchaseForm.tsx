@@ -21,7 +21,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatBDT } from '@/lib/constants';
 import type { Supplier } from '@/hooks/useSuppliers';
@@ -237,7 +236,7 @@ export function SimplePurchaseForm({
         ScrollArea needs a real height (not only max-height) to compute its viewport.
         Without this, on some browsers the content won't scroll.
       */}
-      <DialogContent className="sm:max-w-[600px] h-[95vh] max-h-[95vh] p-0 flex flex-col">
+      <DialogContent className="sm:max-w-[600px] h-[95vh] max-h-[95vh] p-0 flex flex-col overflow-hidden">
         <DialogHeader className="p-6 pb-0 flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -249,7 +248,8 @@ export function SimplePurchaseForm({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
-          <ScrollArea className="flex-1 px-6 overscroll-contain touch-pan-y">
+          {/* Native scrolling is more reliable inside dialogs (esp. mobile) */}
+          <div className="flex-1 overflow-y-auto px-6 overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
             <div className="space-y-5 py-4 pb-6">
               
               {/* Supplier Section */}
@@ -603,7 +603,7 @@ export function SimplePurchaseForm({
                 />
               </div>
             </div>
-          </ScrollArea>
+          </div>
 
           <DialogFooter className="p-6 pt-4 border-t flex-shrink-0">
             <Button
