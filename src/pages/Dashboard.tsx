@@ -309,7 +309,13 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Quick Actions - Dark Premium Solid Buttons */}
-      <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-5">
+      <motion.div variants={item} className="space-y-3">
+        {/* Section Headline */}
+        <h2 className="text-xl lg:text-2xl font-extrabold text-foreground">
+          {t('dashboard.quickActions')} ⚡
+        </h2>
+        
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-5">
         {quickActions.map((action, index) => {
           const styles = [
             {
@@ -383,6 +389,7 @@ export default function Dashboard() {
             </motion.button>
           );
         })}
+        </div>
       </motion.div>
 
       {/* Two Column Layout */}
