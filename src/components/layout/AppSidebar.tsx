@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
@@ -7,7 +7,6 @@ import {
   Warehouse,
   Users,
   ShoppingCart,
-  Receipt,
   ShieldCheck,
   BarChart3,
   Settings,
@@ -19,60 +18,60 @@ import {
   Store,
   Shield,
 } from 'lucide-react';
-import { bn } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useDemo } from '@/contexts/DemoContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   icon: React.ElementType;
   href?: string;
-  children?: { label: string; href: string }[];
+  children?: { labelKey: string; href: string }[];
 }
 
-const navItems: NavItem[] = [
-  { label: bn.nav.dashboard, icon: LayoutDashboard, href: '/dashboard' },
-  { label: bn.nav.products, icon: Package, href: '/products' },
+const navItemsConfig: NavItem[] = [
+  { labelKey: 'nav.dashboard', icon: LayoutDashboard, href: '/dashboard' },
+  { labelKey: 'nav.products', icon: Package, href: '/products' },
   {
-    label: bn.nav.inventory,
+    labelKey: 'nav.inventory',
     icon: Warehouse,
     children: [
-      { label: bn.inventory.stockLedger, href: '/inventory/ledger' },
-      { label: bn.inventory.stockIn, href: '/inventory/stock-in' },
-      { label: bn.inventory.stockOut, href: '/inventory/stock-out' },
-      { label: bn.inventory.adjustment, href: '/inventory/adjustment' },
-      { label: bn.inventory.lowStockAlerts, href: '/inventory/low-stock' },
+      { labelKey: 'inventory.stockLedger', href: '/inventory/ledger' },
+      { labelKey: 'inventory.stockIn', href: '/inventory/stock-in' },
+      { labelKey: 'inventory.stockOut', href: '/inventory/stock-out' },
+      { labelKey: 'inventory.adjustment', href: '/inventory/adjustment' },
+      { labelKey: 'inventory.lowStockAlerts', href: '/inventory/low-stock' },
     ],
   },
-  { label: bn.nav.suppliers, icon: Truck, href: '/suppliers' },
-  { label: bn.nav.purchases, icon: ShoppingCart, href: '/purchases' },
-  { label: bn.nav.customers, icon: Users, href: '/customers' },
+  { labelKey: 'nav.suppliers', icon: Truck, href: '/suppliers' },
+  { labelKey: 'nav.purchases', icon: ShoppingCart, href: '/purchases' },
+  { labelKey: 'nav.customers', icon: Users, href: '/customers' },
   {
-    label: bn.nav.sales,
+    labelKey: 'nav.sales',
     icon: CreditCard,
     children: [
-      { label: bn.nav.pos, href: '/pos' },
-      { label: bn.sales.title, href: '/sales' },
-      { label: bn.invoices.title, href: '/invoices' },
+      { labelKey: 'nav.pos', href: '/pos' },
+      { labelKey: 'nav.salesList', href: '/sales' },
+      { labelKey: 'nav.invoices', href: '/invoices' },
     ],
   },
-  { label: bn.nav.warranty, icon: ShieldCheck, href: '/warranty' },
+  { labelKey: 'nav.warranty', icon: ShieldCheck, href: '/warranty' },
   {
-    label: bn.nav.reports,
+    labelKey: 'nav.reports',
     icon: BarChart3,
     children: [
-      { label: bn.reports.dailySales, href: '/reports/daily-sales' },
-      { label: bn.reports.monthlySales, href: '/reports/monthly-sales' },
-      { label: bn.reports.profit, href: '/reports/profit' },
-      { label: bn.reports.stock, href: '/reports/stock' },
-      { label: bn.reports.topSelling, href: '/reports/top-selling' },
-      { label: bn.reports.customerReport, href: '/reports/customers' },
-      { label: bn.reports.supplierDue, href: '/reports/supplier-due' },
+      { labelKey: 'reports.dailySales', href: '/reports/daily-sales' },
+      { labelKey: 'reports.monthlySales', href: '/reports/monthly-sales' },
+      { labelKey: 'reports.profit', href: '/reports/profit' },
+      { labelKey: 'reports.stock', href: '/reports/stock' },
+      { labelKey: 'reports.topSelling', href: '/reports/top-selling' },
+      { labelKey: 'reports.customerReport', href: '/reports/customers' },
+      { labelKey: 'reports.supplierDue', href: '/reports/supplier-due' },
     ],
   },
-  { label: bn.nav.settings, icon: Settings, href: '/settings' },
-  { label: 'এডমিন প্যানেল', icon: Shield, href: '/admin' },
+  { labelKey: 'nav.settings', icon: Settings, href: '/settings' },
+  { labelKey: 'nav.admin', icon: Shield, href: '/admin' },
 ];
 
 interface AppSidebarProps {
@@ -85,10 +84,11 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const { demoProfile } = useDemo();
+  const { t } = useLanguage();
 
-  const toggleExpand = (label: string) => {
+  const toggleExpand = (labelKey: string) => {
     setExpandedItems((prev) =>
-      prev.includes(label) ? prev.filter((item) => item !== label) : [...prev, label]
+      prev.includes(labelKey) ? prev.filter((item) => item !== labelKey) : [...prev, labelKey]
     );
   };
 
@@ -127,7 +127,7 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
               <Store className="h-5 w-5" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-foreground">{bn.appName}</span>
+              <span className="font-bold text-foreground">{t('app.name')}</span>
               <span className="text-xs text-muted-foreground">{storeName}</span>
             </div>
           </div>
@@ -143,12 +143,12 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {navItems.map((item) => (
-            <div key={item.label}>
+          {navItemsConfig.map((item) => (
+            <div key={item.labelKey}>
               {item.children ? (
                 <>
                   <button
-                    onClick={() => toggleExpand(item.label)}
+                    onClick={() => toggleExpand(item.labelKey)}
                     className={cn(
                       'flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                       isChildActive(item.children)
@@ -158,17 +158,17 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
                   >
                     <div className="flex items-center gap-3">
                       <item.icon className="h-5 w-5" />
-                      <span>{item.label}</span>
+                      <span>{t(item.labelKey)}</span>
                     </div>
                     <ChevronDown
                       className={cn(
                         'h-4 w-4 transition-transform',
-                        expandedItems.includes(item.label) && 'rotate-180'
+                        expandedItems.includes(item.labelKey) && 'rotate-180'
                       )}
                     />
                   </button>
                   <AnimatePresence>
-                    {expandedItems.includes(item.label) && (
+                    {expandedItems.includes(item.labelKey) && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
@@ -188,7 +188,7 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
                             )}
                             onClick={() => window.innerWidth < 1024 && onToggle()}
                           >
-                            <span className="ml-5">{child.label}</span>
+                            <span className="ml-5">{t(child.labelKey)}</span>
                           </NavLink>
                         ))}
                       </motion.div>
@@ -207,7 +207,7 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
                   onClick={() => window.innerWidth < 1024 && onToggle()}
                 >
                   <item.icon className="h-5 w-5" />
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                 </NavLink>
               )}
             </div>
@@ -225,7 +225,7 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
                 {demoProfile.full_name}
               </p>
               <p className="text-xs text-muted-foreground">
-                {bn.roles.owner}
+                {t('roles.owner')}
               </p>
             </div>
           </div>

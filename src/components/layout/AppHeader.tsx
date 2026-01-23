@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, Bell, Search, User, Settings, Home, Command } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { bn } from '@/lib/constants';
 import { useDemo } from '@/contexts/DemoContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
 import { GlobalSearchDialog } from '@/components/search/GlobalSearchDialog';
 
 interface AppHeaderProps {
@@ -21,6 +20,7 @@ interface AppHeaderProps {
 
 export function AppHeader({ onMenuClick }: AppHeaderProps) {
   const { demoProfile, demoStore } = useDemo();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -60,7 +60,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
             size="icon"
             className="h-9 w-9"
             onClick={() => navigate('/dashboard')}
-            title="ড্যাশবোর্ডে যান"
+            title={t('common.goToDashboard')}
           >
             <Home className="h-5 w-5" />
           </Button>
@@ -83,7 +83,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
           onClick={() => setSearchOpen(true)}
         >
           <Search className="h-4 w-4" />
-          <span className="hidden sm:inline text-sm">সার্চ...</span>
+          <span className="hidden sm:inline text-sm">{t('common.search')}</span>
           <kbd className="hidden md:inline-flex h-5 items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
             <Command className="h-3 w-3" />K
           </kbd>
@@ -100,19 +100,11 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel>বিজ্ঞপ্তি</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('common.notifications')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="flex flex-col items-start gap-1 py-3">
-              <span className="font-medium">কম স্টক সতর্কতা</span>
-              <span className="text-xs text-muted-foreground">৫টি পণ্যের স্টক কম আছে</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="flex flex-col items-start gap-1 py-3">
-              <span className="font-medium">ওয়ারেন্টি মেয়াদ</span>
-              <span className="text-xs text-muted-foreground">৩টি পণ্যের ওয়ারেন্টি শেষ হতে যাচ্ছে</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="flex flex-col items-start gap-1 py-3">
-              <span className="font-medium">নতুন অর্ডার</span>
-              <span className="text-xs text-muted-foreground">আজ ২টি নতুন অর্ডার এসেছে</span>
+              <span className="font-medium">{t('inventory.lowStockAlerts')}</span>
+              <span className="text-xs text-muted-foreground">5 items low in stock</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -138,11 +130,11 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate('/dashboard')}>
               <Home className="h-4 w-4 mr-2" />
-              ড্যাশবোর্ড
+              {t('nav.dashboard')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/settings')}>
               <Settings className="h-4 w-4 mr-2" />
-              {bn.nav.settings}
+              {t('nav.settings')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

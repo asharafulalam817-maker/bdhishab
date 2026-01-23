@@ -22,12 +22,29 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.purchases': 'ক্রয়',
     'nav.customers': 'গ্রাহক',
     'nav.pos': 'বিক্রয় (POS)',
-    'nav.sales': 'বিক্রয় তালিকা',
+    'nav.sales': 'বিক্রয়',
+    'nav.salesList': 'বিক্রয় তালিকা',
     'nav.invoices': 'চালান',
     'nav.warranty': 'ওয়ারেন্টি',
     'nav.reports': 'রিপোর্ট',
     'nav.settings': 'সেটিংস',
-    'nav.admin': 'অ্যাডমিন',
+    'nav.admin': 'এডমিন প্যানেল',
+    
+    // Inventory
+    'inventory.stockLedger': 'স্টক লেজার',
+    'inventory.stockIn': 'স্টক ইন',
+    'inventory.stockOut': 'স্টক আউট',
+    'inventory.adjustment': 'সমন্বয়',
+    'inventory.lowStockAlerts': 'কম স্টক সতর্কতা',
+    
+    // Reports
+    'reports.dailySales': 'দৈনিক বিক্রয়',
+    'reports.monthlySales': 'মাসিক বিক্রয়',
+    'reports.profit': 'লাভ-ক্ষতি',
+    'reports.stock': 'স্টক রিপোর্ট',
+    'reports.topSelling': 'সর্বাধিক বিক্রিত',
+    'reports.customerReport': 'গ্রাহক রিপোর্ট',
+    'reports.supplierDue': 'সরবরাহকারী বাকি',
     
     // Dashboard
     'dashboard.title': 'ড্যাশবোর্ড',
@@ -76,7 +93,7 @@ const translations: Record<Language, Record<string, string>> = {
     'common.delete': 'মুছুন',
     'common.edit': 'সম্পাদনা',
     'common.view': 'দেখুন',
-    'common.search': 'খুঁজুন',
+    'common.search': 'সার্চ...',
     'common.filter': 'ফিল্টার',
     'common.add': 'যোগ করুন',
     'common.actions': 'কাজ',
@@ -94,6 +111,13 @@ const translations: Record<Language, Record<string, string>> = {
     'common.error': 'ত্রুটি',
     'common.bengali': 'বাংলা',
     'common.english': 'English',
+    'common.goToDashboard': 'ড্যাশবোর্ডে যান',
+    'common.notifications': 'বিজ্ঞপ্তি',
+    
+    // Roles
+    'roles.owner': 'মালিক',
+    'roles.manager': 'ম্যানেজার',
+    'roles.staff': 'স্টাফ',
   },
   en: {
     // App
@@ -109,11 +133,28 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.customers': 'Customers',
     'nav.pos': 'POS',
     'nav.sales': 'Sales',
+    'nav.salesList': 'Sales List',
     'nav.invoices': 'Invoices',
     'nav.warranty': 'Warranty',
     'nav.reports': 'Reports',
     'nav.settings': 'Settings',
-    'nav.admin': 'Admin',
+    'nav.admin': 'Admin Panel',
+    
+    // Inventory
+    'inventory.stockLedger': 'Stock Ledger',
+    'inventory.stockIn': 'Stock In',
+    'inventory.stockOut': 'Stock Out',
+    'inventory.adjustment': 'Adjustment',
+    'inventory.lowStockAlerts': 'Low Stock Alerts',
+    
+    // Reports
+    'reports.dailySales': 'Daily Sales',
+    'reports.monthlySales': 'Monthly Sales',
+    'reports.profit': 'Profit & Loss',
+    'reports.stock': 'Stock Report',
+    'reports.topSelling': 'Top Selling',
+    'reports.customerReport': 'Customer Report',
+    'reports.supplierDue': 'Supplier Due',
     
     // Dashboard
     'dashboard.title': 'Dashboard',
@@ -162,7 +203,7 @@ const translations: Record<Language, Record<string, string>> = {
     'common.delete': 'Delete',
     'common.edit': 'Edit',
     'common.view': 'View',
-    'common.search': 'Search',
+    'common.search': 'Search...',
     'common.filter': 'Filter',
     'common.add': 'Add',
     'common.actions': 'Actions',
@@ -180,6 +221,13 @@ const translations: Record<Language, Record<string, string>> = {
     'common.error': 'Error',
     'common.bengali': 'বাংলা',
     'common.english': 'English',
+    'common.goToDashboard': 'Go to Dashboard',
+    'common.notifications': 'Notifications',
+    
+    // Roles
+    'roles.owner': 'Owner',
+    'roles.manager': 'Manager',
+    'roles.staff': 'Staff',
   }
 };
 
