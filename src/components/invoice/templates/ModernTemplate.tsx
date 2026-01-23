@@ -1,5 +1,6 @@
 import { InvoiceData } from '../types';
 import { formatBDT } from '@/lib/constants';
+import { InvoiceQRCode } from '../InvoiceQRCode';
 
 interface Props {
   invoice: InvoiceData;
@@ -146,11 +147,12 @@ export default function ModernTemplate({ invoice }: Props) {
           </div>
         )}
 
-        {/* Thank You */}
-        <div className="text-center mt-8 py-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+        {/* Thank You with QR */}
+        <div className="flex items-center justify-between mt-8 py-4 px-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
           <p className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
             🙏 ধন্যবাদ!
           </p>
+          <InvoiceQRCode invoice={invoice} size={64} includeDetails />
         </div>
       </div>
     </div>

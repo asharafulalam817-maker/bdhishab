@@ -1,5 +1,6 @@
 import { InvoiceData } from '../types';
 import { formatBDT } from '@/lib/constants';
+import { InvoiceQRCode } from '../InvoiceQRCode';
 
 interface Props {
   invoice: InvoiceData;
@@ -104,6 +105,11 @@ export default function ThermalTemplate({ invoice, width = '80mm' }: Props) {
       {/* Payment Method */}
       <div className="text-center text-xs border-t border-dashed border-black pt-2 mb-2">
         পেমেন্ট: {invoice.paymentMethod}
+      </div>
+
+      {/* QR Code */}
+      <div className="flex justify-center py-2 border-t border-dashed border-black">
+        <InvoiceQRCode invoice={invoice} size={is58mm ? 40 : 56} />
       </div>
 
       {/* Footer */}
