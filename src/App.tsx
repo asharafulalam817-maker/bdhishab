@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { DemoProvider } from "@/contexts/DemoContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -10,6 +10,9 @@ import { ReadOnlyProvider } from "@/contexts/ReadOnlyContext";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
 // App Pages
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import StockManagement from "./pages/StockManagement";
@@ -40,8 +43,12 @@ const App = () => (
             <DemoProvider>
               <ReadOnlyProvider>
                 <Routes>
-                  {/* All routes accessible in demo mode */}
-                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  {/* Public Routes */}
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  
+                  {/* Protected Dashboard Routes */}
                   <Route element={<DashboardLayout />}>
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/products" element={<Products />} />
