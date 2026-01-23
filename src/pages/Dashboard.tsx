@@ -19,12 +19,13 @@ import {
   PiggyBank,
   PackagePlus,
 } from 'lucide-react';
-import { bn, formatBDT, formatNumberBn } from '@/lib/constants';
+import { formatBDT, formatNumberBn } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { useDemo } from '@/contexts/DemoContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   useDashboardStats, 
   useRecentSales, 
@@ -32,7 +33,7 @@ import {
 } from '@/hooks/useDashboard';
 import { useBalance } from '@/hooks/useBalance';
 import { format } from 'date-fns';
-import { bn as bnLocale } from 'date-fns/locale';
+import { bn as bnLocale, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useState, useEffect } from 'react';
@@ -40,6 +41,7 @@ import { useState, useEffect } from 'react';
 export default function Dashboard() {
   const navigate = useNavigate();
   const { demoProfile, demoStore } = useDemo();
+  const { t, language } = useLanguage();
   
   const { 
     data: stats, 
@@ -63,6 +65,8 @@ export default function Dashboard() {
   const [totalStockValue, setTotalStockValue] = useState(0);
   const [totalDueAmount, setTotalDueAmount] = useState(0);
   const [isLoadingExtras, setIsLoadingExtras] = useState(true);
+
+  const dateLocale = language === 'bn' ? bnLocale : enUS;
 
   useEffect(() => {
     const fetchExtras = async () => {
@@ -120,7 +124,7 @@ export default function Dashboard() {
 
   const formatTime = (dateStr: string) => {
     try {
-      return format(new Date(dateStr), 'hh:mm a', { locale: bnLocale });
+      return format(new Date(dateStr), 'hh:mm a', { locale: dateLocale });
     } catch {
       return '';
     }
@@ -128,10 +132,10 @@ export default function Dashboard() {
 
   // Quick actions
   const quickActions = [
-    { label: 'নতুন বিক্রয়', icon: ShoppingCart, path: '/pos', variant: 'primary' as const },
-    { label: 'নতুন ক্রয়', icon: Truck, path: '/purchases/new', variant: 'default' as const },
-    { label: 'দ্রুত স্টক', icon: PackagePlus, path: '/quick-stock', variant: 'default' as const },
-    { label: 'গ্রাহক', icon: Users, path: '/customers', variant: 'default' as const },
+    { label: t('quickAction.newSale'), icon: ShoppingCart, path: '/pos', variant: 'primary' as const },
+    { label: t('quickAction.newPurchase'), icon: Truck, path: '/purchases/new', variant: 'default' as const },
+    { label: t('quickAction.quickStock'), icon: PackagePlus, path: '/quick-stock', variant: 'default' as const },
+    { label: t('quickAction.customers'), icon: Users, path: '/customers', variant: 'default' as const },
   ];
 
   return (
@@ -145,10 +149,10 @@ export default function Dashboard() {
       <motion.div variants={item} className="flex items-center justify-between">
         <div>
           <h1 className="text-xl lg:text-2xl font-bold text-foreground">
-            {bn.dashboard.welcome}, {demoProfile.full_name?.split(' ')[0]}! 👋
+            {t('dashboard.welcome')}, {demoProfile.full_name?.split(' ')[0]}! 👋
           </h1>
           <p className="text-sm text-muted-foreground hidden sm:block">
-            {format(new Date(), 'd MMMM yyyy', { locale: bnLocale })}
+            {format(new Date(), 'd MMMM yyyy', { locale: dateLocale })}
           </p>
         </div>
         <Button 
@@ -168,12 +172,12 @@ export default function Dashboard() {
           <CardContent className="p-3 lg:p-4">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">মোট ক্যাশ আছে</p>
+                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">{t('dashboard.totalCash')}</p>
                 <p className="text-lg lg:text-2xl font-bold tracking-tight">
                   {balanceLoading ? '...' : formatBDT(balance?.current_balance || 0)}
                 </p>
                 <p className="text-[10px] opacity-75 mt-0.5 truncate">
-                  হাতে নগদ
+                  {t('dashboard.cashOnHand')}
                 </p>
               </div>
               <div className="p-2 rounded-lg bg-white/20 shrink-0">
@@ -188,12 +192,12 @@ export default function Dashboard() {
           <CardContent className="p-3 lg:p-4">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">মোট স্টক মূল্য</p>
+                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">{t('dashboard.totalStockValue')}</p>
                 <p className="text-lg lg:text-2xl font-bold tracking-tight">
                   {isLoadingExtras ? '...' : formatBDT(totalStockValue)}
                 </p>
                 <p className="text-[10px] opacity-75 mt-0.5 truncate">
-                  সব পণ্যের মূল্য
+                  {t('dashboard.allProductsValue')}
                 </p>
               </div>
               <div className="p-2 rounded-lg bg-white/20 shrink-0">
@@ -208,12 +212,12 @@ export default function Dashboard() {
           <CardContent className="p-3 lg:p-4">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">মোট বাকি পাওনা</p>
+                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">{t('dashboard.totalReceivables')}</p>
                 <p className="text-lg lg:text-2xl font-bold tracking-tight">
                   {isLoadingExtras ? '...' : formatBDT(totalDueAmount)}
                 </p>
                 <p className="text-[10px] opacity-75 mt-0.5 truncate">
-                  গ্রাহকদের বকেয়া
+                  {t('dashboard.customerDues')}
                 </p>
               </div>
               <div className="p-2 rounded-lg bg-white/20 shrink-0">
@@ -228,12 +232,12 @@ export default function Dashboard() {
           <CardContent className="p-3 lg:p-4">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">মোট মূলধন</p>
+                <p className="text-xs font-medium opacity-90 mb-0.5 truncate">{t('dashboard.totalCapital')}</p>
                 <p className="text-lg lg:text-2xl font-bold tracking-tight">
                   {(balanceLoading || isLoadingExtras) ? '...' : formatBDT((balance?.current_balance || 0) + totalStockValue + totalDueAmount)}
                 </p>
                 <p className="text-[10px] opacity-75 mt-0.5 truncate">
-                  সব মিলিয়ে
+                  {t('dashboard.combined')}
                 </p>
               </div>
               <div className="p-2 rounded-lg bg-white/20 shrink-0">
@@ -248,9 +252,9 @@ export default function Dashboard() {
       <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 lg:gap-3">
         {/* Today's Sales */}
         <StatCard
-          title="আজকের বিক্রয়"
+          title={t('dashboard.todaySales')}
           value={statsLoading ? '...' : formatBDT(stats?.todaySales || 0)}
-          subtitle={`${formatNumberBn(stats?.todayInvoices || 0)} ইনভয়েস`}
+          subtitle={`${formatNumberBn(stats?.todayInvoices || 0)} ${t('dashboard.invoices')}`}
           icon={ShoppingCart}
           trend="up"
           loading={statsLoading}
@@ -258,9 +262,9 @@ export default function Dashboard() {
 
         {/* Today's Purchases */}
         <StatCard
-          title="আজকের ক্রয়"
+          title={t('dashboard.todayPurchases')}
           value={statsLoading ? '...' : formatBDT(stats?.todayPurchases || 0)}
-          subtitle={`${formatNumberBn(stats?.todayPurchaseCount || 0)} পার্চেজ`}
+          subtitle={`${formatNumberBn(stats?.todayPurchaseCount || 0)} ${t('dashboard.purchases')}`}
           icon={Truck}
           trend="neutral"
           loading={statsLoading}
@@ -268,9 +272,9 @@ export default function Dashboard() {
 
         {/* Today's Due Sales */}
         <StatCard
-          title="আজকের বাকি"
+          title={t('dashboard.todayDue')}
           value={statsLoading ? '...' : formatBDT(stats?.todayDueSales || 0)}
-          subtitle="বিক্রয় বাকি"
+          subtitle={t('dashboard.salesDue')}
           icon={CreditCard}
           trend="down"
           loading={statsLoading}
@@ -278,9 +282,9 @@ export default function Dashboard() {
 
         {/* Today's Profit */}
         <StatCard
-          title="আজকের লাভ"
+          title={t('dashboard.todayProfit')}
           value={statsLoading ? '...' : formatBDT(stats?.todayProfit || 0)}
-          subtitle="নেট প্রফিট"
+          subtitle={t('dashboard.netProfit')}
           icon={PiggyBank}
           trend={(stats?.todayProfit || 0) >= 0 ? 'up' : 'down'}
           loading={statsLoading}
@@ -288,9 +292,9 @@ export default function Dashboard() {
 
         {/* Today's Expenses */}
         <StatCard
-          title="আজকের খরচ"
+          title={t('dashboard.todayExpenses')}
           value={statsLoading ? '...' : formatBDT(stats?.todayExpenses || 0)}
-          subtitle="মোট ব্যয়"
+          subtitle={t('dashboard.totalExpense')}
           icon={Receipt}
           trend="down"
           loading={statsLoading}
@@ -321,14 +325,14 @@ export default function Dashboard() {
         <motion.div variants={item}>
           <Card className="h-full">
             <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <CardTitle className="text-base lg:text-lg font-semibold">সাম্প্রতিক বিক্রয়</CardTitle>
+              <CardTitle className="text-base lg:text-lg font-semibold">{t('dashboard.recentSales')}</CardTitle>
               <Button 
                 variant="ghost" 
                 size="sm" 
                 className="text-xs gap-1"
                 onClick={() => navigate('/sales')}
               >
-                সব দেখুন <ChevronRight className="h-3 w-3" />
+                {t('dashboard.viewAll')} <ChevronRight className="h-3 w-3" />
               </Button>
             </CardHeader>
             <CardContent className="p-0">
@@ -351,7 +355,7 @@ export default function Dashboard() {
                           <FileText className="h-4 w-4 text-primary" />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-sm truncate">{sale.customer_name || 'ওয়াক-ইন'}</p>
+                          <p className="font-medium text-sm truncate">{sale.customer_name || t('sales.walkIn')}</p>
                           <p className="text-xs text-muted-foreground">
                             {sale.invoice_number} • {formatTime(sale.created_at)}
                           </p>
@@ -364,14 +368,14 @@ export default function Dashboard() {
               ) : (
                 <div className="p-8 text-center text-muted-foreground">
                   <ShoppingCart className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">আজ কোন বিক্রয় হয়নি</p>
+                  <p className="text-sm">{t('dashboard.noSalesToday')}</p>
                   <Button 
                     variant="link" 
                     size="sm"
                     onClick={() => navigate('/pos')}
                     className="mt-2"
                   >
-                    নতুন বিক্রয় করুন
+                    {t('dashboard.newSale')}
                   </Button>
                 </div>
               )}
@@ -385,7 +389,7 @@ export default function Dashboard() {
             <CardHeader className="pb-3 flex flex-row items-center justify-between">
               <CardTitle className="text-base lg:text-lg font-semibold flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-warning" />
-                সতর্কতা
+                {t('dashboard.alerts')}
               </CardTitle>
               <Button 
                 variant="ghost" 
@@ -393,20 +397,20 @@ export default function Dashboard() {
                 className="text-xs gap-1"
                 onClick={() => navigate('/inventory/low-stock')}
               >
-                সব দেখুন <ChevronRight className="h-3 w-3" />
+                {t('dashboard.viewAll')} <ChevronRight className="h-3 w-3" />
               </Button>
             </CardHeader>
             <CardContent className="p-0">
               {/* Stats Row */}
               <div className="grid grid-cols-2 gap-3 px-4 pb-3">
                 <div className="rounded-lg bg-destructive/10 p-3 border border-destructive/20">
-                  <p className="text-xs text-muted-foreground">কম স্টক</p>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.lowStock')}</p>
                   <p className="text-xl font-bold text-destructive">
                     {statsLoading ? '...' : formatNumberBn(stats?.lowStockCount || 0)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-warning/10 p-3 border border-warning/20">
-                  <p className="text-xs text-muted-foreground">ওয়ারেন্টি শেষ</p>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.warrantyExpiring')}</p>
                   <p className="text-xl font-bold text-warning">
                     {statsLoading ? '...' : formatNumberBn(stats?.warrantyExpiring7 || 0)}
                   </p>
@@ -433,7 +437,7 @@ export default function Dashboard() {
                         <p className="text-xs text-muted-foreground">SKU: {item.sku || 'N/A'}</p>
                       </div>
                       <Badge variant="destructive" className="shrink-0">
-                        {formatNumberBn(item.current_stock)} পিস
+                        {formatNumberBn(item.current_stock)} {t('dashboard.pieces')}
                       </Badge>
                     </div>
                   ))}
@@ -441,7 +445,7 @@ export default function Dashboard() {
               ) : (
                 <div className="p-6 text-center text-muted-foreground">
                   <Package className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">সব পণ্যের স্টক পর্যাপ্ত 🎉</p>
+                  <p className="text-sm">{t('dashboard.allStockOk')} 🎉</p>
                 </div>
               )}
             </CardContent>
