@@ -256,23 +256,23 @@ export default function Dashboard() {
         </h2>
         
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 lg:gap-3">
-          {/* Sales */}
-          <StatCard
-            title={t('dashboard.sales')}
-            value={statsLoading ? '...' : formatBDT(stats?.todaySales || 0)}
-            subtitle={`${formatNumberBn(stats?.todayInvoices || 0)} ${t('dashboard.invoices')}`}
-            icon={ShoppingCart}
-            trend="up"
-            loading={statsLoading}
-          />
-
-          {/* Purchases */}
+          {/* Purchases - First */}
           <StatCard
             title={t('dashboard.purchasesShort')}
             value={statsLoading ? '...' : formatBDT(stats?.todayPurchases || 0)}
             subtitle={`${formatNumberBn(stats?.todayPurchaseCount || 0)} ${t('dashboard.purchases')}`}
             icon={Truck}
             trend="neutral"
+            loading={statsLoading}
+          />
+
+          {/* Sales - Second */}
+          <StatCard
+            title={t('dashboard.sales')}
+            value={statsLoading ? '...' : formatBDT(stats?.todaySales || 0)}
+            subtitle={`${formatNumberBn(stats?.todayInvoices || 0)} ${t('dashboard.invoices')}`}
+            icon={ShoppingCart}
+            trend="up"
             loading={statsLoading}
           />
 
@@ -567,7 +567,7 @@ function StatCard({ title, value, subtitle, icon: Icon, trend, loading }: StatCa
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4 lg:p-5">
         <div className="flex items-start justify-between mb-2 lg:mb-3">
-          <p className="text-base lg:text-lg text-muted-foreground font-extrabold leading-tight">{title}</p>
+          <p className="text-lg lg:text-xl text-muted-foreground font-black leading-tight">{title}</p>
           <div className={cn('p-2 rounded-lg', getTrendColors())}>
             <Icon className="h-4 w-4 lg:h-5 lg:w-5" />
           </div>
