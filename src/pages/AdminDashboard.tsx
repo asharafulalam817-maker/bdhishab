@@ -3,10 +3,11 @@ import { motion } from 'framer-motion';
 import { 
   Shield, MessageCircle, Store, Users, Clock, CheckCircle, 
   AlertCircle, Search, Eye, Send, X, Ban, CheckCircle2,
-  Package, ShoppingCart, TrendingUp, Calendar
+  Package, ShoppingCart, TrendingUp, Calendar, DollarSign
 } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { AdminNotificationBell } from '@/components/admin/AdminNotificationBell';
+import { RevenueReport } from '@/components/admin/RevenueReport';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -457,8 +458,12 @@ export default function AdminDashboard() {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3 max-w-md">
+        <TabsList className="grid w-full grid-cols-4 max-w-lg">
           <TabsTrigger value="overview">ওভারভিউ</TabsTrigger>
+          <TabsTrigger value="revenue" className="flex items-center gap-1">
+            <DollarSign className="h-3 w-3" />
+            রেভিনিউ
+          </TabsTrigger>
           <TabsTrigger value="stores">স্টোর</TabsTrigger>
           <TabsTrigger value="support">সাপোর্ট</TabsTrigger>
         </TabsList>
@@ -577,6 +582,11 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* Revenue Tab */}
+        <TabsContent value="revenue" className="mt-6">
+          <RevenueReport />
         </TabsContent>
 
         {/* Stores Tab */}
