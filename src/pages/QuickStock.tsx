@@ -27,6 +27,7 @@ import { Switch } from '@/components/ui/switch';
 import { useProducts } from '@/hooks/useProducts';
 import { toast } from 'sonner';
 import { formatBDT } from '@/lib/constants';
+import { ReadOnlyGuard } from '@/components/subscription/ReadOnlyGuard';
 
 export default function QuickStock() {
   const navigate = useNavigate();
@@ -136,11 +137,12 @@ export default function QuickStock() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
-    >
+    <ReadOnlyGuard featureName="স্টক এন্ট্রি">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-6"
+      >
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
@@ -548,5 +550,6 @@ export default function QuickStock() {
           </TabsContent>
         </Tabs>
       </motion.div>
+    </ReadOnlyGuard>
   );
 }

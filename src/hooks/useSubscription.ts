@@ -222,6 +222,27 @@ export function useSubscription() {
     return subscription.is_active && endDate >= today;
   };
 
+  const isSubscriptionExpired = (): boolean => {
+    if (!subscription) return true; // No subscription = expired
+    const today = new Date();
+    const endDate = new Date(subscription.end_date);
+    return endDate < today;
+  };
+
+  const isReadOnly = (): boolean => {
+    // Read-only if subscription is expired
+    return isSubscriptionExpired();
+  };
+
+  const getDaysExpired = (): number => {
+    if (!subscription) return 0;
+    const today = new Date();
+    const endDate = new Date(subscription.end_date);
+    if (endDate >= today) return 0;
+    const diff = today.getTime() - endDate.getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
+
   const isOnTrial = (): boolean => {
     return isSubscriptionActive() && subscription?.subscription_type === 'trial';
   };
@@ -262,6 +283,9 @@ export function useSubscription() {
     payments,
     isLoading,
     isSubscriptionActive,
+    isSubscriptionExpired,
+    isReadOnly,
+    getDaysExpired,
     isOnTrial,
     isPaid,
     getDaysRemaining,

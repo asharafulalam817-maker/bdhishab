@@ -35,6 +35,7 @@ import { BarcodeScanner } from '@/components/pos/BarcodeScanner';
 import { InvoiceData, InvoiceTemplate } from '@/components/invoice/types';
 import { toast as sonnerToast } from 'sonner';
 import { useBalance } from '@/hooks/useBalance';
+import { ReadOnlyGuard } from '@/components/subscription/ReadOnlyGuard';
 
 // Demo products with barcodes
 const demoProducts = [
@@ -247,11 +248,12 @@ export default function POS() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-4"
-    >
+    <ReadOnlyGuard featureName="নতুন বিক্রয়">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-4"
+      >
       {/* Page Header */}
       <div className="page-header">
         <div>
@@ -506,6 +508,7 @@ export default function POS() {
         onOpenChange={setScannerOpen}
         onScan={handleBarcodeScan}
       />
-    </motion.div>
+      </motion.div>
+    </ReadOnlyGuard>
   );
 }
