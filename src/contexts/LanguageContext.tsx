@@ -66,7 +66,7 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.allProductsValue': 'সব পণ্যের মূল্য',
     'dashboard.totalReceivables': 'বাকি পাওনা',
     'dashboard.customerDues': 'গ্রাহকদের বকেয়া',
-    'dashboard.totalCapital': 'মোট মূলধন',
+    'dashboard.totalCapital': 'মূলধন',
     'dashboard.combined': 'সব মিলিয়ে',
     'dashboard.invoices': 'ইনভয়েস',
     'dashboard.purchases': 'পার্চেজ',
