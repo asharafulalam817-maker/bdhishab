@@ -65,7 +65,7 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.totalCustomers': 'মোট গ্রাহক',
     'dashboard.totalDue': 'মোট বাকি',
     'dashboard.recentSales': 'সাম্প্রতিক বিক্রয়',
-    'dashboard.quickActions': 'দ্রুত কাজ',
+    'dashboard.quickActions': 'দ্রুত এন্ট্রি',
     'dashboard.totalCash': 'ক্যাশ আছে',
     'dashboard.cashOnHand': 'হাতে নগদ',
     'dashboard.totalStockValue': 'স্টক মূল্য',
