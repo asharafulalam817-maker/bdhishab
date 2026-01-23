@@ -8,7 +8,7 @@ import { DemoProvider } from "@/contexts/DemoContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ReadOnlyProvider } from "@/contexts/ReadOnlyContext";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 // App Pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -39,6 +39,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <InstallPrompt />
           <BrowserRouter>
             <DemoProvider>
               <ReadOnlyProvider>
