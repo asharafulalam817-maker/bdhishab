@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Wallet, Plus, Minus, ArrowUpRight, ArrowDownRight, History, TrendingUp } from 'lucide-react';
+import { Wallet, Plus, Minus, ArrowUpRight, ArrowDownRight, History, Package, Users } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useDemo } from '@/contexts/DemoContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,12 +25,56 @@ import { useBalance, BalanceTransaction } from '@/hooks/useBalance';
 
 export function BalanceCard() {
   const { balance, transactions, isLoading, addBalance, deductBalance } = useBalance();
+  const { demoStore } = useDemo();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isDeductDialogOpen, setIsDeductDialogOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [totalStockValue, setTotalStockValue] = useState(0);
+  const [totalDueAmount, setTotalDueAmount] = useState(0);
+  const [isLoadingExtras, setIsLoadingExtras] = useState(true);
+
+  // Fetch total stock value and due amounts
+  useEffect(() => {
+    const fetchExtras = async () => {
+      if (!demoStore?.id) return;
+      setIsLoadingExtras(true);
+      
+      try {
+        // Fetch products for stock value
+        const { data: products } = await supabase
+          .from('products')
+          .select('current_stock, sale_price')
+          .eq('store_id', demoStore.id);
+        
+        if (products) {
+          const stockValue = products.reduce((sum, p) => {
+            return sum + ((p.current_stock || 0) * (p.sale_price || 0));
+          }, 0);
+          setTotalStockValue(stockValue);
+        }
+
+        // Fetch customers for due amount
+        const { data: customers } = await supabase
+          .from('customers')
+          .select('due_amount')
+          .eq('store_id', demoStore.id);
+        
+        if (customers) {
+          const dueAmount = customers.reduce((sum, c) => sum + (c.due_amount || 0), 0);
+          setTotalDueAmount(dueAmount);
+        }
+      } catch (error) {
+        console.error('Error fetching extras:', error);
+      } finally {
+        setIsLoadingExtras(false);
+      }
+    };
+
+    fetchExtras();
+  }, [demoStore?.id]);
 
   const handleAddBalance = async () => {
     const numAmount = parseFloat(amount);
@@ -130,39 +176,41 @@ export function BalanceCard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Current Balance */}
-            <div className="text-center py-4">
-              <p className="text-sm text-muted-foreground mb-1">মোট ব্যালেন্স</p>
-              <p className="text-4xl font-bold text-primary">
+          {/* Main Stats Grid */}
+          <div className="grid grid-cols-1 gap-3">
+            {/* Total Balance */}
+            <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+              <div className="flex items-center gap-2 mb-1">
+                <Wallet className="h-4 w-4 text-primary" />
+                <p className="text-xs text-muted-foreground">মোট ব্যালেন্স</p>
+              </div>
+              <p className="text-2xl font-bold text-primary">
                 {isLoading ? '...' : formatCurrency(balance?.current_balance || 0)}
               </p>
-              <div className="flex items-center justify-center gap-2 mt-2">
-                <TrendingUp className="h-4 w-4 text-primary" />
-                <span className="text-sm text-muted-foreground">
-                  আজকের আয়: {formatCurrency(todayIncome)}
-                </span>
-              </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                onClick={() => setIsAddDialogOpen(true)}
-                className="gap-2"
-                variant="default"
-              >
-                <Plus className="h-4 w-4" />
-                ব্যালেন্স যোগ
-              </Button>
-              <Button
-                onClick={() => setIsDeductDialogOpen(true)}
-                className="gap-2"
-                variant="outline"
-              >
-                <Minus className="h-4 w-4" />
-                ব্যালেন্স কর্তন
-              </Button>
+            {/* Total Stock Value */}
+            <div className="p-4 rounded-xl bg-accent/50 border border-border">
+              <div className="flex items-center gap-2 mb-1">
+                <Package className="h-4 w-4 text-foreground" />
+                <p className="text-xs text-muted-foreground">মোট স্টক মূল্য</p>
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                {isLoadingExtras ? '...' : formatCurrency(totalStockValue)}
+              </p>
             </div>
+
+            {/* Total Due Amount */}
+            <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20">
+              <div className="flex items-center gap-2 mb-1">
+                <Users className="h-4 w-4 text-destructive" />
+                <p className="text-xs text-muted-foreground">মোট বাকি পাওনা</p>
+              </div>
+              <p className="text-2xl font-bold text-destructive">
+                {isLoadingExtras ? '...' : formatCurrency(totalDueAmount)}
+              </p>
+            </div>
+          </div>
 
             {/* Recent Transactions */}
             {transactions.length > 0 && (
