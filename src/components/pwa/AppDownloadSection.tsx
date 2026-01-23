@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Download, Smartphone, Monitor, Apple, Share2, PlusSquare, CheckCircle2 } from 'lucide-react';
+import { Download, Smartphone, Monitor, Apple, Share2, PlusSquare, CheckCircle2, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -18,12 +19,18 @@ export const AppDownloadSection = ({ variant = 'full' }: AppDownloadSectionProps
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     // Detect platform
     const userAgent = navigator.userAgent.toLowerCase();
-    setIsIOS(/iphone|ipad|ipod/.test(userAgent));
-    setIsAndroid(/android/.test(userAgent));
+    const ios = /iphone|ipad|ipod/.test(userAgent);
+    const android = /android/.test(userAgent);
+    const desktop = !ios && !android;
+    
+    setIsIOS(ios);
+    setIsAndroid(android);
+    setIsDesktop(desktop);
 
     // Check if already installed
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
@@ -43,15 +50,24 @@ export const AppDownloadSection = ({ variant = 'full' }: AppDownloadSectionProps
   }, []);
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return;
-
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      setIsInstalled(true);
+    if (deferredPrompt) {
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      
+      if (outcome === 'accepted') {
+        setIsInstalled(true);
+        toast.success('অ্যাপ সফলভাবে ইনস্টল হয়েছে!');
+      }
+      setDeferredPrompt(null);
+    } else {
+      // Show manual instructions
+      toast.info('ব্রাউজারের মেনু থেকে "Install App" বা "Add to Home Screen" সিলেক্ট করুন');
     }
-    setDeferredPrompt(null);
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(window.location.origin);
+    toast.success('লিংক কপি হয়েছে! মোবাইলে পেস্ট করে ওপেন করুন');
   };
 
   if (isInstalled) {
@@ -77,39 +93,73 @@ export const AppDownloadSection = ({ variant = 'full' }: AppDownloadSectionProps
               <Smartphone className="h-6 w-6 text-primary-foreground" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-foreground text-lg">অ্যাপ ডাউনলোড করুন</h3>
+              <h3 className="font-bold text-foreground text-lg">📱 অ্যাপ ডাউনলোড করুন</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 মোবাইলে দ্রুত অ্যাক্সেসের জন্য হোম স্ক্রিনে যোগ করুন
               </p>
               
               {isIOS ? (
                 <div className="mt-3 p-3 bg-muted rounded-lg text-sm">
-                  <p className="font-medium mb-2 flex items-center gap-2">
+                  <p className="font-semibold mb-2 flex items-center gap-2">
                     <Apple className="h-4 w-4" /> iPhone/iPad এ ইনস্টল:
                   </p>
-                  <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                  <ol className="space-y-2 text-muted-foreground">
                     <li className="flex items-center gap-2">
-                      <Share2 className="h-3 w-3 inline" /> Safari এর Share বাটনে ট্যাপ করুন
+                      <span className="bg-primary/20 text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">১</span>
+                      Safari এর <Share2 className="h-3 w-3 inline mx-1" /> Share বাটনে ট্যাপ করুন
                     </li>
                     <li className="flex items-center gap-2">
-                      <PlusSquare className="h-3 w-3 inline" /> "Add to Home Screen" সিলেক্ট করুন
+                      <span className="bg-primary/20 text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">২</span>
+                      <PlusSquare className="h-3 w-3 inline" /> "Add to Home Screen" ট্যাপ করুন
                     </li>
-                    <li>"Add" ট্যাপ করুন</li>
+                    <li className="flex items-center gap-2">
+                      <span className="bg-primary/20 text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">৩</span>
+                      "Add" বাটনে ট্যাপ করুন
+                    </li>
                   </ol>
                 </div>
-              ) : deferredPrompt ? (
-                <Button onClick={handleInstall} className="mt-3 gap-2" size="sm">
-                  <Download className="h-4 w-4" />
-                  এখনই ইনস্টল করুন
-                </Button>
+              ) : isAndroid ? (
+                <div className="mt-3 space-y-2">
+                  {deferredPrompt ? (
+                    <Button onClick={handleInstall} className="w-full gap-2" size="sm">
+                      <Download className="h-4 w-4" />
+                      এখনই ইনস্টল করুন
+                    </Button>
+                  ) : (
+                    <div className="p-3 bg-muted rounded-lg text-sm">
+                      <p className="font-semibold mb-2 flex items-center gap-2">
+                        <Smartphone className="h-4 w-4" /> Android এ ইনস্টল:
+                      </p>
+                      <ol className="space-y-2 text-muted-foreground">
+                        <li className="flex items-center gap-2">
+                          <span className="bg-primary/20 text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">১</span>
+                          Chrome মেনু (⋮) ট্যাপ করুন
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="bg-primary/20 text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">২</span>
+                          "Install App" বা "Add to Home Screen" ট্যাপ করুন
+                        </li>
+                      </ol>
+                    </div>
+                  )}
+                </div>
               ) : (
-                <div className="mt-3 p-3 bg-muted rounded-lg text-sm">
-                  <p className="font-medium mb-2 flex items-center gap-2">
-                    <Monitor className="h-4 w-4" /> ইনস্টল করতে:
-                  </p>
-                  <p className="text-muted-foreground">
-                    Chrome/Edge ব্রাউজারের মেনু থেকে "Install App" বা "Add to Home Screen" সিলেক্ট করুন
-                  </p>
+                <div className="mt-3 space-y-3">
+                  <div className="p-3 bg-muted rounded-lg text-sm">
+                    <p className="font-semibold mb-2 flex items-center gap-2">
+                      <Monitor className="h-4 w-4" /> ডেস্কটপে ইনস্টল:
+                    </p>
+                    <p className="text-muted-foreground mb-2">
+                      Chrome/Edge এড্রেস বারের ডানদিকে <Download className="h-3 w-3 inline mx-1" /> আইকনে ক্লিক করুন
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      অথবা মেনু থেকে "Install ডিজিটাল বন্ধু" সিলেক্ট করুন
+                    </p>
+                  </div>
+                  <Button onClick={copyLink} variant="outline" size="sm" className="w-full gap-2">
+                    <ExternalLink className="h-4 w-4" />
+                    মোবাইলে পাঠাতে লিংক কপি করুন
+                  </Button>
                 </div>
               )}
             </div>
@@ -134,10 +184,29 @@ export const AppDownloadSection = ({ variant = 'full' }: AppDownloadSectionProps
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-2xl mb-4">
               <Download className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h2 className="text-3xl lg:text-4xl font-extrabold mb-4">অ্যাপ ডাউনলোড করুন</h2>
+            <h2 className="text-3xl lg:text-4xl font-extrabold mb-4">📱 অ্যাপ ডাউনলোড করুন</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-semibold">
               ওয়েবসাইট থেকেই আপনার মোবাইলে অ্যাপ ইনস্টল করুন - Play Store বা App Store এ যেতে হবে না!
             </p>
+            
+            {/* Quick Install Button for supported browsers */}
+            {deferredPrompt && (
+              <Button onClick={handleInstall} size="lg" className="mt-6 gap-2">
+                <Download className="h-5 w-5" />
+                এখনই ইনস্টল করুন
+              </Button>
+            )}
+            
+            {/* Copy Link for Desktop users */}
+            {isDesktop && !deferredPrompt && (
+              <div className="mt-6 flex flex-col items-center gap-3">
+                <p className="text-sm text-muted-foreground">মোবাইলে ইনস্টল করতে এই লিংক শেয়ার করুন:</p>
+                <Button onClick={copyLink} variant="outline" className="gap-2">
+                  <ExternalLink className="h-4 w-4" />
+                  লিংক কপি করুন
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -173,7 +242,7 @@ export const AppDownloadSection = ({ variant = 'full' }: AppDownloadSectionProps
                   </li>
                 </ol>
 
-                {deferredPrompt && !isIOS && (
+                {isAndroid && deferredPrompt && (
                   <Button onClick={handleInstall} className="w-full mt-4 gap-2">
                     <Download className="h-4 w-4" />
                     এখনই ইনস্টল করুন
