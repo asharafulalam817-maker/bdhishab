@@ -12,9 +12,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PurchaseTable } from '@/components/purchases/PurchaseTable';
-import { PurchaseFormDialog } from '@/components/purchases/PurchaseFormDialog';
+import { SimplePurchaseForm, SimplePurchaseData } from '@/components/purchases/SimplePurchaseForm';
 import { PurchaseViewDialog } from '@/components/purchases/PurchaseViewDialog';
-import { usePurchases, Purchase, PurchaseFormData } from '@/hooks/usePurchases';
+import { usePurchases, Purchase } from '@/hooks/usePurchases';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useBalance } from '@/hooks/useBalance';
 import { formatBDT, bn, formatNumberBn } from '@/lib/constants';
@@ -36,7 +36,7 @@ export default function Purchases() {
     products,
   } = usePurchases();
 
-  const { adjustDue } = useSuppliers();
+  const { suppliers: allSuppliers, adjustDue, addSupplier } = useSuppliers();
   const { balance, deductBalance, refreshBalance } = useBalance();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -47,12 +47,29 @@ export default function Purchases() {
     setIsFormOpen(true);
   };
 
-  const handleFormSubmit = async (data: PurchaseFormData & { deductFromBalance: boolean }) => {
-    const purchase = addPurchase(data);
+  const handleFormSubmit = async (data: SimplePurchaseData) => {
+    // Convert simple form data to purchase format
+    const purchaseFormData = {
+      supplier_id: data.supplier_id,
+      invoice_number: data.invoice_number,
+      purchase_date: data.purchase_date,
+      items: [{
+        product_id: `new-${Date.now()}`,
+        product_name: data.product_name,
+        quantity: data.quantity,
+        unit_cost: data.purchase_cost,
+      }],
+      discount: 0,
+      paid_amount: data.paid_amount,
+      notes: data.notes,
+    };
+
+    const purchase = addPurchase(purchaseFormData);
     
     // Update supplier due if there's due amount
-    if (purchase.due_amount > 0 && purchase.supplier_id) {
-      adjustDue(purchase.supplier_id, purchase.due_amount, 'add');
+    const dueAmount = (data.quantity * data.purchase_cost) - data.paid_amount;
+    if (dueAmount > 0 && data.supplier_id) {
+      adjustDue(data.supplier_id, dueAmount, 'add');
     }
     
     // Deduct from balance if paid amount exists and option selected
@@ -62,6 +79,15 @@ export default function Purchases() {
     }
     
     toast.success('নতুন ক্রয় সংরক্ষণ হয়েছে');
+  };
+
+  const handleAddNewSupplier = (supplierData: { name: string; phone: string }) => {
+    return addSupplier({
+      name: supplierData.name,
+      phone: supplierData.phone,
+      email: '',
+      address: '',
+    });
   };
 
   const handleViewPurchase = (purchase: Purchase) => {
@@ -195,13 +221,13 @@ export default function Purchases() {
       </motion.div>
 
       {/* Dialogs */}
-      <PurchaseFormDialog
+      <SimplePurchaseForm
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
         onSubmit={handleFormSubmit}
-        suppliers={suppliers}
-        products={products}
+        suppliers={allSuppliers}
         currentBalance={balance?.current_balance || 0}
+        onAddNewSupplier={handleAddNewSupplier}
       />
 
       <PurchaseViewDialog

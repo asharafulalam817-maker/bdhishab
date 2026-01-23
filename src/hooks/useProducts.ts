@@ -159,7 +159,7 @@ const DEMO_PRODUCTS: Product[] = [
   },
 ];
 
-const DEMO_CATEGORIES: Category[] = [
+export const DEMO_CATEGORIES: Category[] = [
   { id: '1', name: 'মোবাইল ফোন' },
   { id: '2', name: 'এক্সেসরিজ' },
   { id: '3', name: 'ইলেকট্রনিক্স' },
@@ -172,7 +172,7 @@ const DEMO_CATEGORIES: Category[] = [
   { id: '10', name: 'নেটওয়ার্কিং ডিভাইস' },
 ];
 
-const DEMO_BRANDS: Brand[] = [
+export const DEMO_BRANDS: Brand[] = [
   { id: '1', name: 'Samsung' },
   { id: '2', name: 'Apple' },
   { id: '3', name: 'Xiaomi' },
