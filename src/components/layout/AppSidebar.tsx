@@ -150,19 +150,19 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
                   <button
                     onClick={() => toggleExpand(item.labelKey)}
                     className={cn(
-                      'flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                      'flex w-full items-center justify-between rounded-lg px-3 py-2.5 lg:py-3 text-sm lg:text-lg font-semibold lg:font-bold transition-colors',
                       isChildActive(item.children)
                         ? 'bg-primary/10 text-primary'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <item.icon className="h-5 w-5" />
+                      <item.icon className="h-5 w-5 lg:h-6 lg:w-6" />
                       <span>{t(item.labelKey)}</span>
                     </div>
                     <ChevronDown
                       className={cn(
-                        'h-4 w-4 transition-transform',
+                        'h-4 w-4 lg:h-5 lg:w-5 transition-transform',
                         expandedItems.includes(item.labelKey) && 'rotate-180'
                       )}
                     />
@@ -181,7 +181,7 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
                             key={child.href}
                             to={child.href}
                             className={cn(
-                              'flex items-center rounded-lg px-3 py-2 text-sm transition-colors',
+                              'flex items-center rounded-lg px-3 py-2 lg:py-2.5 text-sm lg:text-base font-medium lg:font-semibold transition-colors',
                               isActive(child.href)
                                 ? 'bg-primary text-primary-foreground'
                                 : 'text-muted-foreground hover:bg-muted hover:text-foreground'
@@ -199,14 +199,14 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
                 <NavLink
                   to={item.href!}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                    'flex items-center gap-3 rounded-lg px-3 py-2.5 lg:py-3 text-sm lg:text-lg font-semibold lg:font-bold transition-colors',
                     isActive(item.href!)
                       ? 'bg-primary text-primary-foreground'
                       : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   )}
                   onClick={() => window.innerWidth < 1024 && onToggle()}
                 >
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className="h-5 w-5 lg:h-6 lg:w-6" />
                   <span>{t(item.labelKey)}</span>
                 </NavLink>
               )}
