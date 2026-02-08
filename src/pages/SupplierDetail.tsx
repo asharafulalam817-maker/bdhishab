@@ -8,17 +8,20 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { formatBDT } from '@/lib/constants';
 import { format } from 'date-fns';
 import { bn as bnLocale, enUS } from 'date-fns/locale';
+import { SupplierFormDialog } from '@/components/suppliers/SupplierFormDialog';
+import { SupplierDueDialog } from '@/components/suppliers/SupplierDueDialog';
+import { toast } from 'sonner';
+import type { Supplier, SupplierFormData } from '@/hooks/useSuppliers';
 
 // Demo data - will be replaced with actual data fetching
-const demoSuppliers = [
-  { id: '1', name: 'ডিজিটাল হাব', phone: '01711223344', email: 'digital@hub.com', address: '১২/এ, গুলশান-১, ঢাকা', due_amount: 15000, created_at: '2024-06-15' },
-  { id: '2', name: 'টেক সলিউশন', phone: '01822334455', email: 'tech@solution.com', address: '৪৫, বনানী, ঢাকা', due_amount: 8500, created_at: '2024-07-20' },
-  { id: '3', name: 'মোবাইল মার্ট', phone: '01933445566', email: 'mobile@mart.com', address: '৭৮, মিরপুর-১০, ঢাকা', due_amount: 0, created_at: '2024-08-10' },
+const demoSuppliers: Supplier[] = [
+  { id: '1', name: 'ডিজিটাল হাব', phone: '01711223344', email: 'digital@hub.com', address: '১২/এ, গুলশান-১, ঢাকা', due_amount: 15000, created_at: '2024-06-15', updated_at: '2024-06-15' },
+  { id: '2', name: 'টেক সলিউশন', phone: '01822334455', email: 'tech@solution.com', address: '৪৫, বনানী, ঢাকা', due_amount: 8500, created_at: '2024-07-20', updated_at: '2024-07-20' },
+  { id: '3', name: 'মোবাইল মার্ট', phone: '01933445566', email: 'mobile@mart.com', address: '৭৮, মিরপুর-১০, ঢাকা', due_amount: 0, created_at: '2024-08-10', updated_at: '2024-08-10' },
 ];
 
 const demoPurchases = [
@@ -33,7 +36,11 @@ export default function SupplierDetail() {
   const { t, language } = useLanguage();
   const dateLocale = language === 'bn' ? bnLocale : enUS;
 
-  const supplier = demoSuppliers.find(s => s.id === id);
+  const [supplier, setSupplier] = useState<Supplier | null>(
+    demoSuppliers.find(s => s.id === id) || null
+  );
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [dueDialogOpen, setDueDialogOpen] = useState(false);
 
   if (!supplier) {
     return (
@@ -49,6 +56,22 @@ export default function SupplierDetail() {
   }
 
   const totalPurchases = demoPurchases.reduce((sum, p) => sum + p.total, 0);
+
+  const handleEditSubmit = (data: SupplierFormData) => {
+    setSupplier(prev => prev ? { ...prev, ...data } : null);
+    toast.success(t('suppliers.updated'));
+  };
+
+  const handleDueAdjust = (id: string, amount: number, type: 'add' | 'subtract') => {
+    setSupplier(prev => {
+      if (!prev) return null;
+      const newDue = type === 'subtract' 
+        ? Math.max(0, prev.due_amount - amount)
+        : prev.due_amount + amount;
+      return { ...prev, due_amount: newDue };
+    });
+    toast.success(type === 'subtract' ? t('suppliers.duePaid') : t('suppliers.dueAdded'));
+  };
 
   return (
     <motion.div 
@@ -68,10 +91,16 @@ export default function SupplierDetail() {
           </h1>
           <p className="text-muted-foreground">{t('suppliers.title')}</p>
         </div>
-        <Button variant="outline">
-          <Edit className="h-4 w-4 mr-2" />
-          {t('common.edit')}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setDueDialogOpen(true)}>
+            <Wallet className="h-4 w-4 mr-2" />
+            {t('suppliers.adjustDue')}
+          </Button>
+          <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
+            <Edit className="h-4 w-4 mr-2" />
+            {t('common.edit')}
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -79,12 +108,12 @@ export default function SupplierDetail() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/20">
-                <Wallet className="h-5 w-5 text-red-600" />
+              <div className="p-2 rounded-lg bg-destructive/10">
+                <Wallet className="h-5 w-5 text-destructive" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">{t('suppliers.totalDue')}</p>
-                <p className="text-xl font-bold text-red-600">{formatBDT(supplier.due_amount)}</p>
+                <p className="text-sm text-muted-foreground">{t('suppliers.totalPayable')}</p>
+                <p className="text-xl font-bold text-destructive">{formatBDT(supplier.due_amount)}</p>
               </div>
             </div>
           </CardContent>
@@ -93,8 +122,8 @@ export default function SupplierDetail() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
-                <ShoppingCart className="h-5 w-5 text-blue-600" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <ShoppingCart className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{t('purchases.title')}</p>
@@ -107,11 +136,11 @@ export default function SupplierDetail() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/20">
+              <div className="p-2 rounded-lg bg-green-500/10">
                 <TrendingUp className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">{t('reports.totalPurchases')}</p>
+                <p className="text-sm text-muted-foreground">{t('purchases.totalPurchases')}</p>
                 <p className="text-xl font-bold">{formatBDT(totalPurchases)}</p>
               </div>
             </div>
@@ -202,6 +231,22 @@ export default function SupplierDetail() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Dialog */}
+      <SupplierFormDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        supplier={supplier}
+        onSubmit={handleEditSubmit}
+      />
+
+      {/* Due Dialog */}
+      <SupplierDueDialog
+        open={dueDialogOpen}
+        onOpenChange={setDueDialogOpen}
+        supplier={supplier}
+        onAdjust={handleDueAdjust}
+      />
     </motion.div>
   );
 }

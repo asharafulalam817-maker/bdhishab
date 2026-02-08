@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -12,9 +13,26 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { format, differenceInDays } from 'date-fns';
 import { bn as bnLocale, enUS } from 'date-fns/locale';
 import { WarrantyQRCode } from '@/components/warranty/WarrantyQRCode';
+import { WarrantyClaimDialog, WarrantyClaim } from '@/components/warranty/WarrantyClaimDialog';
+import { toast } from 'sonner';
+
+interface WarrantyData {
+  id: string;
+  invoiceNo: string;
+  product: string;
+  customer: string;
+  phone: string;
+  startDate: string;
+  expiryDate: string;
+  serialNumber?: string;
+  status: string;
+  warrantyType: string;
+  warrantyDuration: number;
+  warrantyUnit: string;
+}
 
 // Demo data
-const demoWarranties = [
+const demoWarranties: WarrantyData[] = [
   { 
     id: '1', 
     invoiceNo: 'INV-202501-001', 
@@ -59,13 +77,17 @@ const demoWarranties = [
   },
 ];
 
-const demoClaims = [
+const demoClaims: WarrantyClaim[] = [
   {
     id: 'claim-1',
+    warrantyId: '1',
+    warrantyInfo: { invoiceNo: 'INV-202501-001', product: 'স্যামসাং গ্যালাক্সি A54', customer: 'মোহাম্মদ করিম', phone: '01712345678' },
     claimDate: '2025-01-20',
-    issue: 'ডিসপ্লে ঠিকমতো কাজ করছে না',
-    action: 'সার্ভিস সেন্টারে পাঠানো হয়েছে',
+    issueDescription: 'ডিসপ্লে ঠিকমতো কাজ করছে না',
+    actionTaken: 'সার্ভিস সেন্টারে পাঠানো হয়েছে',
     status: 'in_progress',
+    createdAt: '2025-01-20T10:00:00Z',
+    updatedAt: '2025-01-21T14:00:00Z',
   },
 ];
 
@@ -76,6 +98,8 @@ export default function WarrantyDetail() {
   const dateLocale = language === 'bn' ? bnLocale : enUS;
 
   const warranty = demoWarranties.find(w => w.id === id);
+  const [claims, setClaims] = useState<WarrantyClaim[]>(demoClaims.filter(c => c.warrantyId === id));
+  const [claimDialogOpen, setClaimDialogOpen] = useState(false);
 
   if (!warranty) {
     return (
@@ -105,6 +129,32 @@ export default function WarrantyDetail() {
     }
   };
 
+  const handleAddClaim = (claimData: Partial<WarrantyClaim>) => {
+    const newClaim: WarrantyClaim = {
+      id: `claim-${Date.now()}`,
+      warrantyId: warranty.id,
+      warrantyInfo: {
+        invoiceNo: warranty.invoiceNo,
+        product: warranty.product,
+        customer: warranty.customer,
+        phone: warranty.phone,
+      },
+      claimDate: claimData.claimDate || new Date().toISOString().split('T')[0],
+      issueDescription: claimData.issueDescription!,
+      actionTaken: claimData.actionTaken,
+      resolution: claimData.resolution,
+      status: claimData.status || 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setClaims(prev => [newClaim, ...prev]);
+    toast.success(t('warranty.claimAdded') || 'Claim added successfully');
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
@@ -124,12 +174,12 @@ export default function WarrantyDetail() {
           <p className="text-muted-foreground">{warranty.invoiceNo}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={handlePrint}>
             <Printer className="h-4 w-4 mr-2" />
             {t('warranty.print')}
           </Button>
           {warranty.status !== 'expired' && (
-            <Button variant="destructive">
+            <Button variant="destructive" onClick={() => setClaimDialogOpen(true)}>
               <AlertTriangle className="h-4 w-4 mr-2" />
               {t('warranty.addClaim')}
             </Button>
@@ -224,7 +274,7 @@ export default function WarrantyDetail() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">{t('warranty.daysRemaining')}</span>
-                <span className={`font-bold ${daysRemaining < 30 ? 'text-red-600' : 'text-green-600'}`}>
+                <span className={`font-bold ${daysRemaining < 30 ? 'text-destructive' : 'text-green-600'}`}>
                   {daysRemaining > 0 ? `${daysRemaining} ${t('warranty.days')}` : t('warranty.expired')}
                 </span>
               </div>
@@ -240,9 +290,9 @@ export default function WarrantyDetail() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {demoClaims.length > 0 ? (
+              {claims.length > 0 ? (
                 <div className="space-y-3">
-                  {demoClaims.map((claim) => (
+                  {claims.map((claim) => (
                     <div key={claim.id} className="p-3 rounded-lg bg-muted/50">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-muted-foreground">
@@ -253,9 +303,9 @@ export default function WarrantyDetail() {
                            claim.status === 'resolved' ? t('warranty.resolved') : t('warranty.pending')}
                         </Badge>
                       </div>
-                      <p className="font-medium">{claim.issue}</p>
-                      {claim.action && (
-                        <p className="text-sm text-muted-foreground mt-1">{claim.action}</p>
+                      <p className="font-medium">{claim.issueDescription}</p>
+                      {claim.actionTaken && (
+                        <p className="text-sm text-muted-foreground mt-1">{claim.actionTaken}</p>
                       )}
                     </div>
                   ))}
@@ -302,6 +352,14 @@ export default function WarrantyDetail() {
           </Card>
         </div>
       </div>
+
+      {/* Claim Dialog */}
+      <WarrantyClaimDialog
+        open={claimDialogOpen}
+        onOpenChange={setClaimDialogOpen}
+        warranty={warranty}
+        onSave={handleAddClaim}
+      />
     </motion.div>
   );
 }
