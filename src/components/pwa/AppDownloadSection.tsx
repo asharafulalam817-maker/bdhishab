@@ -50,16 +50,46 @@ export const AppDownloadSection = ({ variant = 'full' }: AppDownloadSectionProps
 
   const handleInstall = async () => {
     if (deferredPrompt) {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      
-      if (outcome === 'accepted') {
-        setIsInstalled(true);
-        toast.success(language === 'bn' ? 'অ্যাপ সফলভাবে ইনস্টল হয়েছে!' : 'App installed successfully!');
+      try {
+        await deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        
+        if (outcome === 'accepted') {
+          setIsInstalled(true);
+          toast.success(language === 'bn' ? 'অ্যাপ সফলভাবে ইনস্টল হয়েছে!' : 'App installed successfully!');
+        }
+        setDeferredPrompt(null);
+      } catch (error) {
+        console.error('Install prompt error:', error);
+        showManualInstructions();
       }
-      setDeferredPrompt(null);
     } else {
-      toast.info(t('pwa.installInstructions'));
+      showManualInstructions();
+    }
+  };
+
+  const showManualInstructions = () => {
+    if (isIOS) {
+      toast.info(
+        language === 'bn' 
+          ? 'Safari এ Share বাটন (□↑) ট্যাপ করে "Add to Home Screen" সিলেক্ট করুন' 
+          : 'Tap Share button (□↑) in Safari and select "Add to Home Screen"',
+        { duration: 5000 }
+      );
+    } else if (isAndroid) {
+      toast.info(
+        language === 'bn' 
+          ? 'Chrome মেনু (⋮) ট্যাপ করে "Install App" বা "Add to Home Screen" সিলেক্ট করুন' 
+          : 'Tap Chrome menu (⋮) and select "Install App" or "Add to Home Screen"',
+        { duration: 5000 }
+      );
+    } else {
+      toast.info(
+        language === 'bn' 
+          ? 'এড্রেস বারের ডানদিকে ইনস্টল আইকনে ক্লিক করুন অথবা মেনু থেকে "Install" সিলেক্ট করুন' 
+          : 'Click install icon in address bar or select "Install" from menu',
+        { duration: 5000 }
+      );
     }
   };
 
@@ -120,28 +150,25 @@ export const AppDownloadSection = ({ variant = 'full' }: AppDownloadSectionProps
                 </div>
               ) : isAndroid ? (
                 <div className="mt-3 space-y-2">
-                  {deferredPrompt ? (
-                    <Button onClick={handleInstall} className="w-full gap-2" size="sm">
-                      <Download className="h-4 w-4" />
-                      {t('pwa.installButton')}
-                    </Button>
-                  ) : (
-                    <div className="p-3 bg-muted rounded-lg text-sm">
-                      <p className="font-semibold mb-2 flex items-center gap-2">
-                        <Smartphone className="h-4 w-4" /> {t('pwa.androidTitle')} {language === 'bn' ? 'এ ইনস্টল:' : ' Install:'}
-                      </p>
-                      <ol className="space-y-2 text-muted-foreground">
-                        <li className="flex items-center gap-2">
-                          <span className="bg-primary/20 text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">{language === 'bn' ? '১' : '1'}</span>
-                          Chrome {language === 'bn' ? 'মেনু (⋮) ট্যাপ করুন' : 'menu (⋮) tap'}
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="bg-primary/20 text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">{language === 'bn' ? '২' : '2'}</span>
-                          "Install App" {language === 'bn' ? 'বা' : 'or'} "Add to Home Screen" {language === 'bn' ? 'ট্যাপ করুন' : 'tap'}
-                        </li>
-                      </ol>
-                    </div>
-                  )}
+                  <Button onClick={handleInstall} className="w-full gap-2" size="sm">
+                    <Download className="h-4 w-4" />
+                    {t('pwa.installButton')}
+                  </Button>
+                  <div className="p-3 bg-muted rounded-lg text-sm">
+                    <p className="font-semibold mb-2 flex items-center gap-2">
+                      <Smartphone className="h-4 w-4" /> {language === 'bn' ? 'ম্যানুয়াল ইনস্টল:' : 'Manual Install:'}
+                    </p>
+                    <ol className="space-y-2 text-muted-foreground">
+                      <li className="flex items-center gap-2">
+                        <span className="bg-primary/20 text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">{language === 'bn' ? '১' : '1'}</span>
+                        Chrome {language === 'bn' ? 'মেনু (⋮) ট্যাপ করুন' : 'menu (⋮) tap'}
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="bg-primary/20 text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">{language === 'bn' ? '২' : '2'}</span>
+                        "Install App" {language === 'bn' ? 'বা' : 'or'} "Add to Home Screen" {language === 'bn' ? 'ট্যাপ করুন' : 'tap'}
+                      </li>
+                    </ol>
+                  </div>
                 </div>
               ) : (
                 <div className="mt-3 space-y-3">
@@ -191,12 +218,10 @@ export const AppDownloadSection = ({ variant = 'full' }: AppDownloadSectionProps
                 : 'Install the app on your mobile from the website - no need to go to Play Store or App Store!'}
             </p>
             
-            {deferredPrompt && (
-              <Button onClick={handleInstall} size="lg" className="mt-6 gap-2">
-                <Download className="h-5 w-5" />
-                {t('pwa.installButton')}
-              </Button>
-            )}
+            <Button onClick={handleInstall} size="lg" className="mt-6 gap-2">
+              <Download className="h-5 w-5" />
+              {t('pwa.installButton')}
+            </Button>
             
             {isDesktop && !deferredPrompt && (
               <div className="mt-6 flex flex-col items-center gap-3">
@@ -248,7 +273,7 @@ export const AppDownloadSection = ({ variant = 'full' }: AppDownloadSectionProps
                   </li>
                 </ol>
 
-                {isAndroid && deferredPrompt && (
+                {isAndroid && (
                   <Button onClick={handleInstall} className="w-full mt-4 gap-2">
                     <Download className="h-4 w-4" />
                     {t('pwa.installButton')}
