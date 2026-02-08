@@ -2,9 +2,10 @@ import { RefObject, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { WarrantyPrintCard } from './WarrantyPrintCard';
-import { Printer, Share2, MessageCircle, Download, Loader2 } from 'lucide-react';
+import { Printer, Share2, MessageCircle, Download, Loader2, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { renderWarrantyCardPngBlob } from './utils/renderWarrantyCardPngBlob';
+import { renderWarrantyCardPdfBlob } from './utils/renderWarrantyCardPdf';
 
 interface WarrantyData {
   id: string;
@@ -64,6 +65,41 @@ export function WarrantyDialogContent({
     }
   };
 
+  // Get the warranty card element
+  const getCardElement = (): HTMLElement | null =>
+    (cardRef.current?.querySelector('[data-warranty-card]') as HTMLElement | null) ||
+    (cardRef.current?.querySelector('.warranty-card-container') as HTMLElement | null) ||
+    (cardRef.current as HTMLElement | null);
+
+  // Download as PDF
+  const downloadAsPdf = async () => {
+    setIsGenerating(true);
+    try {
+      const cardElement = getCardElement();
+      if (!cardElement) {
+        toast.error('কার্ড তৈরি করতে সমস্যা হয়েছে');
+        return;
+      }
+
+      const blob = await renderWarrantyCardPdfBlob(cardElement, { scale: 2 });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `warranty-${warranty.invoiceNo}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success('PDF ডাউনলোড হয়েছে');
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast.error('PDF তৈরি করতে সমস্যা হয়েছে');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   // Download as image
   const downloadAsImage = async () => {
     setIsGenerating(true);
@@ -86,6 +122,54 @@ export function WarrantyDialogContent({
       toast.success('ইমেজ ডাউনলোড হয়েছে');
     } catch (error) {
       toast.error('ডাউনলোড করতে সমস্যা হয়েছে');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Share as PDF
+  const shareAsPdf = async () => {
+    setIsGenerating(true);
+    try {
+      const cardElement = getCardElement();
+      if (!cardElement) {
+        toast.error('কার্ড তৈরি করতে সমস্যা হয়েছে');
+        return;
+      }
+
+      const blob = await renderWarrantyCardPdfBlob(cardElement, { scale: 2 });
+      const file = new File([blob], `warranty-${warranty.invoiceNo}.pdf`, { type: 'application/pdf' });
+
+      // Try sharing PDF directly
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `ওয়ারেন্টি কার্ড - ${warranty.product}`,
+          });
+          toast.success(t('warranty.shared'));
+          return;
+        } catch (error) {
+          if ((error as Error).name === 'AbortError') throw error;
+          // fall through to download fallback
+        }
+      }
+
+      // Fallback: Download
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `warranty-${warranty.invoiceNo}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success('PDF ডাউনলোড হয়েছে। এখন হোয়াটসঅ্যাপে শেয়ার করুন।');
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        toast.error(t('warranty.shareFailed'));
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -219,10 +303,18 @@ export function WarrantyDialogContent({
                 {t('warranty.share')}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
+            <DropdownMenuContent align="start" className="w-52">
+              <DropdownMenuItem onClick={shareAsPdf} className="flex items-center gap-2 cursor-pointer">
+                <FileText className="h-4 w-4 text-red-600" />
+                <span>PDF শেয়ার করুন (সেরা)</span>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={shareToWhatsApp} className="flex items-center gap-2 cursor-pointer">
                 <MessageCircle className="h-4 w-4 text-green-600" />
-                <span>হোয়াটসঅ্যাপ / অন্যান্য</span>
+                <span>ইমেজ শেয়ার করুন</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={downloadAsPdf} className="flex items-center gap-2 cursor-pointer">
+                <FileText className="h-4 w-4 text-red-600" />
+                <span>PDF ডাউনলোড</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={downloadAsImage} className="flex items-center gap-2 cursor-pointer">
                 <Download className="h-4 w-4 text-blue-600" />
