@@ -90,7 +90,21 @@ export const WarrantyPrintCard = forwardRef<HTMLDivElement, WarrantyPrintCardPro
             <div className="px-3 sm:px-4 py-3 sm:py-4 pt-4 sm:pt-5">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-lg sm:text-xl font-bold truncate">{storeName}</h1>
+                  <h1 className="text-lg sm:text-xl font-bold truncate flex items-center gap-1.5">
+                    {storeName}
+                    {/* Blue Verified Badge */}
+                    <svg 
+                      viewBox="0 0 22 22" 
+                      className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0"
+                      fill="none"
+                    >
+                      <circle cx="11" cy="11" r="11" fill="#1DA1F2"/>
+                      <path 
+                        d="M9.5 12.5L7.5 10.5L6.5 11.5L9.5 14.5L15.5 8.5L14.5 7.5L9.5 12.5Z" 
+                        fill="white"
+                      />
+                    </svg>
+                  </h1>
                   {storePhone && (
                     <p className="text-green-100 text-xs sm:text-sm">📞 {storePhone}</p>
                   )}
