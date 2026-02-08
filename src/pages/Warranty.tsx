@@ -173,18 +173,90 @@ export default function Warranty() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>${t('warranty.warrantyCard')}</title>
+          <title>${t('warranty.warrantyCard')} - ${selectedWarranty?.invoiceNo || ''}</title>
+          <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
           <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
+            * { 
+              margin: 0; 
+              padding: 0; 
+              box-sizing: border-box; 
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
             body { 
-              font-family: system-ui, -apple-system, sans-serif; 
+              font-family: 'Hind Siliguri', 'Noto Sans Bengali', system-ui, sans-serif; 
               padding: 20px;
               display: flex;
               justify-content: center;
+              background: white;
             }
+            
+            /* Print specific styles */
             @media print {
-              body { padding: 0; }
+              body { 
+                padding: 10mm; 
+                background: white;
+              }
+              @page {
+                size: A5 portrait;
+                margin: 10mm;
+              }
             }
+            
+            /* Tailwind-like utility classes for print */
+            .bg-gradient-to-r { background: linear-gradient(to right, var(--tw-gradient-stops)); }
+            .from-green-700 { --tw-gradient-from: #15803d; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, transparent); }
+            .via-green-600 { --tw-gradient-stops: var(--tw-gradient-from), #16a34a, var(--tw-gradient-to, transparent); }
+            .to-green-700 { --tw-gradient-to: #15803d; }
+            .from-yellow-500 { --tw-gradient-from: #eab308; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, transparent); }
+            .via-yellow-400 { --tw-gradient-stops: var(--tw-gradient-from), #facc15, var(--tw-gradient-to, transparent); }
+            .to-yellow-500 { --tw-gradient-to: #eab308; }
+            .from-red-600 { --tw-gradient-from: #dc2626; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, transparent); }
+            .to-red-600 { --tw-gradient-to: #dc2626; }
+            .via-green-600-alt { --tw-gradient-stops: var(--tw-gradient-from), #16a34a, var(--tw-gradient-to, transparent); }
+            
+            .bg-green-700 { background-color: #15803d; }
+            .bg-green-600 { background-color: #16a34a; }
+            .bg-green-800 { background-color: #166534; }
+            .bg-green-50 { background-color: #f0fdf4; }
+            .bg-yellow-50 { background-color: #fefce8; }
+            .bg-gray-50 { background-color: #f9fafb; }
+            .bg-gray-800 { background-color: #1f2937; }
+            .bg-white { background-color: white; }
+            
+            .text-white { color: white; }
+            .text-green-100 { color: #dcfce7; }
+            .text-green-400 { color: #4ade80; }
+            .text-green-600 { color: #16a34a; }
+            .text-green-700 { color: #15803d; }
+            .text-yellow-400 { color: #facc15; }
+            .text-gray-400 { color: #9ca3af; }
+            .text-gray-500 { color: #6b7280; }
+            .text-gray-600 { color: #4b5563; }
+            .text-gray-700 { color: #374151; }
+            .text-gray-800 { color: #1f2937; }
+            .text-gray-900 { color: #111827; }
+            .text-red-600 { color: #dc2626; }
+            
+            .border-gray-200 { border-color: #e5e7eb; }
+            .border-gray-300 { border-color: #d1d5db; }
+            .border-yellow-200 { border-color: #fef08a; }
+            .border-yellow-400 { border-color: #facc15; }
+            .border-yellow-600 { border-color: #ca8a04; }
+            .border-green-300 { border-color: #86efac; }
+            
+            .rounded { border-radius: 4px; }
+            .rounded-lg { border-radius: 8px; }
+            .rounded-full { border-radius: 9999px; }
+            
+            .font-bold { font-weight: 700; }
+            .font-semibold { font-weight: 600; }
+            .font-medium { font-weight: 500; }
+            .font-mono { font-family: ui-monospace, monospace; }
+            
+            .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+            .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
           </style>
         </head>
         <body>
@@ -196,8 +268,7 @@ export default function Warranty() {
     
     setTimeout(() => {
       printWindow.print();
-      printWindow.close();
-    }, 250);
+    }, 500);
   };
 
   const renderWarrantyList = (warranties: WarrantyData[]) => {
