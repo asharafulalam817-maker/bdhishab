@@ -17,11 +17,13 @@ import { PurchaseViewDialog } from '@/components/purchases/PurchaseViewDialog';
 import { usePurchases, Purchase } from '@/hooks/usePurchases';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useBalance } from '@/hooks/useBalance';
-import { formatBDT, bn, formatNumberBn } from '@/lib/constants';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { formatBDT, formatNumberBn } from '@/lib/constants';
 import { toast } from 'sonner';
 import { ReadOnlyGuard } from '@/components/subscription/ReadOnlyGuard';
 
 export default function Purchases() {
+  const { t, language } = useLanguage();
   const {
     purchases,
     allPurchases,
@@ -43,6 +45,14 @@ export default function Purchases() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
+
+  const formatNumber = (num: number) => {
+    return language === 'bn' ? formatNumberBn(num) : num.toLocaleString('en-US');
+  };
+
+  const formatCurrency = (amount: number) => {
+    return language === 'bn' ? formatBDT(amount) : `৳ ${amount.toLocaleString('en-US')}`;
+  };
 
   const handleAddPurchase = () => {
     setIsFormOpen(true);
@@ -75,11 +85,11 @@ export default function Purchases() {
     
     // Deduct from balance if paid amount exists and option selected
     if (data.paid_amount > 0 && data.deductFromBalance) {
-      await deductBalance(data.paid_amount, `ক্রয় পেমেন্ট - ${purchase.invoice_number}`);
+      await deductBalance(data.paid_amount, `${t('purchases.title')} - ${purchase.invoice_number}`);
       await refreshBalance();
     }
     
-    toast.success('নতুন ক্রয় সংরক্ষণ হয়েছে');
+    toast.success(t('purchases.saved'));
   };
 
   const handleAddNewSupplier = (supplierData: { name: string; phone: string }) => {
@@ -98,23 +108,23 @@ export default function Purchases() {
 
   const handleDeletePurchase = (id: string) => {
     deletePurchase(id);
-    toast.success('ক্রয় রেকর্ড মুছে ফেলা হয়েছে');
+    toast.success(t('purchases.deleted'));
   };
 
   return (
-    <ReadOnlyGuard featureName="নতুন ক্রয়">
+    <ReadOnlyGuard featureName={t('purchases.addNew')}>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{bn.purchases.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('purchases.title')}</h1>
           <p className="text-muted-foreground">
-            মোট {formatNumberBn(allPurchases.length)} টি ক্রয় রেকর্ড
+            {t('purchases.totalCount').replace('{count}', formatNumber(allPurchases.length))}
           </p>
         </div>
         <Button onClick={handleAddPurchase} className="gap-2">
           <Plus className="h-4 w-4" />
-          {bn.purchases.addNew}
+          {t('purchases.addNew')}
         </Button>
       </div>
 
@@ -128,13 +138,13 @@ export default function Purchases() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                মোট ক্রয়
+                {t('purchases.totalPurchases')}
               </CardTitle>
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {formatNumberBn(allPurchases.length)}
+                {formatNumber(allPurchases.length)}
               </div>
             </CardContent>
           </Card>
@@ -148,13 +158,13 @@ export default function Purchases() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                মোট ক্রয় মূল্য
+                {t('purchases.totalPurchaseValue')}
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-primary">
-                {formatBDT(totalPurchases)}
+                {formatCurrency(totalPurchases)}
               </div>
             </CardContent>
           </Card>
@@ -168,13 +178,13 @@ export default function Purchases() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                মোট বকেয়া (সরবরাহকারীদের)
+                {t('purchases.totalDue')}
               </CardTitle>
               <Wallet className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-destructive">
-                {formatBDT(totalDue)}
+                {formatCurrency(totalDue)}
               </div>
             </CardContent>
           </Card>
@@ -186,7 +196,7 @@ export default function Purchases() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="চালান নং বা সরবরাহকারী দিয়ে খুঁজুন..."
+            placeholder={t('purchases.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -198,13 +208,13 @@ export default function Purchases() {
         >
           <SelectTrigger className="w-full sm:w-[180px]">
             <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="ফিল্টার" />
+            <SelectValue placeholder={t('common.filter')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">সব ক্রয়</SelectItem>
-            <SelectItem value="paid">পরিশোধিত</SelectItem>
-            <SelectItem value="partial">আংশিক পরিশোধ</SelectItem>
-            <SelectItem value="due">বাকি আছে</SelectItem>
+            <SelectItem value="all">{t('purchases.filterAll')}</SelectItem>
+            <SelectItem value="paid">{t('purchases.filterPaid')}</SelectItem>
+            <SelectItem value="partial">{t('purchases.filterPartial')}</SelectItem>
+            <SelectItem value="due">{t('purchases.filterDue')}</SelectItem>
           </SelectContent>
         </Select>
       </div>

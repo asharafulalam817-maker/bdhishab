@@ -13,7 +13,8 @@ import {
   ArrowDown,
   PieChart,
 } from 'lucide-react';
-import { bn, formatBDT, formatNumberBn, formatDateBn } from '@/lib/constants';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { formatBDT, formatNumberBn, formatDateBn } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -41,38 +42,51 @@ import {
 } from 'recharts';
 
 export default function Reports() {
+  const { t, language } = useLanguage();
   const { summary, chartData, topProducts, customerDues, profitMargin } = useReports();
   const [activeTab, setActiveTab] = useState('overview');
 
+  const formatNumber = (num: number) => {
+    return language === 'bn' ? formatNumberBn(num) : num.toLocaleString('en-US');
+  };
+
+  const formatCurrency = (amount: number) => {
+    return language === 'bn' ? formatBDT(amount) : `৳ ${amount.toLocaleString('en-US')}`;
+  };
+
+  const formatDate = (date: string) => {
+    return language === 'bn' ? formatDateBn(date) : new Date(date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
   const statCards = [
     {
-      title: 'আজকের বিক্রয়',
-      value: formatBDT(summary.todaySales),
-      subtext: `${formatNumberBn(summary.todayTransactions)} টি লেনদেন`,
+      title: t('reports.todaySales'),
+      value: formatCurrency(summary.todaySales),
+      subtext: `${formatNumber(summary.todayTransactions)}${t('reports.transactions')}`,
       icon: ShoppingBag,
       color: 'text-primary',
       bgColor: 'bg-primary/10',
     },
     {
-      title: 'আজকের লাভ',
-      value: formatBDT(summary.todayProfit),
-      subtext: `মার্জিন ${profitMargin}%`,
+      title: t('reports.todayProfit'),
+      value: formatCurrency(summary.todayProfit),
+      subtext: `${t('reports.margin')} ${profitMargin}%`,
       icon: TrendingUp,
       color: 'text-success',
       bgColor: 'bg-success/10',
     },
     {
-      title: 'এই মাসের বিক্রয়',
-      value: formatBDT(summary.monthSales),
-      subtext: `${formatNumberBn(summary.monthTransactions)} টি লেনদেন`,
+      title: t('reports.monthSales'),
+      value: formatCurrency(summary.monthSales),
+      subtext: `${formatNumber(summary.monthTransactions)}${t('reports.transactions')}`,
       icon: Calendar,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
     },
     {
-      title: 'মোট বকেয়া',
-      value: formatBDT(summary.totalCustomerDue),
-      subtext: 'গ্রাহকদের কাছ থেকে',
+      title: t('reports.totalDue'),
+      value: formatCurrency(summary.totalCustomerDue),
+      subtext: t('reports.fromCustomers'),
       icon: Users,
       color: 'text-destructive',
       bgColor: 'bg-destructive/10',
@@ -90,13 +104,13 @@ export default function Reports() {
         <div>
           <h1 className="page-title flex items-center gap-2">
             <TrendingUp className="h-6 w-6" />
-            {bn.reports.title}
+            {t('reports.title')}
           </h1>
-          <p className="text-muted-foreground">ব্যবসার সামগ্রিক পারফরম্যান্স বিশ্লেষণ</p>
+          <p className="text-muted-foreground">{t('reports.description')}</p>
         </div>
         <Button variant="outline" className="gap-2">
           <Download className="h-4 w-4" />
-          {bn.reports.export}
+          {t('reports.export')}
         </Button>
       </div>
 
@@ -105,11 +119,11 @@ export default function Reports() {
         <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="overview" className="gap-2">
             <ShoppingBag className="h-4 w-4" />
-            সারসংক্ষেপ
+            {t('reports.overview')}
           </TabsTrigger>
           <TabsTrigger value="profit-loss" className="gap-2">
             <PieChart className="h-4 w-4" />
-            লাভ-ক্ষতি
+            {t('reports.profitLoss')}
           </TabsTrigger>
         </TabsList>
 
@@ -145,7 +159,7 @@ export default function Reports() {
         {/* Sales Chart */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">সাপ্তাহিক বিক্রয়</CardTitle>
+            <CardTitle className="text-base">{t('reports.weeklySales')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
@@ -161,7 +175,7 @@ export default function Reports() {
                   <XAxis dataKey="date" className="text-xs" />
                   <YAxis className="text-xs" />
                   <Tooltip 
-                    formatter={(value: number) => [formatBDT(value), 'বিক্রয়']}
+                    formatter={(value: number) => [formatCurrency(value), t('reports.sales')]}
                     contentStyle={{ 
                       backgroundColor: 'hsl(var(--card))', 
                       border: '1px solid hsl(var(--border))',
@@ -185,7 +199,7 @@ export default function Reports() {
         {/* Profit Chart */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">সাপ্তাহিক লাভ</CardTitle>
+            <CardTitle className="text-base">{t('reports.weeklyProfit')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
@@ -195,7 +209,7 @@ export default function Reports() {
                   <XAxis dataKey="date" className="text-xs" />
                   <YAxis className="text-xs" />
                   <Tooltip 
-                    formatter={(value: number) => [formatBDT(value), 'লাভ']}
+                    formatter={(value: number) => [formatCurrency(value), t('reports.profitLoss')]}
                     contentStyle={{ 
                       backgroundColor: 'hsl(var(--card))', 
                       border: '1px solid hsl(var(--border))',
@@ -217,16 +231,16 @@ export default function Reports() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Package className="h-4 w-4" />
-              {bn.reports.topSelling}
+              {t('reports.topSelling')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>পণ্য</TableHead>
-                  <TableHead className="text-center">বিক্রয়</TableHead>
-                  <TableHead className="text-right">আয়</TableHead>
+                  <TableHead>{t('reports.product')}</TableHead>
+                  <TableHead className="text-center">{t('reports.sales')}</TableHead>
+                  <TableHead className="text-right">{t('reports.revenue')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -242,9 +256,9 @@ export default function Reports() {
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant="secondary">{formatNumberBn(product.quantitySold)} পিস</Badge>
+                      <Badge variant="secondary">{formatNumber(product.quantitySold)} {t('reports.pieces')}</Badge>
                     </TableCell>
-                    <TableCell className="text-right font-medium">{formatBDT(product.revenue)}</TableCell>
+                    <TableCell className="text-right font-medium">{formatCurrency(product.revenue)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -257,16 +271,16 @@ export default function Reports() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Users className="h-4 w-4" />
-              বকেয়া তালিকা
+              {t('reports.dueList')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>গ্রাহক</TableHead>
-                  <TableHead>শেষ ক্রয়</TableHead>
-                  <TableHead className="text-right">বকেয়া</TableHead>
+                  <TableHead>{t('reports.customer')}</TableHead>
+                  <TableHead>{t('reports.lastPurchase')}</TableHead>
+                  <TableHead className="text-right">{t('reports.due')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -279,10 +293,10 @@ export default function Reports() {
                       </div>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {formatDateBn(customer.lastSaleDate)}
+                      {formatDate(customer.lastSaleDate)}
                     </TableCell>
                     <TableCell className="text-right font-medium text-destructive">
-                      {formatBDT(customer.totalDue)}
+                      {formatCurrency(customer.totalDue)}
                     </TableCell>
                   </TableRow>
                 ))}

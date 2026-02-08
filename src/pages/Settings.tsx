@@ -17,13 +17,13 @@ import { AppearanceSettings } from '@/components/settings/AppearanceSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Settings() {
+  const { t } = useLanguage();
   const [selectedTemplate, setSelectedTemplate] = useState<InvoiceTemplate>('classic');
   const [subscriptionOpen, setSubscriptionOpen] = useState(false);
-  const { t } = useLanguage();
 
   const handleTemplateChange = (template: InvoiceTemplate) => {
     setSelectedTemplate(template);
-    toast.success(`${template} টেমপ্লেট সিলেক্ট করা হয়েছে`);
+    toast.success(`${template} ${t('settings.templateSelected')}`);
   };
 
   return (
@@ -73,19 +73,19 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>স্টোরের নাম</Label>
+                  <Label>{t('settings.storeName')}</Label>
                   <Input defaultValue="Demo Store" />
                 </div>
                 <div className="space-y-2">
-                  <Label>ফোন</Label>
+                  <Label>{t('settings.phone')}</Label>
                   <Input defaultValue="01700000000" />
                 </div>
                 <div className="space-y-2">
-                  <Label>ইমেইল</Label>
+                  <Label>{t('settings.email')}</Label>
                   <Input defaultValue="demo@store.com" />
                 </div>
                 <div className="space-y-2">
-                  <Label>ঠিকানা</Label>
+                  <Label>{t('settings.address')}</Label>
                   <Input defaultValue="ঢাকা, বাংলাদেশ" />
                 </div>
               </div>
@@ -108,11 +108,11 @@ export default function Settings() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                আপনার সাবস্ক্রিপশন প্যাকেজ দেখুন এবং আপগ্রেড করুন
+                {t('settings.subscriptionDesc')}
               </p>
               <Button onClick={() => setSubscriptionOpen(true)} className="gap-2">
                 <Crown className="h-4 w-4" />
-                সাবস্ক্রিপশন দেখুন
+                {t('settings.viewSubscription')}
               </Button>
             </CardContent>
           </Card>
@@ -121,7 +121,7 @@ export default function Settings() {
         <TabsContent value="invoice" className="mt-6 space-y-4">
           {/* Template Selector */}
           <Card>
-            <CardHeader><CardTitle>চালান টেমপ্লেট সিলেক্ট করুন</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t('settings.invoiceTemplate')}</CardTitle></CardHeader>
             <CardContent>
               <InvoiceTemplateSelector 
                 selectedTemplate={selectedTemplate} 
@@ -132,22 +132,22 @@ export default function Settings() {
 
           {/* Other Invoice Settings */}
           <Card>
-            <CardHeader><CardTitle>চালান সেটিংস</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t('settings.invoiceSettings')}</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>ইনভয়েস প্রিফিক্স</Label>
+                <Label>{t('settings.invoicePrefix')}</Label>
                 <Input defaultValue="INV" />
               </div>
               <div className="space-y-2">
-                <Label>ইনভয়েস হেডার</Label>
+                <Label>{t('settings.invoiceHeader')}</Label>
                 <Textarea defaultValue="ধন্যবাদ আমাদের কাছ থেকে কেনাকাটা করার জন্য" />
               </div>
               <div className="space-y-2">
-                <Label>ইনভয়েস ফুটার</Label>
+                <Label>{t('settings.invoiceFooter')}</Label>
                 <Textarea defaultValue="পণ্য বিনিময়যোগ্য, অর্থ ফেরতযোগ্য নয়" />
               </div>
               <div className="flex items-center justify-between">
-                <Label>ট্যাক্স সক্রিয়</Label>
+                <Label>{t('settings.taxEnabled')}</Label>
                 <Switch />
               </div>
               <Button>{t('common.save')}</Button>
@@ -157,15 +157,15 @@ export default function Settings() {
 
         <TabsContent value="warranty" className="mt-6">
           <Card>
-            <CardHeader><CardTitle>ডিফল্ট ওয়ারেন্টি সেটিংস</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t('settings.defaultWarranty')}</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>ডিফল্ট সময়কাল</Label>
+                  <Label>{t('settings.defaultDuration')}</Label>
                   <Input defaultValue="১" />
                 </div>
                 <div className="space-y-2">
-                  <Label>একক</Label>
+                  <Label>{t('settings.durationUnit')}</Label>
                   <Input defaultValue="বছর" />
                 </div>
               </div>
@@ -180,9 +180,9 @@ export default function Settings() {
 
         <TabsContent value="users" className="mt-6">
           <Card>
-            <CardHeader><CardTitle>ব্যবহারকারী তালিকা</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t('settings.userList')}</CardTitle></CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">ব্যবহারকারী ব্যবস্থাপনা শীঘ্রই আসছে...</p>
+              <p className="text-muted-foreground">{t('settings.userManagement')}</p>
             </CardContent>
           </Card>
         </TabsContent>
