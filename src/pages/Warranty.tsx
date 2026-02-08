@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Search, ShieldCheck, Printer, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useDemo } from '@/contexts/DemoContext';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -64,6 +65,7 @@ const demoClaims: WarrantyClaim[] = [
 
 export default function Warranty() {
   const { t } = useLanguage();
+  const { demoStore } = useDemo();
   const [searchQuery, setSearchQuery] = useState('');
   const [printDialogOpen, setPrintDialogOpen] = useState(false);
   const [selectedWarranty, setSelectedWarranty] = useState<WarrantyData | null>(null);
@@ -443,6 +445,10 @@ export default function Warranty() {
               onPrint={printWarrantyCard}
               printRef={printRef}
               t={t}
+              storeName={demoStore.name}
+              storePhone={demoStore.phone}
+              storeAddress={demoStore.address}
+              storeLogo={demoStore.logo_url}
             />
           )}
         </DialogContent>
