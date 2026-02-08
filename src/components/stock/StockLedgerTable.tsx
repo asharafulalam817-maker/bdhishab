@@ -9,7 +9,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { StockLedgerEntry } from '@/hooks/useStockManagement';
 import { format } from 'date-fns';
-import { bn } from 'date-fns/locale';
+import { bn, enUS } from 'date-fns/locale';
 import {
   PackagePlus,
   PackageMinus,
@@ -17,47 +17,52 @@ import {
   ShoppingCart,
   Truck,
 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface StockLedgerTableProps {
   entries: StockLedgerEntry[];
 }
 
-const transactionConfig: Record<
-  string,
-  { label: string; icon: React.ReactNode; variant: 'default' | 'secondary' | 'destructive' | 'outline' }
-> = {
-  stock_in: {
-    label: 'স্টক ইন',
-    icon: <PackagePlus className="h-3 w-3" />,
-    variant: 'default',
-  },
-  stock_out: {
-    label: 'স্টক আউট',
-    icon: <PackageMinus className="h-3 w-3" />,
-    variant: 'destructive',
-  },
-  adjustment: {
-    label: 'এডজাস্টমেন্ট',
-    icon: <Settings2 className="h-3 w-3" />,
-    variant: 'secondary',
-  },
-  sale: {
-    label: 'বিক্রয়',
-    icon: <ShoppingCart className="h-3 w-3" />,
-    variant: 'destructive',
-  },
-  purchase: {
-    label: 'ক্রয়',
-    icon: <Truck className="h-3 w-3" />,
-    variant: 'default',
-  },
-};
-
 export function StockLedgerTable({ entries }: StockLedgerTableProps) {
+  const { t, language } = useLanguage();
+
+  const transactionConfig: Record<
+    string,
+    { label: string; icon: React.ReactNode; variant: 'default' | 'secondary' | 'destructive' | 'outline' }
+  > = {
+    stock_in: {
+      label: t('stock.typeStockIn'),
+      icon: <PackagePlus className="h-3 w-3" />,
+      variant: 'default',
+    },
+    stock_out: {
+      label: t('stock.typeStockOut'),
+      icon: <PackageMinus className="h-3 w-3" />,
+      variant: 'destructive',
+    },
+    adjustment: {
+      label: t('stock.typeAdjustment'),
+      icon: <Settings2 className="h-3 w-3" />,
+      variant: 'secondary',
+    },
+    sale: {
+      label: t('stock.typeSale'),
+      icon: <ShoppingCart className="h-3 w-3" />,
+      variant: 'destructive',
+    },
+    purchase: {
+      label: t('stock.typePurchase'),
+      icon: <Truck className="h-3 w-3" />,
+      variant: 'default',
+    },
+  };
+
+  const dateLocale = language === 'bn' ? bn : enUS;
+
   if (entries.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        কোনো লেনদেন পাওয়া যায়নি
+        {t('stock.ledger.noTransactions')}
       </div>
     );
   }
@@ -67,12 +72,12 @@ export function StockLedgerTable({ entries }: StockLedgerTableProps) {
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
-            <TableHead>তারিখ ও সময়</TableHead>
-            <TableHead>পণ্য</TableHead>
-            <TableHead className="text-center">ধরন</TableHead>
-            <TableHead className="text-right">পরিমাণ</TableHead>
-            <TableHead className="text-right">ব্যালেন্স</TableHead>
-            <TableHead>নোট</TableHead>
+            <TableHead>{t('stock.ledger.dateTime')}</TableHead>
+            <TableHead>{t('stock.ledger.product')}</TableHead>
+            <TableHead className="text-center">{t('stock.ledger.type')}</TableHead>
+            <TableHead className="text-right">{t('stock.ledger.quantity')}</TableHead>
+            <TableHead className="text-right">{t('stock.ledger.balance')}</TableHead>
+            <TableHead>{t('stock.ledger.notes')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -86,19 +91,19 @@ export function StockLedgerTable({ entries }: StockLedgerTableProps) {
             return (
               <TableRow key={entry.id}>
                 <TableCell className="text-sm">
-                  {format(new Date(entry.createdAt), 'dd MMM yyyy', { locale: bn })}
+                  {format(new Date(entry.createdAt), 'dd MMM yyyy', { locale: dateLocale })}
                   <br />
                   <span className="text-muted-foreground text-xs">
-                    {format(new Date(entry.createdAt), 'hh:mm a', { locale: bn })}
+                    {format(new Date(entry.createdAt), 'hh:mm a', { locale: dateLocale })}
                   </span>
                 </TableCell>
                 <TableCell>
                   <div className="font-medium">{entry.productName}</div>
                   {(entry.batchNumber || entry.serialNumber) && (
                     <div className="text-xs text-muted-foreground">
-                      {entry.batchNumber && `ব্যাচ: ${entry.batchNumber}`}
+                      {entry.batchNumber && `${t('stock.ledger.batch')}: ${entry.batchNumber}`}
                       {entry.batchNumber && entry.serialNumber && ' | '}
-                      {entry.serialNumber && `সিরিয়াল: ${entry.serialNumber}`}
+                      {entry.serialNumber && `${t('stock.ledger.serial')}: ${entry.serialNumber}`}
                     </div>
                   )}
                 </TableCell>

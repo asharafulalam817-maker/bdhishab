@@ -28,6 +28,7 @@ import { Product } from '@/hooks/useProducts';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Settings2, Plus, Trash2, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AdjustmentItem {
   productId: string;
@@ -47,23 +48,24 @@ interface StockAdjustmentDialogProps {
   ) => void;
 }
 
-const ADJUSTMENT_REASONS = [
-  'ফিজিক্যাল কাউন্ট সংশোধন',
-  'ইনভেন্টরি অডিট',
-  'সিস্টেম এরর সংশোধন',
-  'প্রাথমিক স্টক সেটআপ',
-  'অন্যান্য',
-];
-
 export function StockAdjustmentDialog({
   open,
   onOpenChange,
   products,
   onSubmit,
 }: StockAdjustmentDialogProps) {
+  const { t } = useLanguage();
   const [items, setItems] = useState<AdjustmentItem[]>([]);
   const [selectedProductId, setSelectedProductId] = useState('');
   const [notes, setNotes] = useState('');
+
+  const adjustmentReasons = [
+    t('stock.reasonPhysicalCount'),
+    t('stock.reasonInventoryAudit'),
+    t('stock.reasonSystemError'),
+    t('stock.reasonInitialSetup'),
+    t('stock.reasonOther'),
+  ];
 
   const addProduct = () => {
     if (!selectedProductId) return;
@@ -81,7 +83,7 @@ export function StockAdjustmentDialog({
         productName: product.name,
         currentStock: product.stock,
         newStock: product.stock,
-        reason: ADJUSTMENT_REASONS[0],
+        reason: adjustmentReasons[0],
       },
     ]);
     setSelectedProductId('');
@@ -134,7 +136,7 @@ export function StockAdjustmentDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Settings2 className="h-5 w-5 text-blue-600" />
-            স্টক এডজাস্টমেন্ট
+            {t('stock.adjustmentTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -143,12 +145,12 @@ export function StockAdjustmentDialog({
           <div className="flex gap-2">
             <Select value={selectedProductId} onValueChange={setSelectedProductId}>
               <SelectTrigger className="flex-1">
-                <SelectValue placeholder="পণ্য সিলেক্ট করুন" />
+                <SelectValue placeholder={t('stock.selectProductPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
                 {availableProducts.map((product) => (
                   <SelectItem key={product.id} value={product.id}>
-                    {product.name} (স্টক: {product.stock})
+                    {product.name} ({t('products.stock')}: {product.stock})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -159,7 +161,7 @@ export function StockAdjustmentDialog({
               disabled={!selectedProductId}
             >
               <Plus className="h-4 w-4 mr-1" />
-              যোগ করুন
+              {t('stock.add')}
             </Button>
           </div>
 
@@ -169,11 +171,11 @@ export function StockAdjustmentDialog({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>পণ্য</TableHead>
-                    <TableHead className="text-center">বর্তমান</TableHead>
-                    <TableHead className="text-center">নতুন স্টক</TableHead>
-                    <TableHead className="text-center">পার্থক্য</TableHead>
-                    <TableHead>কারণ</TableHead>
+                    <TableHead>{t('stock.ledger.product')}</TableHead>
+                    <TableHead className="text-center">{t('stock.ledger.current')}</TableHead>
+                    <TableHead className="text-center">{t('stock.ledger.newStock')}</TableHead>
+                    <TableHead className="text-center">{t('stock.ledger.difference')}</TableHead>
+                    <TableHead>{t('stock.reason')}</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -231,7 +233,7 @@ export function StockAdjustmentDialog({
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {ADJUSTMENT_REASONS.map((reason) => (
+                              {adjustmentReasons.map((reason) => (
                                 <SelectItem key={reason} value={reason}>
                                   {reason}
                                 </SelectItem>
@@ -259,14 +261,14 @@ export function StockAdjustmentDialog({
 
           {items.length === 0 && (
             <div className="text-center py-8 text-muted-foreground border rounded-lg">
-              এডজাস্ট করতে পণ্য যোগ করুন
+              {t('stock.addProductForAdjust')}
             </div>
           )}
 
           {/* Summary */}
           {items.length > 0 && (
             <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-              <span className="text-sm font-medium">মোট পরিবর্তন:</span>
+              <span className="text-sm font-medium">{t('stock.totalChange')}:</span>
               <Badge
                 variant={totalChanges >= 0 ? 'default' : 'destructive'}
                 className="text-base"
@@ -278,11 +280,11 @@ export function StockAdjustmentDialog({
 
           {/* Notes */}
           <div className="space-y-2">
-            <Label>নোট</Label>
+            <Label>{t('stock.notes')}</Label>
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="এডজাস্টমেন্টের বিস্তারিত তথ্য লিখুন"
+              placeholder={t('stock.detailsPlaceholder')}
               rows={2}
             />
           </div>
@@ -294,14 +296,14 @@ export function StockAdjustmentDialog({
               className="flex-1"
               onClick={() => onOpenChange(false)}
             >
-              বাতিল
+              {t('stock.cancel')}
             </Button>
             <Button
               type="submit"
               className="flex-1"
               disabled={items.length === 0 || items.every(i => i.newStock === i.currentStock)}
             >
-              এডজাস্টমেন্ট সেভ করুন
+              {t('stock.saveAdjustment')}
             </Button>
           </div>
         </form>
