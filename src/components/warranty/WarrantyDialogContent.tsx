@@ -27,6 +27,7 @@ interface WarrantyDialogContentProps {
   onPrint: () => void;
   printRef: RefObject<HTMLDivElement>;
   t: (key: string) => string;
+  storeLogo?: string | null;
   storeName?: string;
   storePhone?: string;
   storeAddress?: string;
@@ -41,6 +42,7 @@ export function WarrantyDialogContent({
   storeName = 'ডিজিটাল বন্ধু',
   storePhone = '০১৭১২-৩৪৫৬৭৮',
   storeAddress = '১২৩/এ, গুলশান, ঢাকা-১২১২',
+  storeLogo,
 }: WarrantyDialogContentProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -284,6 +286,7 @@ export function WarrantyDialogContent({
             storeName={storeName}
             storePhone={storePhone}
             storeAddress={storeAddress}
+            storeLogo={storeLogo}
           />
         </div>
       </div>

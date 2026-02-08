@@ -14,12 +14,16 @@ import { toast } from 'sonner';
 import NotificationSettings from '@/components/warranty/NotificationSettings';
 import { SubscriptionDialog } from '@/components/subscription/SubscriptionDialog';
 import { AppearanceSettings } from '@/components/settings/AppearanceSettings';
+import { StoreLogoUpload } from '@/components/settings/StoreLogoUpload';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useDemo } from '@/contexts/DemoContext';
 
 export default function Settings() {
   const { t } = useLanguage();
+  const { demoStore, currentStoreId } = useDemo();
   const [selectedTemplate, setSelectedTemplate] = useState<InvoiceTemplate>('classic');
   const [subscriptionOpen, setSubscriptionOpen] = useState(false);
+  const [storeLogo, setStoreLogo] = useState<string | null>(demoStore.logo_url);
 
   const handleTemplateChange = (template: InvoiceTemplate) => {
     setSelectedTemplate(template);
@@ -71,22 +75,29 @@ export default function Settings() {
           <Card>
             <CardHeader><CardTitle>{t('settings.store')}</CardTitle></CardHeader>
             <CardContent className="space-y-4">
+              {/* Store Logo Upload */}
+              <StoreLogoUpload
+                currentLogoUrl={storeLogo}
+                storeId={currentStoreId}
+                onLogoChange={setStoreLogo}
+              />
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t('settings.storeName')}</Label>
-                  <Input defaultValue="Demo Store" />
+                  <Input defaultValue={demoStore.name} />
                 </div>
                 <div className="space-y-2">
                   <Label>{t('settings.phone')}</Label>
-                  <Input defaultValue="01700000000" />
+                  <Input defaultValue={demoStore.phone || ''} />
                 </div>
                 <div className="space-y-2">
                   <Label>{t('settings.email')}</Label>
-                  <Input defaultValue="demo@store.com" />
+                  <Input defaultValue={demoStore.email || ''} />
                 </div>
                 <div className="space-y-2">
                   <Label>{t('settings.address')}</Label>
-                  <Input defaultValue="ঢাকা, বাংলাদেশ" />
+                  <Input defaultValue={demoStore.address || ''} />
                 </div>
               </div>
               <Button>{t('common.save')}</Button>

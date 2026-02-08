@@ -64,7 +64,7 @@ const calculateDurationFromDates = (startDate: string, expiryDate: string): stri
 };
 
 export const WarrantyPrintCard = forwardRef<HTMLDivElement, WarrantyPrintCardProps>(
-  ({ warranty, storeName = 'ডিজিটাল বন্ধু', storePhone, storeAddress }, ref) => {
+  ({ warranty, storeName = 'ডিজিটাল বন্ধু', storePhone, storeAddress, storeLogo }, ref) => {
     const warrantyDurationText = warranty.warrantyDuration && warranty.warrantyUnit 
       ? getWarrantyDurationText(warranty.warrantyDuration, warranty.warrantyUnit)
       : calculateDurationFromDates(warranty.startDate, warranty.expiryDate);
@@ -98,12 +98,23 @@ export const WarrantyPrintCard = forwardRef<HTMLDivElement, WarrantyPrintCardPro
                     <p className="text-green-100 text-[10px] sm:text-xs truncate">📍 {storeAddress}</p>
                   )}
                 </div>
-                {/* Official Seal */}
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-3 border-yellow-400 bg-green-800 flex flex-col items-center justify-center flex-shrink-0 shadow-lg">
-                  <span className="text-yellow-400 text-[8px] sm:text-[9px] font-bold">অফিসিয়াল</span>
-                  <span className="text-white text-[7px] sm:text-[8px]">ওয়ারেন্টি</span>
-                  <span className="text-yellow-400 text-[6px] sm:text-[7px]">✓ সার্টিফাইড</span>
-                </div>
+                {/* Store Logo or Official Seal */}
+                {storeLogo ? (
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-yellow-400 bg-white flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden p-1">
+                    <img 
+                      src={storeLogo} 
+                      alt="Store logo" 
+                      className="w-full h-full object-contain"
+                      crossOrigin="anonymous"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-3 border-yellow-400 bg-green-800 flex flex-col items-center justify-center flex-shrink-0 shadow-lg">
+                    <span className="text-yellow-400 text-[8px] sm:text-[9px] font-bold">অফিসিয়াল</span>
+                    <span className="text-white text-[7px] sm:text-[8px]">ওয়ারেন্টি</span>
+                    <span className="text-yellow-400 text-[6px] sm:text-[7px]">✓ সার্টিফাইড</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
