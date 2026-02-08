@@ -1,9 +1,10 @@
-import { RefObject, useState } from 'react';
+import { RefObject, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { WarrantyPrintCard } from './WarrantyPrintCard';
-import { Printer, Share2, MessageCircle, Mail, Copy, Check, Send } from 'lucide-react';
+import { Printer, Share2, MessageCircle, Download, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import html2canvas from 'html2canvas';
 
 interface WarrantyData {
   id: string;
@@ -30,78 +31,6 @@ interface WarrantyDialogContentProps {
   storeAddress?: string;
 }
 
-// Generate warranty duration text for sharing
-const getWarrantyDurationText = (warranty: WarrantyData): string => {
-  if (warranty.warrantyDuration && warranty.warrantyUnit) {
-    const unitText = {
-      days: 'দিন',
-      months: 'মাস',
-      years: 'বছর',
-    }[warranty.warrantyUnit];
-    return `${warranty.warrantyDuration} ${unitText}`;
-  }
-  
-  // Calculate from dates
-  const start = new Date(warranty.startDate);
-  const end = new Date(warranty.expiryDate);
-  const diffDays = Math.ceil(Math.abs(end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-  
-  if (diffDays >= 365) {
-    return `${Math.round(diffDays / 365)} বছর`;
-  } else if (diffDays >= 30) {
-    return `${Math.round(diffDays / 30)} মাস`;
-  }
-  return `${diffDays} দিন`;
-};
-
-// Generate shareable text
-const generateShareText = (warranty: WarrantyData, storeName: string, storePhone?: string): string => {
-  const durationText = getWarrantyDurationText(warranty);
-  
-  return `🛡️ *ওয়ারেন্টি কার্ড*
-━━━━━━━━━━━━━━━━━
-
-📦 *পণ্য:* ${warranty.product}
-📋 *চালান নং:* ${warranty.invoiceNo}
-${warranty.serialNumber ? `🔢 *সিরিয়াল:* ${warranty.serialNumber}\n` : ''}
-👤 *গ্রাহক:* ${warranty.customer}
-📞 *ফোন:* ${warranty.phone}
-
-⏱️ *ওয়ারেন্টি মেয়াদ:* ${durationText}
-📅 *শুরু:* ${new Date(warranty.startDate).toLocaleDateString('bn-BD')}
-📅 *শেষ:* ${new Date(warranty.expiryDate).toLocaleDateString('bn-BD')}
-
-━━━━━━━━━━━━━━━━━
-🏪 *${storeName}*
-${storePhone ? `📞 ${storePhone}` : ''}
-
-_এই ওয়ারেন্টি কার্ডটি সংরক্ষণ করুন।_`;
-};
-
-// Generate plain text for email/copy
-const generatePlainText = (warranty: WarrantyData, storeName: string, storePhone?: string): string => {
-  const durationText = getWarrantyDurationText(warranty);
-  
-  return `ওয়ারেন্টি কার্ড
-================
-
-পণ্য: ${warranty.product}
-চালান নং: ${warranty.invoiceNo}
-${warranty.serialNumber ? `সিরিয়াল: ${warranty.serialNumber}\n` : ''}
-গ্রাহক: ${warranty.customer}
-ফোন: ${warranty.phone}
-
-ওয়ারেন্টি মেয়াদ: ${durationText}
-শুরু: ${new Date(warranty.startDate).toLocaleDateString('bn-BD')}
-শেষ: ${new Date(warranty.expiryDate).toLocaleDateString('bn-BD')}
-
-================
-${storeName}
-${storePhone ? `ফোন: ${storePhone}` : ''}
-
-এই ওয়ারেন্টি কার্ডটি সংরক্ষণ করুন।`;
-};
-
 export function WarrantyDialogContent({
   warranty,
   onClose,
@@ -112,63 +41,137 @@ export function WarrantyDialogContent({
   storePhone = '০১৭১২-৩৪৫৬৭৮',
   storeAddress = '১২৩/এ, গুলশান, ঢাকা-১২১২',
 }: WarrantyDialogContentProps) {
-  const [copied, setCopied] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  const shareToWhatsApp = () => {
-    const text = generateShareText(warranty, storeName, storePhone);
-    const encodedText = encodeURIComponent(text);
-    const whatsappUrl = `https://wa.me/?text=${encodedText}`;
-    window.open(whatsappUrl, '_blank');
-    toast.success(t('warranty.sharedToWhatsApp'));
-  };
+  // Generate warranty card as image
+  const generateCardImage = async (): Promise<Blob | null> => {
+    const cardElement = cardRef.current?.querySelector('.warranty-card-container') || cardRef.current;
+    if (!cardElement) return null;
 
-  const shareToMessenger = () => {
-    const text = generateShareText(warranty, storeName, storePhone);
-    const encodedText = encodeURIComponent(text);
-    // Facebook Messenger share link
-    const messengerUrl = `fb-messenger://share?link=${encodedText}`;
-    window.open(messengerUrl, '_blank');
-    toast.success(t('warranty.sharedToMessenger'));
-  };
-
-  const shareToEmail = () => {
-    const subject = `ওয়ারেন্টি কার্ড - ${warranty.product} (${warranty.invoiceNo})`;
-    const body = generatePlainText(warranty, storeName, storePhone);
-    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoUrl;
-    toast.success(t('warranty.sharedToEmail'));
-  };
-
-  const copyToClipboard = async () => {
-    const text = generatePlainText(warranty, storeName, storePhone);
     try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      toast.success(t('warranty.copiedToClipboard'));
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error(t('warranty.copyFailed'));
+      const canvas = await html2canvas(cardElement as HTMLElement, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        logging: false,
+      });
+      
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+          resolve(blob);
+        }, 'image/png', 1.0);
+      });
+    } catch (error) {
+      console.error('Error generating image:', error);
+      return null;
     }
   };
 
+  // Download as image
+  const downloadAsImage = async () => {
+    setIsGenerating(true);
+    try {
+      const blob = await generateCardImage();
+      if (!blob) {
+        toast.error('ইমেজ তৈরি করতে সমস্যা হয়েছে');
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `warranty-${warranty.invoiceNo}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success('ইমেজ ডাউনলোড হয়েছে');
+    } catch (error) {
+      toast.error('ডাউনলোড করতে সমস্যা হয়েছে');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Share to WhatsApp (image)
+  const shareToWhatsApp = async () => {
+    setIsGenerating(true);
+    try {
+      const blob = await generateCardImage();
+      if (!blob) {
+        toast.error('ইমেজ তৈরি করতে সমস্যা হয়েছে');
+        return;
+      }
+
+      const file = new File([blob], `warranty-${warranty.invoiceNo}.png`, { type: 'image/png' });
+
+      // Check if Web Share API with files is supported
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `ওয়ারেন্টি কার্ড - ${warranty.product}`,
+        });
+        toast.success(t('warranty.shared'));
+      } else {
+        // Fallback: Download the image first
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `warranty-${warranty.invoiceNo}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        toast.success('ইমেজ ডাউনলোড হয়েছে। এখন হোয়াটসঅ্যাপে শেয়ার করুন।');
+      }
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        toast.error(t('warranty.shareFailed'));
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Native share (image)
   const shareNative = async () => {
-    const text = generatePlainText(warranty, storeName, storePhone);
-    
-    if (navigator.share) {
-      try {
+    setIsGenerating(true);
+    try {
+      const blob = await generateCardImage();
+      if (!blob) {
+        toast.error('ইমেজ তৈরি করতে সমস্যা হয়েছে');
+        return;
+      }
+
+      const file = new File([blob], `warranty-${warranty.invoiceNo}.png`, { type: 'image/png' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `ওয়ারেন্টি কার্ড - ${warranty.product}`,
+        });
+        toast.success(t('warranty.shared'));
+      } else if (navigator.share) {
+        // Fallback to text share if file share not supported
+        const text = `ওয়ারেন্টি কার্ড\n\nপণ্য: ${warranty.product}\nচালান: ${warranty.invoiceNo}\nগ্রাহক: ${warranty.customer}\nমেয়াদ: ${warranty.startDate} - ${warranty.expiryDate}`;
         await navigator.share({
           title: `ওয়ারেন্টি কার্ড - ${warranty.product}`,
           text: text,
         });
         toast.success(t('warranty.shared'));
-      } catch (err) {
-        // User cancelled or error
-        if ((err as Error).name !== 'AbortError') {
-          toast.error(t('warranty.shareFailed'));
-        }
+      } else {
+        // Fallback: Download
+        downloadAsImage();
       }
-    } else {
-      copyToClipboard();
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        toast.error(t('warranty.shareFailed'));
+      }
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -176,12 +179,14 @@ export function WarrantyDialogContent({
     <div className="space-y-4">
       {/* Print Preview */}
       <div className="flex justify-center overflow-auto py-4 max-h-[60vh]" ref={printRef}>
-        <WarrantyPrintCard
-          warranty={warranty}
-          storeName={storeName}
-          storePhone={storePhone}
-          storeAddress={storeAddress}
-        />
+        <div ref={cardRef} className="warranty-card-container">
+          <WarrantyPrintCard
+            warranty={warranty}
+            storeName={storeName}
+            storePhone={storePhone}
+            storeAddress={storeAddress}
+          />
+        </div>
       </div>
 
       {/* Actions */}
@@ -190,31 +195,23 @@ export function WarrantyDialogContent({
           {/* Share Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Share2 className="h-4 w-4" />
+              <Button variant="outline" className="flex items-center gap-2" disabled={isGenerating}>
+                {isGenerating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Share2 className="h-4 w-4" />
+                )}
                 {t('warranty.share')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-48">
               <DropdownMenuItem onClick={shareToWhatsApp} className="flex items-center gap-2 cursor-pointer">
                 <MessageCircle className="h-4 w-4 text-green-600" />
-                <span>হোয়াটসঅ্যাপ</span>
+                <span>হোয়াটসঅ্যাপ / অন্যান্য</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={shareToEmail} className="flex items-center gap-2 cursor-pointer">
-                <Mail className="h-4 w-4 text-red-500" />
-                <span>ইমেইল / জিমেইল</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={shareNative} className="flex items-center gap-2 cursor-pointer">
-                <Send className="h-4 w-4 text-blue-500" />
-                <span>অন্যান্য অ্যাপ</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={copyToClipboard} className="flex items-center gap-2 cursor-pointer">
-                {copied ? (
-                  <Check className="h-4 w-4 text-green-600" />
-                ) : (
-                  <Copy className="h-4 w-4 text-gray-500" />
-                )}
-                <span>{copied ? 'কপি হয়েছে!' : 'কপি করুন'}</span>
+              <DropdownMenuItem onClick={downloadAsImage} className="flex items-center gap-2 cursor-pointer">
+                <Download className="h-4 w-4 text-blue-600" />
+                <span>ইমেজ ডাউনলোড</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
