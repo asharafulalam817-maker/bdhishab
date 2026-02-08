@@ -84,6 +84,17 @@ export async function renderWarrantyCardPngBlob(
     trim?: TrimOptions;
   }
 ): Promise<Blob> {
+  // Ensure fonts are loaded before rasterizing (avoids Bengali text shifting/garbling)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fonts = (document as any).fonts as FontFaceSet | undefined;
+  if (fonts?.ready) {
+    try {
+      await fonts.ready;
+    } catch {
+      // ignore
+    }
+  }
+
   const canvas = await html2canvas(element, {
     scale: options?.scale ?? 2,
     backgroundColor: "#ffffff",

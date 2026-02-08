@@ -1,13 +1,28 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
+const waitForFonts = async () => {
+  // Ensures Bengali fonts are ready before rasterizing (prevents layout shifts/garbled text)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fonts = (document as any).fonts as FontFaceSet | undefined;
+  if (fonts?.ready) {
+    try {
+      await fonts.ready;
+    } catch {
+      // ignore
+    }
+  }
+};
+
 export async function renderWarrantyCardPdfBlob(
   element: HTMLElement,
-  options?: { scale?: number }
+  options?: { scale?: number; marginMm?: number }
 ): Promise<Blob> {
-  const scale = options?.scale ?? 2;
+  await waitForFonts();
 
-  // Render to canvas with white background
+  const scale = options?.scale ?? 2;
+  const margin = options?.marginMm ?? 10;
+
   const canvas = await html2canvas(element, {
     scale,
     backgroundColor: '#ffffff',
@@ -15,19 +30,31 @@ export async function renderWarrantyCardPdfBlob(
     logging: false,
   });
 
-  // Get image dimensions in mm for A6-ish card (105×148mm portrait)
-  const imgWidth = 105; // mm
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  const orientation = canvas.width > canvas.height ? 'landscape' : 'portrait';
+  const pdf = new jsPDF({ orientation, unit: 'mm', format: 'a4' });
 
-  // Create PDF with custom size matching image aspect ratio
-  const pdf = new jsPDF({
-    orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
-    unit: 'mm',
-    format: [imgWidth, imgHeight],
-  });
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  const maxW = pageWidth - margin * 2;
+  const maxH = pageHeight - margin * 2;
+
+  // Fit image within page keeping aspect ratio
+  let imgW = maxW;
+  let imgH = (canvas.height * imgW) / canvas.width;
+
+  if (imgH > maxH) {
+    imgH = maxH;
+    imgW = (canvas.width * imgH) / canvas.height;
+  }
+
+  const x = (pageWidth - imgW) / 2;
+  const y = (pageHeight - imgH) / 2;
 
   const imgData = canvas.toDataURL('image/png', 1.0);
-  pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+  // FAST keeps file size reasonable on mobile
+  pdf.addImage(imgData, 'PNG', x, y, imgW, imgH, undefined, 'FAST');
 
   return pdf.output('blob');
 }
+
