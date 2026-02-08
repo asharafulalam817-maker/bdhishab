@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Search, ShieldCheck, Printer, AlertTriangle, Plus } from 'lucide-react';
+import { Search, ShieldCheck, Printer, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { WarrantyCard } from '@/components/warranty/WarrantyCard';
 import { WarrantyPrintCard } from '@/components/warranty/WarrantyPrintCard';
 import { WarrantyClaimDialog, WarrantyClaim } from '@/components/warranty/WarrantyClaimDialog';
 import { WarrantyClaimCard } from '@/components/warranty/WarrantyClaimCard';
+import { WarrantyDialogContent } from '@/components/warranty/WarrantyDialogContent';
 import { toast } from 'sonner';
 
 interface WarrantyData {
@@ -23,13 +24,15 @@ interface WarrantyData {
   expiryDate: string;
   serialNumber?: string;
   status: string;
+  warrantyDuration?: number;
+  warrantyUnit?: 'days' | 'months' | 'years';
 }
 
 const demoWarranties: WarrantyData[] = [
-  { id: '1', invoiceNo: 'INV-202501-001', product: 'স্যামসাং গ্যালাক্সি A54', customer: 'মোহাম্মদ করিম', phone: '01712345678', startDate: '2025-01-15', expiryDate: '2026-01-15', serialNumber: 'SM-A546BZKD', status: 'active' },
-  { id: '2', invoiceNo: 'INV-202501-002', product: 'JBL ব্লুটুথ স্পিকার', customer: 'ফাতেমা বেগম', phone: '01812345678', startDate: '2025-01-10', expiryDate: '2026-01-10', serialNumber: 'JBL-FLIP6-2025', status: 'active' },
-  { id: '3', invoiceNo: 'INV-202412-015', product: 'শাওমি পাওয়ার ব্যাংক', customer: 'রহিম উদ্দিন', phone: '01912345678', startDate: '2024-12-01', expiryDate: '2025-06-01', serialNumber: 'MI-PB20K-001', status: 'expiring' },
-  { id: '4', invoiceNo: 'INV-202411-008', product: 'বেসাস চার্জার', customer: 'আবদুল হাকিম', phone: '01612345678', startDate: '2024-11-01', expiryDate: '2025-05-01', status: 'expiring' },
+  { id: '1', invoiceNo: 'INV-202501-001', product: 'স্যামসাং গ্যালাক্সি A54', customer: 'মোহাম্মদ করিম', phone: '01712345678', startDate: '2025-01-15', expiryDate: '2026-01-15', serialNumber: 'SM-A546BZKD', status: 'active', warrantyDuration: 12, warrantyUnit: 'months' },
+  { id: '2', invoiceNo: 'INV-202501-002', product: 'JBL ব্লুটুথ স্পিকার', customer: 'ফাতেমা বেগম', phone: '01812345678', startDate: '2025-01-10', expiryDate: '2026-01-10', serialNumber: 'JBL-FLIP6-2025', status: 'active', warrantyDuration: 1, warrantyUnit: 'years' },
+  { id: '3', invoiceNo: 'INV-202412-015', product: 'শাওমি পাওয়ার ব্যাংক', customer: 'রহিম উদ্দিন', phone: '01912345678', startDate: '2024-12-01', expiryDate: '2025-06-01', serialNumber: 'MI-PB20K-001', status: 'expiring', warrantyDuration: 6, warrantyUnit: 'months' },
+  { id: '4', invoiceNo: 'INV-202411-008', product: 'বেসাস চার্জার', customer: 'আবদুল হাকিম', phone: '01612345678', startDate: '2024-11-01', expiryDate: '2025-05-01', status: 'expiring', warrantyDuration: 6, warrantyUnit: 'months' },
 ];
 
 // Demo claims data
@@ -352,9 +355,9 @@ export default function Warranty() {
         </TabsContent>
       </Tabs>
 
-      {/* Print Dialog */}
+      {/* Print Dialog with Share Options */}
       <Dialog open={printDialogOpen} onOpenChange={setPrintDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5" />
@@ -363,28 +366,13 @@ export default function Warranty() {
           </DialogHeader>
 
           {selectedWarranty && (
-            <div className="space-y-4">
-              {/* Print Preview */}
-              <div className="flex justify-center overflow-auto py-4" ref={printRef}>
-                <WarrantyPrintCard
-                  warranty={selectedWarranty}
-                  storeName="ডিজিটাল বন্ধু"
-                  storePhone="০১৭১২-৩৪৫৬৭৮"
-                  storeAddress="১২৩/এ, গুলশান, ঢাকা-১২১২"
-                />
-              </div>
-
-              {/* Actions */}
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setPrintDialogOpen(false)}>
-                  {t('warranty.close')}
-                </Button>
-                <Button onClick={printWarrantyCard}>
-                  <Printer className="h-4 w-4 mr-2" />
-                  {t('warranty.print')}
-                </Button>
-              </div>
-            </div>
+            <WarrantyDialogContent
+              warranty={selectedWarranty}
+              onClose={() => setPrintDialogOpen(false)}
+              onPrint={printWarrantyCard}
+              printRef={printRef}
+              t={t}
+            />
           )}
         </DialogContent>
       </Dialog>
