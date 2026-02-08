@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Search, ShieldCheck, Printer, AlertTriangle, Plus } from 'lucide-react';
-import { bn } from '@/lib/constants';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -60,6 +60,7 @@ const demoClaims: WarrantyClaim[] = [
 ];
 
 export default function Warranty() {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [printDialogOpen, setPrintDialogOpen] = useState(false);
   const [selectedWarranty, setSelectedWarranty] = useState<WarrantyData | null>(null);
@@ -161,7 +162,7 @@ export default function Warranty() {
     const printContent = printRef.current.innerHTML;
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      toast.error('পপআপ ব্লক করা আছে। অনুগ্রহ করে পপআপ অনুমতি দিন।');
+      toast.error(t('warranty.popupBlocked'));
       return;
     }
 
@@ -169,7 +170,7 @@ export default function Warranty() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>ওয়ারেন্টি কার্ড প্রিন্ট</title>
+          <title>${t('warranty.warrantyCard')}</title>
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { 
@@ -201,7 +202,7 @@ export default function Warranty() {
       return (
         <div className="text-center py-12 text-muted-foreground">
           <ShieldCheck className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          কোনো ওয়ারেন্টি রেকর্ড পাওয়া যায়নি
+          {t('warranty.noWarranties')}
         </div>
       );
     }
@@ -232,7 +233,7 @@ export default function Warranty() {
       return (
         <div className="text-center py-12 text-muted-foreground">
           <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          কোনো ক্লেম পাওয়া যায়নি
+          {t('warranty.noClaims')}
         </div>
       );
     }
@@ -259,9 +260,9 @@ export default function Warranty() {
         <div>
           <h1 className="page-title flex items-center gap-2">
             <ShieldCheck className="h-6 w-6" />
-            {bn.warranty.title}
+            {t('warranty.title')}
           </h1>
-          <p className="text-muted-foreground">ওয়ারেন্টি তথ্য খুঁজুন এবং ক্লেম ট্র্যাক করুন</p>
+          <p className="text-muted-foreground">{t('warranty.description')}</p>
         </div>
       </div>
 
@@ -270,7 +271,7 @@ export default function Warranty() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="চালান নং, ফোন নম্বর, সিরিয়াল বা পণ্যের নাম দিয়ে খুঁজুন..."
+              placeholder={t('warranty.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -284,11 +285,11 @@ export default function Warranty() {
         <TabsList className="grid w-full grid-cols-2 max-w-md">
           <TabsTrigger value="warranties" className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4" />
-            ওয়ারেন্টি ({filteredWarranties.length})
+            {t('warranty.warranties')} ({filteredWarranties.length})
           </TabsTrigger>
           <TabsTrigger value="claims" className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4" />
-            ক্লেম ({filteredClaims.length})
+            {t('warranty.claims')} ({filteredClaims.length})
           </TabsTrigger>
         </TabsList>
 
@@ -297,13 +298,13 @@ export default function Warranty() {
           <Tabs defaultValue="all">
             <TabsList>
               <TabsTrigger value="all">
-                সব ({filteredWarranties.length})
+                {t('warranty.all')} ({filteredWarranties.length})
               </TabsTrigger>
               <TabsTrigger value="active">
-                সক্রিয় ({activeWarranties.length})
+                {t('warranty.active')} ({activeWarranties.length})
               </TabsTrigger>
               <TabsTrigger value="expiring">
-                মেয়াদ শেষ হচ্ছে ({expiringWarranties.length})
+                {t('warranty.expiring')} ({expiringWarranties.length})
               </TabsTrigger>
             </TabsList>
 
@@ -326,13 +327,13 @@ export default function Warranty() {
           <Tabs defaultValue="all">
             <TabsList>
               <TabsTrigger value="all">
-                সব ({filteredClaims.length})
+                {t('warranty.all')} ({filteredClaims.length})
               </TabsTrigger>
               <TabsTrigger value="pending">
-                চলমান ({pendingClaims.length})
+                {t('warranty.pending')} ({pendingClaims.length})
               </TabsTrigger>
               <TabsTrigger value="resolved">
-                সমাধান ({resolvedClaims.length})
+                {t('warranty.resolved')} ({resolvedClaims.length})
               </TabsTrigger>
             </TabsList>
 
@@ -357,7 +358,7 @@ export default function Warranty() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5" />
-              ওয়ারেন্টি কার্ড
+              {t('warranty.warrantyCard')}
             </DialogTitle>
           </DialogHeader>
 
@@ -376,11 +377,11 @@ export default function Warranty() {
               {/* Actions */}
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setPrintDialogOpen(false)}>
-                  বন্ধ করুন
+                  {t('warranty.close')}
                 </Button>
                 <Button onClick={printWarrantyCard}>
                   <Printer className="h-4 w-4 mr-2" />
-                  প্রিন্ট করুন
+                  {t('warranty.print')}
                 </Button>
               </div>
             </div>

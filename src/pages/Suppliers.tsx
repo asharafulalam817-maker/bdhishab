@@ -16,10 +16,12 @@ import { SupplierFormDialog } from '@/components/suppliers/SupplierFormDialog';
 import { SupplierDueDialog } from '@/components/suppliers/SupplierDueDialog';
 import { useSuppliers, Supplier, SupplierFormData } from '@/hooks/useSuppliers';
 import { useBalance } from '@/hooks/useBalance';
-import { formatBDT, bn, formatNumberBn } from '@/lib/constants';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { formatBDT, formatNumberBn } from '@/lib/constants';
 import { toast } from 'sonner';
 
 export default function Suppliers() {
+  const { t, language } = useLanguage();
   const {
     suppliers,
     allSuppliers,
@@ -40,6 +42,14 @@ export default function Suppliers() {
   const [isDueDialogOpen, setIsDueDialogOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
 
+  const formatNumber = (num: number) => {
+    return language === 'bn' ? formatNumberBn(num) : num.toLocaleString('en-US');
+  };
+
+  const formatCurrency = (amount: number) => {
+    return language === 'bn' ? formatBDT(amount) : `৳ ${amount.toLocaleString('en-US')}`;
+  };
+
   const handleAddSupplier = () => {
     setSelectedSupplier(null);
     setIsFormOpen(true);
@@ -53,16 +63,16 @@ export default function Suppliers() {
   const handleFormSubmit = (data: SupplierFormData) => {
     if (selectedSupplier) {
       updateSupplier(selectedSupplier.id, data);
-      toast.success('সরবরাহকারীর তথ্য আপডেট হয়েছে');
+      toast.success(t('suppliers.updated'));
     } else {
       addSupplier(data);
-      toast.success('নতুন সরবরাহকারী যোগ হয়েছে');
+      toast.success(t('suppliers.added'));
     }
   };
 
   const handleDeleteSupplier = (id: string) => {
     deleteSupplier(id);
-    toast.success('সরবরাহকারী মুছে ফেলা হয়েছে');
+    toast.success(t('suppliers.deleted'));
   };
 
   const handleAdjustDue = (supplier: Supplier) => {
@@ -75,13 +85,11 @@ export default function Suppliers() {
     
     // Deduct from balance if payment and option selected
     if (type === 'subtract' && deductFromBalance) {
-      await deductBalance(amount, `সরবরাহকারী বকেয়া পরিশোধ`);
+      await deductBalance(amount, t('suppliers.duePaid'));
       await refreshBalance();
     }
     
-    toast.success(
-      type === 'subtract' ? 'বকেয়া পরিশোধ হয়েছে' : 'বকেয়া যোগ হয়েছে'
-    );
+    toast.success(type === 'subtract' ? t('suppliers.duePaid') : t('suppliers.dueAdded'));
   };
 
   const dueSupplierCount = allSuppliers.filter((s) => s.due_amount > 0).length;
@@ -91,14 +99,14 @@ export default function Suppliers() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{bn.suppliers.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('suppliers.title')}</h1>
           <p className="text-muted-foreground">
-            মোট {formatNumberBn(allSuppliers.length)} জন সরবরাহকারী
+            {t('suppliers.totalCount').replace('{count}', formatNumber(allSuppliers.length))}
           </p>
         </div>
         <Button onClick={handleAddSupplier} className="gap-2">
           <Plus className="h-4 w-4" />
-          {bn.suppliers.addNew}
+          {t('suppliers.addNew')}
         </Button>
       </div>
 
@@ -112,13 +120,13 @@ export default function Suppliers() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                মোট সরবরাহকারী
+                {t('suppliers.totalSuppliers')}
               </CardTitle>
               <Truck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {formatNumberBn(allSuppliers.length)}
+                {formatNumber(allSuppliers.length)}
               </div>
             </CardContent>
           </Card>
@@ -132,13 +140,13 @@ export default function Suppliers() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                মোট পাওনা (সরবরাহকারীদের)
+                {t('suppliers.totalPayable')}
               </CardTitle>
               <Wallet className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-destructive">
-                {formatBDT(totalDue)}
+                {formatCurrency(totalDue)}
               </div>
             </CardContent>
           </Card>
@@ -152,13 +160,13 @@ export default function Suppliers() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                পাওনাদার সরবরাহকারী
+                {t('suppliers.suppliersWithDue')}
               </CardTitle>
               <Truck className="h-4 w-4 text-orange-500" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-orange-500">
-                {formatNumberBn(dueSupplierCount)}
+                {formatNumber(dueSupplierCount)}
               </div>
             </CardContent>
           </Card>
@@ -170,7 +178,7 @@ export default function Suppliers() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="নাম, ফোন বা ইমেইল দিয়ে খুঁজুন..."
+            placeholder={t('suppliers.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -182,12 +190,12 @@ export default function Suppliers() {
         >
           <SelectTrigger className="w-full sm:w-[180px]">
             <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="ফিল্টার" />
+            <SelectValue placeholder={t('common.filter')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">সব সরবরাহকারী</SelectItem>
-            <SelectItem value="due">পাওনা আছে</SelectItem>
-            <SelectItem value="clear">পাওনা নেই</SelectItem>
+            <SelectItem value="all">{t('suppliers.filterAll')}</SelectItem>
+            <SelectItem value="due">{t('suppliers.filterDue')}</SelectItem>
+            <SelectItem value="clear">{t('suppliers.filterClear')}</SelectItem>
           </SelectContent>
         </Select>
       </div>

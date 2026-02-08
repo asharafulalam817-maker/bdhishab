@@ -15,10 +15,12 @@ import { CustomerTable } from '@/components/customers/CustomerTable';
 import { CustomerFormDialog } from '@/components/customers/CustomerFormDialog';
 import { DueAdjustDialog } from '@/components/customers/DueAdjustDialog';
 import { useCustomers, Customer, CustomerFormData } from '@/hooks/useCustomers';
-import { formatBDT, bn, formatNumberBn } from '@/lib/constants';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { formatBDT, formatNumberBn } from '@/lib/constants';
 import { toast } from 'sonner';
 
 export default function Customers() {
+  const { t, language } = useLanguage();
   const {
     customers,
     allCustomers,
@@ -37,6 +39,14 @@ export default function Customers() {
   const [isDueDialogOpen, setIsDueDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
+  const formatNumber = (num: number) => {
+    return language === 'bn' ? formatNumberBn(num) : num.toLocaleString('en-US');
+  };
+
+  const formatCurrency = (amount: number) => {
+    return language === 'bn' ? formatBDT(amount) : `৳ ${amount.toLocaleString('en-US')}`;
+  };
+
   const handleAddCustomer = () => {
     setSelectedCustomer(null);
     setIsFormOpen(true);
@@ -50,16 +60,16 @@ export default function Customers() {
   const handleFormSubmit = (data: CustomerFormData) => {
     if (selectedCustomer) {
       updateCustomer(selectedCustomer.id, data);
-      toast.success('গ্রাহকের তথ্য আপডেট হয়েছে');
+      toast.success(t('customers.updated'));
     } else {
       addCustomer(data);
-      toast.success('নতুন গ্রাহক যোগ হয়েছে');
+      toast.success(t('customers.added'));
     }
   };
 
   const handleDeleteCustomer = (id: string) => {
     deleteCustomer(id);
-    toast.success('গ্রাহক মুছে ফেলা হয়েছে');
+    toast.success(t('customers.deleted'));
   };
 
   const handleAdjustDue = (customer: Customer) => {
@@ -69,9 +79,7 @@ export default function Customers() {
 
   const handleDueAdjust = (id: string, amount: number, type: 'add' | 'subtract') => {
     adjustDue(id, amount, type);
-    toast.success(
-      type === 'subtract' ? 'বকেয়া পরিশোধ হয়েছে' : 'বকেয়া যোগ হয়েছে'
-    );
+    toast.success(type === 'subtract' ? t('customers.duePaid') : t('customers.dueAdded'));
   };
 
   const dueCustomersCount = allCustomers.filter((c) => c.due_amount > 0).length;
@@ -81,14 +89,14 @@ export default function Customers() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{bn.customers.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('customers.title')}</h1>
           <p className="text-muted-foreground">
-            মোট {formatNumberBn(allCustomers.length)} জন গ্রাহক
+            {t('customers.totalCount').replace('{count}', formatNumber(allCustomers.length))}
           </p>
         </div>
         <Button onClick={handleAddCustomer} className="gap-2">
           <Plus className="h-4 w-4" />
-          {bn.customers.addNew}
+          {t('customers.addNew')}
         </Button>
       </div>
 
@@ -102,13 +110,13 @@ export default function Customers() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                মোট গ্রাহক
+                {t('customers.totalCustomers')}
               </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {formatNumberBn(allCustomers.length)}
+                {formatNumber(allCustomers.length)}
               </div>
             </CardContent>
           </Card>
@@ -122,13 +130,13 @@ export default function Customers() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                মোট বকেয়া
+                {t('customers.totalDue')}
               </CardTitle>
               <Wallet className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-destructive">
-                {formatBDT(totalDue)}
+                {formatCurrency(totalDue)}
               </div>
             </CardContent>
           </Card>
@@ -142,13 +150,13 @@ export default function Customers() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                বকেয়াদার গ্রাহক
+                {t('customers.withDue')}
               </CardTitle>
               <Users className="h-4 w-4 text-orange-500" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-orange-500">
-                {formatNumberBn(dueCustomersCount)}
+                {formatNumber(dueCustomersCount)}
               </div>
             </CardContent>
           </Card>
@@ -160,7 +168,7 @@ export default function Customers() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="নাম, ফোন বা ইমেইল দিয়ে খুঁজুন..."
+            placeholder={t('customers.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -172,12 +180,12 @@ export default function Customers() {
         >
           <SelectTrigger className="w-full sm:w-[180px]">
             <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="ফিল্টার" />
+            <SelectValue placeholder={t('common.filter')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">সব গ্রাহক</SelectItem>
-            <SelectItem value="due">বকেয়াদার</SelectItem>
-            <SelectItem value="clear">বকেয়া নেই</SelectItem>
+            <SelectItem value="all">{t('customers.filterAll')}</SelectItem>
+            <SelectItem value="due">{t('customers.filterDue')}</SelectItem>
+            <SelectItem value="clear">{t('customers.filterClear')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
