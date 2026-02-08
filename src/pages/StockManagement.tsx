@@ -32,8 +32,10 @@ import { StockOutDialog } from '@/components/stock/StockOutDialog';
 import { StockAdjustmentDialog } from '@/components/stock/StockAdjustmentDialog';
 import { BarcodeScanner } from '@/components/pos/BarcodeScanner';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function StockManagement() {
+  const { t } = useLanguage();
   const {
     products,
     ledgerEntries,
@@ -67,18 +69,18 @@ export default function StockManagement() {
       
       if (scanAction === 'in') {
         setStockInOpen(true);
-        toast.success(`"${product.name}" স্টক ইন এর জন্য সিলেক্ট হয়েছে`);
+        toast.success(`"${product.name}" ${t('stock.selectedForStockIn')}`);
       } else {
         if (product.stock > 0) {
           setStockOutOpen(true);
-          toast.success(`"${product.name}" স্টক আউট এর জন্য সিলেক্ট হয়েছে`);
+          toast.success(`"${product.name}" ${t('stock.selectedForStockOut')}`);
         } else {
-          toast.error(`"${product.name}" এর স্টক নেই`);
+          toast.error(`"${product.name}" ${t('stock.noStockAvailable')}`);
         }
       }
     } else {
       setIsScannerOpen(false);
-      toast.error(`বারকোড "${barcode}" দিয়ে কোনো পণ্য পাওয়া যায়নি`);
+      toast.error(`${t('stock.productNotFound')} "${barcode}"`);
     }
   };
 
@@ -98,7 +100,7 @@ export default function StockManagement() {
     options?: { batchNumber?: string; serialNumber?: string; notes?: string }
   ) => {
     addStockIn(productId, quantity, options);
-    toast.success('স্টক সফলভাবে যোগ হয়েছে');
+    toast.success(t('stock.stockAdded'));
   };
 
   const handleStockOut = (
@@ -107,7 +109,7 @@ export default function StockManagement() {
     options?: { batchNumber?: string; serialNumber?: string; notes?: string }
   ) => {
     addStockOut(productId, quantity, options);
-    toast.success('স্টক সফলভাবে কমানো হয়েছে');
+    toast.success(t('stock.stockReduced'));
   };
 
   const handleAdjustment = (
@@ -115,7 +117,7 @@ export default function StockManagement() {
     notes?: string
   ) => {
     createAdjustment(items, notes);
-    toast.success(`${items.length}টি পণ্যের স্টক এডজাস্ট করা হয়েছে`);
+    toast.success(`${items.length}${t('stock.adjustmentSaved')}`);
   };
 
   // Low stock products
@@ -133,9 +135,9 @@ export default function StockManagement() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">স্টক ম্যানেজমেন্ট</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">{t('stock.title')}</h1>
           <p className="text-muted-foreground">
-            স্টক ইন/আউট, এডজাস্টমেন্ট এবং লেজার দেখুন
+            {t('stock.description')}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -148,13 +150,13 @@ export default function StockManagement() {
               className="bg-green-600 hover:bg-green-700"
             >
               <PackagePlus className="h-4 w-4 mr-2" />
-              স্টক ইন
+              {t('stock.stockInButton')}
             </Button>
             <Button
               onClick={openScannerForStockIn}
               size="icon"
               className="bg-green-600 hover:bg-green-700"
-              title="বারকোড স্ক্যান করে স্টক ইন"
+              title={t('stock.scanForStockIn')}
             >
               <ScanLine className="h-4 w-4" />
             </Button>
@@ -168,13 +170,13 @@ export default function StockManagement() {
               variant="destructive"
             >
               <PackageMinus className="h-4 w-4 mr-2" />
-              স্টক আউট
+              {t('stock.stockOutButton')}
             </Button>
             <Button
               onClick={openScannerForStockOut}
               size="icon"
               variant="destructive"
-              title="বারকোড স্ক্যান করে স্টক আউট"
+              title={t('stock.scanForStockOut')}
             >
               <ScanLine className="h-4 w-4" />
             </Button>
@@ -184,7 +186,7 @@ export default function StockManagement() {
             variant="outline"
           >
             <Settings2 className="h-4 w-4 mr-2" />
-            এডজাস্টমেন্ট
+            {t('stock.adjustmentButton')}
           </Button>
         </div>
       </div>
@@ -193,7 +195,7 @@ export default function StockManagement() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">আজকের স্টক ইন</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stock.todayStockIn')}</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -205,7 +207,7 @@ export default function StockManagement() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">আজকের স্টক আউট</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stock.todayStockOut')}</CardTitle>
             <TrendingDown className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
@@ -217,7 +219,7 @@ export default function StockManagement() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">কম স্টক</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stock.lowStock')}</CardTitle>
             <AlertTriangle className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
@@ -229,7 +231,7 @@ export default function StockManagement() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">স্টক শেষ</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stock.outOfStock')}</CardTitle>
             <XCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
@@ -245,11 +247,11 @@ export default function StockManagement() {
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="ledger" className="gap-2">
             <ArrowUpDown className="h-4 w-4" />
-            স্টক লেজার
+            {t('stock.ledgerTab')}
           </TabsTrigger>
           <TabsTrigger value="low-stock" className="gap-2">
             <AlertTriangle className="h-4 w-4" />
-            কম স্টক
+            {t('stock.lowStockTab')}
             {lowStockProducts.length > 0 && (
               <Badge variant="destructive" className="ml-1">
                 {lowStockProducts.length}
@@ -258,7 +260,7 @@ export default function StockManagement() {
           </TabsTrigger>
           <TabsTrigger value="out-of-stock" className="gap-2">
             <XCircle className="h-4 w-4" />
-            স্টক শেষ
+            {t('stock.outOfStockTab')}
             {outOfStockProducts.length > 0 && (
               <Badge variant="destructive" className="ml-1">
                 {outOfStockProducts.length}
@@ -276,7 +278,7 @@ export default function StockManagement() {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="পণ্য খুঁজুন..."
+                    placeholder={t('stock.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-9"
@@ -287,15 +289,15 @@ export default function StockManagement() {
                   onValueChange={setTransactionFilter}
                 >
                   <SelectTrigger className="w-full md:w-[200px]">
-                    <SelectValue placeholder="ধরন ফিল্টার" />
+                    <SelectValue placeholder={t('stock.filterType')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">সব ধরন</SelectItem>
-                    <SelectItem value="stock_in">স্টক ইন</SelectItem>
-                    <SelectItem value="stock_out">স্টক আউট</SelectItem>
-                    <SelectItem value="adjustment">এডজাস্টমেন্ট</SelectItem>
-                    <SelectItem value="sale">বিক্রয়</SelectItem>
-                    <SelectItem value="purchase">ক্রয়</SelectItem>
+                    <SelectItem value="all">{t('stock.allTypes')}</SelectItem>
+                    <SelectItem value="stock_in">{t('stock.typeStockIn')}</SelectItem>
+                    <SelectItem value="stock_out">{t('stock.typeStockOut')}</SelectItem>
+                    <SelectItem value="adjustment">{t('stock.typeAdjustment')}</SelectItem>
+                    <SelectItem value="sale">{t('stock.typeSale')}</SelectItem>
+                    <SelectItem value="purchase">{t('stock.typePurchase')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -313,7 +315,7 @@ export default function StockManagement() {
               {lowStockProducts.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  কম স্টকে কোনো পণ্য নেই
+                  {t('stock.noLowStock')}
                 </div>
               ) : (
                 <div className="grid gap-4">
@@ -333,10 +335,10 @@ export default function StockManagement() {
                       </div>
                       <div className="text-right">
                         <Badge variant="outline" className="text-yellow-600 border-yellow-600">
-                          স্টক: {product.stock} / {product.lowStockThreshold}
+                          {t('products.stock')}: {product.stock} / {product.lowStockThreshold}
                         </Badge>
                         <p className="text-sm text-muted-foreground mt-1">
-                          থ্রেশহোল্ড: {product.lowStockThreshold}
+                          {t('stock.threshold')}: {product.lowStockThreshold}
                         </p>
                       </div>
                       <Button
@@ -346,7 +348,7 @@ export default function StockManagement() {
                         }}
                       >
                         <PackagePlus className="h-4 w-4 mr-1" />
-                        স্টক বাড়ান
+                        {t('stock.increaseStock')}
                       </Button>
                     </div>
                   ))}
@@ -363,7 +365,7 @@ export default function StockManagement() {
               {outOfStockProducts.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <XCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  স্টক শেষ হওয়া কোনো পণ্য নেই
+                  {t('stock.noOutOfStock')}
                 </div>
               ) : (
                 <div className="grid gap-4">
@@ -381,7 +383,7 @@ export default function StockManagement() {
                           </p>
                         </div>
                       </div>
-                      <Badge variant="destructive">স্টক শেষ</Badge>
+                      <Badge variant="destructive">{t('stock.outOfStock')}</Badge>
                       <Button
                         size="sm"
                         onClick={() => {
@@ -389,7 +391,7 @@ export default function StockManagement() {
                         }}
                       >
                         <PackagePlus className="h-4 w-4 mr-1" />
-                        স্টক যোগ করুন
+                        {t('stock.addStock')}
                       </Button>
                     </div>
                   ))}
