@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { formatDateBn } from '@/lib/constants';
+import { ShieldCheck, Phone, MapPin, Clock } from 'lucide-react';
 
 interface WarrantyData {
   id: string;
@@ -12,6 +13,8 @@ interface WarrantyData {
   expiryDate: string;
   serialNumber?: string;
   status: string;
+  warrantyDuration?: number;
+  warrantyUnit?: 'days' | 'months' | 'years';
 }
 
 interface WarrantyPrintCardProps {
@@ -19,20 +22,73 @@ interface WarrantyPrintCardProps {
   storeName?: string;
   storePhone?: string;
   storeAddress?: string;
+  storeLogo?: string;
 }
 
+// Calculate warranty duration text
+const getWarrantyDurationText = (duration?: number, unit?: string): string => {
+  if (!duration || !unit) {
+    // Try to calculate from dates
+    return '';
+  }
+  
+  const unitText = {
+    days: duration === 1 ? 'দিন' : 'দিন',
+    months: duration === 1 ? 'মাস' : 'মাস',
+    years: duration === 1 ? 'বছর' : 'বছর',
+  }[unit] || 'মাস';
+  
+  // Convert to Bengali numerals
+  const bnNumbers = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+  const bnDuration = String(duration).split('').map(d => bnNumbers[parseInt(d)] || d).join('');
+  
+  return `${bnDuration} ${unitText}`;
+};
+
+// Calculate warranty duration from dates if not provided
+const calculateDurationFromDates = (startDate: string, expiryDate: string): string => {
+  const start = new Date(startDate);
+  const end = new Date(expiryDate);
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  const bnNumbers = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+  
+  if (diffDays >= 365) {
+    const years = Math.round(diffDays / 365);
+    const bnYears = String(years).split('').map(d => bnNumbers[parseInt(d)] || d).join('');
+    return `${bnYears} বছর`;
+  } else if (diffDays >= 30) {
+    const months = Math.round(diffDays / 30);
+    const bnMonths = String(months).split('').map(d => bnNumbers[parseInt(d)] || d).join('');
+    return `${bnMonths} মাস`;
+  } else {
+    const bnDays = String(diffDays).split('').map(d => bnNumbers[parseInt(d)] || d).join('');
+    return `${bnDays} দিন`;
+  }
+};
+
 export const WarrantyPrintCard = forwardRef<HTMLDivElement, WarrantyPrintCardProps>(
-  ({ warranty, storeName = 'ডিজিটাল বন্ধু', storePhone, storeAddress }, ref) => {
+  ({ warranty, storeName = 'ডিজিটাল বন্ধু', storePhone, storeAddress, storeLogo }, ref) => {
+    const warrantyDurationText = warranty.warrantyDuration && warranty.warrantyUnit 
+      ? getWarrantyDurationText(warranty.warrantyDuration, warranty.warrantyUnit)
+      : calculateDurationFromDates(warranty.startDate, warranty.expiryDate);
+
     const generateQRText = () => {
       const lines = [
-        `ওয়ারেন্টি কার্ড`,
-        `চালান: ${warranty.invoiceNo}`,
-        `পণ্য: ${warranty.product}`,
-        `গ্রাহক: ${warranty.customer}`,
-        `ফোন: ${warranty.phone}`,
-        warranty.serialNumber ? `সিরিয়াল: ${warranty.serialNumber}` : '',
-        `শুরু: ${warranty.startDate}`,
-        `মেয়াদ: ${warranty.expiryDate}`,
+        `🛡️ ওয়ারেন্টি কার্ড`,
+        `━━━━━━━━━━━━━━━`,
+        `📋 চালান: ${warranty.invoiceNo}`,
+        `📦 পণ্য: ${warranty.product}`,
+        `👤 গ্রাহক: ${warranty.customer}`,
+        `📞 ফোন: ${warranty.phone}`,
+        warranty.serialNumber ? `🔢 সিরিয়াল: ${warranty.serialNumber}` : '',
+        `⏱️ মেয়াদ: ${warrantyDurationText}`,
+        `📅 শুরু: ${warranty.startDate}`,
+        `📅 শেষ: ${warranty.expiryDate}`,
+        `━━━━━━━━━━━━━━━`,
+        `🏪 ${storeName}`,
+        storePhone ? `📞 ${storePhone}` : '',
       ].filter(Boolean);
       
       return lines.join('\n');
@@ -41,80 +97,155 @@ export const WarrantyPrintCard = forwardRef<HTMLDivElement, WarrantyPrintCardPro
     return (
       <div
         ref={ref}
-        className="w-[400px] bg-white p-6 border-2 border-dashed border-gray-300 rounded-lg print:border-solid"
-        style={{ fontFamily: 'system-ui, sans-serif' }}
+        className="w-[420px] bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl overflow-hidden shadow-lg print:shadow-none"
+        style={{ fontFamily: "'Hind Siliguri', system-ui, sans-serif" }}
       >
-        {/* Header */}
-        <div className="text-center border-b-2 border-gray-200 pb-4 mb-4">
-          <h1 className="text-xl font-bold text-gray-800">{storeName}</h1>
-          {storePhone && <p className="text-sm text-gray-600">{storePhone}</p>}
-          {storeAddress && <p className="text-xs text-gray-500">{storeAddress}</p>}
-          <div className="mt-2 inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
-            ওয়ারেন্টি কার্ড
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex gap-4">
-          {/* QR Code */}
-          <div className="flex-shrink-0">
-            <div className="bg-white p-2 border rounded">
-              <QRCodeSVG
-                value={generateQRText()}
-                size={80}
-                level="M"
-                includeMargin={false}
-              />
-            </div>
-            <p className="text-[9px] text-center text-gray-500 mt-1">স্ক্যান করুন</p>
-          </div>
-
-          {/* Details */}
-          <div className="flex-1 text-sm space-y-1">
-            <div className="grid grid-cols-[auto,1fr] gap-x-2">
-              <span className="text-gray-500">চালান:</span>
-              <span className="font-medium">{warranty.invoiceNo}</span>
-              
-              <span className="text-gray-500">পণ্য:</span>
-              <span className="font-medium">{warranty.product}</span>
-              
-              <span className="text-gray-500">গ্রাহক:</span>
-              <span className="font-medium">{warranty.customer}</span>
-              
-              <span className="text-gray-500">ফোন:</span>
-              <span className="font-medium">{warranty.phone}</span>
-              
-              {warranty.serialNumber && (
-                <>
-                  <span className="text-gray-500">সিরিয়াল:</span>
-                  <span className="font-mono text-xs">{warranty.serialNumber}</span>
-                </>
+        {/* Top Decorative Border */}
+        <div className="h-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600" />
+        
+        {/* Header with Store Info */}
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {storeLogo ? (
+                <img src={storeLogo} alt={storeName} className="w-12 h-12 rounded-full bg-white p-1" />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                  <ShieldCheck className="w-7 h-7 text-white" />
+                </div>
               )}
+              <div>
+                <h1 className="text-xl font-bold tracking-wide">{storeName}</h1>
+                {storePhone && (
+                  <p className="text-emerald-100 text-sm flex items-center gap-1">
+                    <Phone className="w-3 h-3" /> {storePhone}
+                  </p>
+                )}
+              </div>
             </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-center">
+              <ShieldCheck className="w-6 h-6 mx-auto mb-1" />
+              <span className="text-xs font-medium">অফিসিয়াল</span>
+            </div>
+          </div>
+          {storeAddress && (
+            <p className="text-emerald-100 text-xs mt-2 flex items-center gap-1">
+              <MapPin className="w-3 h-3" /> {storeAddress}
+            </p>
+          )}
+        </div>
+
+        {/* Warranty Badge */}
+        <div className="flex justify-center -mt-4 relative z-10">
+          <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-6 py-2 rounded-full shadow-lg flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5" />
+            <span className="font-bold text-lg">ওয়ারেন্টি কার্ড</span>
           </div>
         </div>
 
-        {/* Warranty Period */}
-        <div className="mt-4 bg-gray-50 rounded-lg p-3 border">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-xs text-gray-500">ওয়ারেন্টি শুরু</p>
-              <p className="font-semibold text-sm">{formatDateBn(warranty.startDate)}</p>
+        {/* Main Content */}
+        <div className="p-5">
+          {/* Warranty Duration Highlight */}
+          <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl p-4 mb-4 text-center shadow-md">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Clock className="w-5 h-5" />
+              <span className="text-sm font-medium">ওয়ারেন্টি মেয়াদ</span>
             </div>
-            <div className="text-2xl text-gray-300">→</div>
-            <div className="text-right">
-              <p className="text-xs text-gray-500">মেয়াদ শেষ</p>
-              <p className="font-semibold text-sm text-red-600">{formatDateBn(warranty.expiryDate)}</p>
+            <div className="text-3xl font-bold tracking-wide">
+              {warrantyDurationText}
+            </div>
+          </div>
+
+          {/* Product & Customer Info with QR */}
+          <div className="flex gap-4">
+            {/* QR Code */}
+            <div className="flex-shrink-0">
+              <div className="bg-white p-2.5 rounded-xl shadow-sm border-2 border-emerald-200">
+                <QRCodeSVG
+                  value={generateQRText()}
+                  size={90}
+                  level="M"
+                  includeMargin={false}
+                  fgColor="#047857"
+                />
+              </div>
+              <p className="text-[10px] text-center text-emerald-600 mt-1.5 font-medium">
+                স্ক্যান করুন
+              </p>
+            </div>
+
+            {/* Details */}
+            <div className="flex-1 space-y-2">
+              <div className="bg-white rounded-lg p-3 shadow-sm border border-emerald-100">
+                <div className="grid grid-cols-[70px,1fr] gap-y-1.5 text-sm">
+                  <span className="text-emerald-600 font-medium">চালান:</span>
+                  <span className="font-bold text-gray-800">{warranty.invoiceNo}</span>
+                  
+                  <span className="text-emerald-600 font-medium">পণ্য:</span>
+                  <span className="font-semibold text-gray-800">{warranty.product}</span>
+                  
+                  <span className="text-emerald-600 font-medium">গ্রাহক:</span>
+                  <span className="font-medium text-gray-700">{warranty.customer}</span>
+                  
+                  <span className="text-emerald-600 font-medium">ফোন:</span>
+                  <span className="font-medium text-gray-700">{warranty.phone}</span>
+                  
+                  {warranty.serialNumber && (
+                    <>
+                      <span className="text-emerald-600 font-medium">সিরিয়াল:</span>
+                      <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">{warranty.serialNumber}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Warranty Period Timeline */}
+          <div className="mt-4 bg-white rounded-xl p-4 shadow-sm border border-emerald-100">
+            <div className="flex items-center justify-between">
+              <div className="text-center flex-1">
+                <div className="w-10 h-10 mx-auto rounded-full bg-emerald-100 flex items-center justify-center mb-2">
+                  <span className="text-emerald-600 text-lg">📅</span>
+                </div>
+                <p className="text-xs text-gray-500 mb-1">ওয়ারেন্টি শুরু</p>
+                <p className="font-bold text-sm text-gray-800">{formatDateBn(warranty.startDate)}</p>
+              </div>
+              
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-full h-1 bg-gradient-to-r from-emerald-400 to-red-400 rounded-full relative">
+                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                    <span className="text-xl">→</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-center flex-1">
+                <div className="w-10 h-10 mx-auto rounded-full bg-red-100 flex items-center justify-center mb-2">
+                  <span className="text-red-600 text-lg">⏰</span>
+                </div>
+                <p className="text-xs text-gray-500 mb-1">মেয়াদ শেষ</p>
+                <p className="font-bold text-sm text-red-600">{formatDateBn(warranty.expiryDate)}</p>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-4 pt-3 border-t border-gray-200 text-center">
-          <p className="text-xs text-gray-500">
-            ওয়ারেন্টি সংক্রান্ত সমস্যার জন্য এই কার্ডটি সংরক্ষণ করুন
-          </p>
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4" />
+              <span className="text-xs">অফিসিয়াল ওয়ারেন্টি</span>
+            </div>
+            <div className="text-xs text-emerald-100">
+              এই কার্ডটি সংরক্ষণ করুন
+            </div>
+          </div>
         </div>
+
+        {/* Bottom Decorative Border */}
+        <div className="h-1.5 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400" />
       </div>
     );
   }

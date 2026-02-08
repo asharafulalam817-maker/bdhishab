@@ -447,6 +447,14 @@ const translations: Record<Language, Record<string, string>> = {
     'warranty.inProgress': 'প্রক্রিয়াধীন',
     'warranty.scanQRCode': 'ওয়ারেন্টি যাচাই করতে QR কোড স্ক্যান করুন',
     'warranty.quickInfo': 'দ্রুত তথ্য',
+    'warranty.share': 'শেয়ার করুন',
+    'warranty.sharedToWhatsApp': 'হোয়াটসঅ্যাপে শেয়ার করা হচ্ছে',
+    'warranty.sharedToMessenger': 'মেসেঞ্জারে শেয়ার করা হচ্ছে',
+    'warranty.sharedToEmail': 'ইমেইলে শেয়ার করা হচ্ছে',
+    'warranty.copiedToClipboard': 'কপি করা হয়েছে!',
+    'warranty.copyFailed': 'কপি করা যায়নি',
+    'warranty.shared': 'শেয়ার করা হয়েছে',
+    'warranty.shareFailed': 'শেয়ার করা যায়নি',
     
     // Reports Extended
     'reports.description': 'ব্যবসার সামগ্রিক পারফরম্যান্স বিশ্লেষণ',
@@ -1066,6 +1074,14 @@ const translations: Record<Language, Record<string, string>> = {
     'warranty.inProgress': 'In Progress',
     'warranty.scanQRCode': 'Scan QR code to verify warranty',
     'warranty.quickInfo': 'Quick Info',
+    'warranty.share': 'Share',
+    'warranty.sharedToWhatsApp': 'Sharing to WhatsApp',
+    'warranty.sharedToMessenger': 'Sharing to Messenger',
+    'warranty.sharedToEmail': 'Sharing to Email',
+    'warranty.copiedToClipboard': 'Copied to clipboard!',
+    'warranty.copyFailed': 'Failed to copy',
+    'warranty.shared': 'Shared successfully',
+    'warranty.shareFailed': 'Failed to share',
     
     // Reports Extended
     'reports.description': 'Overall business performance analysis',
