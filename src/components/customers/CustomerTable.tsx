@@ -1,4 +1,5 @@
 import { Edit, Trash2, Wallet, Phone, MapPin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -26,7 +27,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { formatBDT, bn } from '@/lib/constants';
+import { formatBDT } from '@/lib/constants';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { Customer } from '@/hooks/useCustomers';
 
 interface CustomerTableProps {
@@ -42,15 +44,18 @@ export function CustomerTable({
   onDelete,
   onAdjustDue,
 }: CustomerTableProps) {
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+
   if (customers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
           <Phone className="h-8 w-8 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-medium">{bn.common.noData}</h3>
+        <h3 className="text-lg font-medium">{t('common.noData')}</h3>
         <p className="text-muted-foreground mt-1">
-          এখনো কোন গ্রাহক যোগ করা হয়নি
+          {t('customers.noCustomers')}
         </p>
       </div>
     );
@@ -62,14 +67,14 @@ export function CustomerTable({
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
-              <TableHead className="w-[200px]">{bn.customers.name}</TableHead>
-              <TableHead>{bn.customers.phone}</TableHead>
+              <TableHead className="w-[200px]">{t('customers.name')}</TableHead>
+              <TableHead>{t('customers.phone')}</TableHead>
               <TableHead className="hidden md:table-cell">
-                {bn.customers.address}
+                {t('customers.address')}
               </TableHead>
-              <TableHead className="text-right">{bn.customers.totalDue}</TableHead>
+              <TableHead className="text-right">{t('customers.totalDue')}</TableHead>
               <TableHead className="text-right w-[140px]">
-                {bn.common.actions}
+                {t('common.actions')}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -77,7 +82,12 @@ export function CustomerTable({
             {customers.map((customer) => (
               <TableRow key={customer.id} className="group">
                 <TableCell>
-                  <div className="font-medium">{customer.name}</div>
+                  <div 
+                    className="font-medium text-primary cursor-pointer hover:underline"
+                    onClick={() => navigate(`/customers/${customer.id}`)}
+                  >
+                    {customer.name}
+                  </div>
                   {customer.email && (
                     <div className="text-xs text-muted-foreground">
                       {customer.email}
@@ -131,7 +141,7 @@ export function CustomerTable({
                           <Wallet className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>বকেয়া সমন্বয়</TooltipContent>
+                      <TooltipContent>{t('customers.adjustDue')}</TooltipContent>
                     </Tooltip>
 
                     <Tooltip>
@@ -145,7 +155,7 @@ export function CustomerTable({
                           <Edit className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>{bn.common.edit}</TooltipContent>
+                      <TooltipContent>{t('common.edit')}</TooltipContent>
                     </Tooltip>
 
                     <AlertDialog>
@@ -161,25 +171,24 @@ export function CustomerTable({
                             </Button>
                           </AlertDialogTrigger>
                         </TooltipTrigger>
-                        <TooltipContent>{bn.common.delete}</TooltipContent>
+                        <TooltipContent>{t('common.delete')}</TooltipContent>
                       </Tooltip>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>
-                            গ্রাহক মুছে ফেলুন?
+                            {t('customers.deleteConfirmTitle')}
                           </AlertDialogTitle>
                           <AlertDialogDescription>
-                            আপনি কি নিশ্চিত যে "{customer.name}" গ্রাহককে মুছে
-                            ফেলতে চান? এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।
+                            {t('customers.deleteConfirmDesc').replace('{name}', customer.name)}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>{bn.common.cancel}</AlertDialogCancel>
+                          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => onDelete(customer.id)}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
-                            {bn.common.delete}
+                            {t('common.delete')}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

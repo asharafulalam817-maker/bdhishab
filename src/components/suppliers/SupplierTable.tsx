@@ -1,4 +1,5 @@
 import { Edit, Trash2, Wallet, Phone, MapPin, Building2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -27,6 +28,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { formatBDT, bn } from '@/lib/constants';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { Supplier } from '@/hooks/useSuppliers';
 
 interface SupplierTableProps {
@@ -42,15 +44,18 @@ export function SupplierTable({
   onDelete,
   onAdjustDue,
 }: SupplierTableProps) {
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+
   if (suppliers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
           <Building2 className="h-8 w-8 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-medium">{bn.common.noData}</h3>
+        <h3 className="text-lg font-medium">{t('common.noData')}</h3>
         <p className="text-muted-foreground mt-1">
-          এখনো কোন সরবরাহকারী যোগ করা হয়নি
+          {t('suppliers.noSuppliers')}
         </p>
       </div>
     );
@@ -62,14 +67,14 @@ export function SupplierTable({
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
-              <TableHead className="w-[200px]">{bn.suppliers.name}</TableHead>
-              <TableHead>{bn.suppliers.phone}</TableHead>
+              <TableHead className="w-[200px]">{t('suppliers.name')}</TableHead>
+              <TableHead>{t('suppliers.phone')}</TableHead>
               <TableHead className="hidden md:table-cell">
-                {bn.suppliers.address}
+                {t('suppliers.address')}
               </TableHead>
-              <TableHead className="text-right">{bn.suppliers.totalDue}</TableHead>
+              <TableHead className="text-right">{t('suppliers.totalDue')}</TableHead>
               <TableHead className="text-right w-[140px]">
-                {bn.common.actions}
+                {t('common.actions')}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -77,7 +82,12 @@ export function SupplierTable({
             {suppliers.map((supplier) => (
               <TableRow key={supplier.id} className="group">
                 <TableCell>
-                  <div className="font-medium">{supplier.name}</div>
+                  <div 
+                    className="font-medium text-primary cursor-pointer hover:underline"
+                    onClick={() => navigate(`/suppliers/${supplier.id}`)}
+                  >
+                    {supplier.name}
+                  </div>
                   {supplier.email && (
                     <div className="text-xs text-muted-foreground">
                       {supplier.email}
@@ -131,7 +141,7 @@ export function SupplierTable({
                           <Wallet className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>বকেয়া সমন্বয়</TooltipContent>
+                      <TooltipContent>{t('suppliers.adjustDue')}</TooltipContent>
                     </Tooltip>
 
                     <Tooltip>
@@ -145,7 +155,7 @@ export function SupplierTable({
                           <Edit className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>{bn.common.edit}</TooltipContent>
+                      <TooltipContent>{t('common.edit')}</TooltipContent>
                     </Tooltip>
 
                     <AlertDialog>
@@ -161,25 +171,24 @@ export function SupplierTable({
                             </Button>
                           </AlertDialogTrigger>
                         </TooltipTrigger>
-                        <TooltipContent>{bn.common.delete}</TooltipContent>
+                        <TooltipContent>{t('common.delete')}</TooltipContent>
                       </Tooltip>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>
-                            সরবরাহকারী মুছে ফেলুন?
+                            {t('suppliers.deleteConfirmTitle')}
                           </AlertDialogTitle>
                           <AlertDialogDescription>
-                            আপনি কি নিশ্চিত যে "{supplier.name}" সরবরাহকারীকে মুছে
-                            ফেলতে চান? এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।
+                            {t('suppliers.deleteConfirmDesc').replace('{name}', supplier.name)}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>{bn.common.cancel}</AlertDialogCancel>
+                          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => onDelete(supplier.id)}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
-                            {bn.common.delete}
+                            {t('common.delete')}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

@@ -1,8 +1,11 @@
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Package, Phone, Calendar, ShieldCheck, Printer, Eye, AlertTriangle } from 'lucide-react';
-import { formatDateBn } from '@/lib/constants';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { format } from 'date-fns';
+import { bn as bnLocale, enUS } from 'date-fns/locale';
 import { WarrantyQRCode } from './WarrantyQRCode';
 
 interface WarrantyData {
@@ -25,14 +28,18 @@ interface WarrantyCardProps {
 }
 
 export function WarrantyCard({ warranty, onView, onPrint, onAddClaim }: WarrantyCardProps) {
+  const navigate = useNavigate();
+  const { t, language } = useLanguage();
+  const dateLocale = language === 'bn' ? bnLocale : enUS;
+
   const getStatusBadge = () => {
     switch (warranty.status) {
       case 'active':
-        return <Badge className="bg-green-600">সক্রিয়</Badge>;
+        return <Badge className="bg-green-600">{t('warranty.active')}</Badge>;
       case 'expiring':
-        return <Badge variant="destructive" className="bg-yellow-600">মেয়াদ শেষ হচ্ছে</Badge>;
+        return <Badge variant="destructive" className="bg-yellow-600">{t('warranty.expiring')}</Badge>;
       case 'expired':
-        return <Badge variant="destructive">মেয়াদ উত্তীর্ণ</Badge>;
+        return <Badge variant="destructive">{t('warranty.expired')}</Badge>;
       default:
         return <Badge variant="secondary">{warranty.status}</Badge>;
     }
@@ -52,18 +59,29 @@ export function WarrantyCard({ warranty, onView, onPrint, onAddClaim }: Warranty
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2 flex-wrap">
                 <Package className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-semibold">{warranty.product}</span>
+                <span 
+                  className="font-semibold text-primary cursor-pointer hover:underline"
+                  onClick={() => navigate(`/warranty/${warranty.id}`)}
+                >
+                  {warranty.product}
+                </span>
                 {getStatusBadge()}
               </div>
             </div>
 
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium">{warranty.invoiceNo}</span> • {warranty.customer}
+              <span className="font-medium">{warranty.invoiceNo}</span> • 
+              <span 
+                className="text-primary cursor-pointer hover:underline ml-1"
+                onClick={() => navigate(`/customers/1`)}
+              >
+                {warranty.customer}
+              </span>
             </p>
 
             {warranty.serialNumber && (
               <p className="text-sm text-muted-foreground">
-                সিরিয়াল: <span className="font-mono">{warranty.serialNumber}</span>
+                {t('warranty.serialNumber')}: <span className="font-mono">{warranty.serialNumber}</span>
               </p>
             )}
 
@@ -74,11 +92,11 @@ export function WarrantyCard({ warranty, onView, onPrint, onAddClaim }: Warranty
               </span>
               <span className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                শুরু: {formatDateBn(warranty.startDate)}
+                {t('warranty.start')}: {format(new Date(warranty.startDate), 'PP', { locale: dateLocale })}
               </span>
               <span className="flex items-center gap-1">
                 <ShieldCheck className="h-3 w-3" />
-                মেয়াদ: {formatDateBn(warranty.expiryDate)}
+                {t('warranty.expiry')}: {format(new Date(warranty.expiryDate), 'PP', { locale: dateLocale })}
               </span>
             </div>
 
@@ -91,7 +109,7 @@ export function WarrantyCard({ warranty, onView, onPrint, onAddClaim }: Warranty
                   onClick={() => onView(warranty)}
                 >
                   <Eye className="h-4 w-4 mr-1" />
-                  বিস্তারিত
+                  {t('warranty.details')}
                 </Button>
               )}
               {onPrint && (
@@ -101,7 +119,7 @@ export function WarrantyCard({ warranty, onView, onPrint, onAddClaim }: Warranty
                   onClick={() => onPrint(warranty)}
                 >
                   <Printer className="h-4 w-4 mr-1" />
-                  প্রিন্ট
+                  {t('warranty.print')}
                 </Button>
               )}
               {onAddClaim && warranty.status !== 'expired' && (
@@ -112,7 +130,7 @@ export function WarrantyCard({ warranty, onView, onPrint, onAddClaim }: Warranty
                   className="text-destructive hover:text-destructive"
                 >
                   <AlertTriangle className="h-4 w-4 mr-1" />
-                  ক্লেম
+                  {t('warranty.claim')}
                 </Button>
               )}
             </div>
