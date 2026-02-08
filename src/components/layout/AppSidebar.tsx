@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useDemo } from '@/contexts/DemoContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 interface NavItem {
   labelKey: string;
@@ -128,7 +129,10 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-foreground">{t('app.name')}</span>
-              <span className="text-xs text-muted-foreground">{storeName}</span>
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                {storeName}
+                <VerifiedBadge size="sm" />
+              </span>
             </div>
           </div>
           <Button
