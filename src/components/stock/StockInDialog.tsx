@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Product } from '@/hooks/useProducts';
 import { PackagePlus } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface StockInDialogProps {
   open: boolean;
@@ -38,6 +39,7 @@ export function StockInDialog({
   onSubmit,
   preselectedProductId,
 }: StockInDialogProps) {
+  const { t } = useLanguage();
   const [productId, setProductId] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [batchNumber, setBatchNumber] = useState('');
@@ -78,21 +80,21 @@ export function StockInDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <PackagePlus className="h-5 w-5 text-green-600" />
-            স্টক ইন
+            {t('stock.stockInTitle')}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>পণ্য নির্বাচন করুন *</Label>
+            <Label>{t('stock.selectProduct')} *</Label>
             <Select value={productId} onValueChange={setProductId}>
               <SelectTrigger>
-                <SelectValue placeholder="পণ্য সিলেক্ট করুন" />
+                <SelectValue placeholder={t('stock.selectProductPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
                 {products.map((product) => (
                   <SelectItem key={product.id} value={product.id}>
-                    {product.name} (বর্তমান স্টক: {product.stock})
+                    {product.name} ({t('stock.currentStock')}: {product.stock})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -100,49 +102,49 @@ export function StockInDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>পরিমাণ *</Label>
+            <Label>{t('stock.quantity')} *</Label>
             <Input
               type="number"
               min={1}
               value={quantity}
               onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-              placeholder="পরিমাণ লিখুন"
+              placeholder={t('stock.quantityPlaceholder')}
             />
             {selectedProduct && (
               <p className="text-sm text-muted-foreground">
-                নতুন স্টক হবে: {selectedProduct.stock + quantity} {selectedProduct.unit}
+                {t('stock.newStockWillBe')}: {selectedProduct.stock + quantity} {selectedProduct.unit}
               </p>
             )}
           </div>
 
           {selectedProduct?.batchTracking && (
             <div className="space-y-2">
-              <Label>ব্যাচ নম্বর</Label>
+              <Label>{t('stock.batchNumber')}</Label>
               <Input
                 value={batchNumber}
                 onChange={(e) => setBatchNumber(e.target.value)}
-                placeholder="ব্যাচ নম্বর লিখুন"
+                placeholder={t('stock.batchNumberPlaceholder')}
               />
             </div>
           )}
 
           {selectedProduct?.serialRequired && (
             <div className="space-y-2">
-              <Label>সিরিয়াল নম্বর</Label>
+              <Label>{t('stock.serialNumber')}</Label>
               <Input
                 value={serialNumber}
                 onChange={(e) => setSerialNumber(e.target.value)}
-                placeholder="সিরিয়াল নম্বর লিখুন"
+                placeholder={t('stock.serialNumberPlaceholder')}
               />
             </div>
           )}
 
           <div className="space-y-2">
-            <Label>নোট</Label>
+            <Label>{t('stock.notes')}</Label>
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="অতিরিক্ত তথ্য লিখুন"
+              placeholder={t('stock.notesPlaceholder')}
               rows={2}
             />
           </div>
@@ -154,14 +156,14 @@ export function StockInDialog({
               className="flex-1"
               onClick={() => onOpenChange(false)}
             >
-              বাতিল
+              {t('stock.cancel')}
             </Button>
             <Button
               type="submit"
               className="flex-1 bg-green-600 hover:bg-green-700"
               disabled={!productId || quantity <= 0}
             >
-              স্টক যোগ করুন
+              {t('stock.addStockButton')}
             </Button>
           </div>
         </form>
