@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { GlobalSearchDialog } from '@/components/search/GlobalSearchDialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 interface AppHeaderProps {
   onMenuClick: () => void;
@@ -78,10 +79,11 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
         )}
 
         {/* Store name - desktop only */}
-        <div className="hidden md:flex items-center">
+        <div className="hidden md:flex items-center gap-1.5">
           <span className="text-sm font-medium text-muted-foreground truncate max-w-[150px]">
             {demoStore.name}
           </span>
+          <VerifiedBadge size="sm" />
         </div>
 
         {/* Spacer */}
@@ -173,8 +175,9 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
             <DropdownMenuLabel>
               <div className="flex flex-col">
                 <span>{demoProfile.full_name}</span>
-                <span className="text-xs font-normal text-muted-foreground">
+                <span className="text-xs font-normal text-muted-foreground flex items-center gap-1">
                   {demoStore.name}
+                  <VerifiedBadge size="sm" />
                 </span>
               </div>
             </DropdownMenuLabel>
