@@ -12,12 +12,16 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { formatBDT } from '@/lib/constants';
 import { format } from 'date-fns';
 import { bn as bnLocale, enUS } from 'date-fns/locale';
+import { CustomerFormDialog } from '@/components/customers/CustomerFormDialog';
+import { DueAdjustDialog } from '@/components/customers/DueAdjustDialog';
+import { toast } from 'sonner';
+import type { Customer, CustomerFormData } from '@/hooks/useCustomers';
 
 // Demo data
-const demoCustomers = [
-  { id: '1', name: 'মোহাম্মদ করিম', phone: '01712345678', email: 'karim@email.com', address: '১২৩/এ, গুলশান, ঢাকা', due_amount: 5000, created_at: '2024-05-10' },
-  { id: '2', name: 'ফাতেমা বেগম', phone: '01812345678', email: 'fatema@email.com', address: '৪৫, বনানী, ঢাকা', due_amount: 0, created_at: '2024-06-15' },
-  { id: '3', name: 'রহিম উদ্দিন', phone: '01912345678', email: null, address: '৭৮, মিরপুর, ঢাকা', due_amount: 12000, created_at: '2024-07-20' },
+const demoCustomers: Customer[] = [
+  { id: '1', name: 'মোহাম্মদ করিম', phone: '01712345678', email: 'karim@email.com', address: '১২৩/এ, গুলশান, ঢাকা', due_amount: 5000, created_at: '2024-05-10', updated_at: '2024-05-10' },
+  { id: '2', name: 'ফাতেমা বেগম', phone: '01812345678', email: 'fatema@email.com', address: '৪৫, বনানী, ঢাকা', due_amount: 0, created_at: '2024-06-15', updated_at: '2024-06-15' },
+  { id: '3', name: 'রহিম উদ্দিন', phone: '01912345678', email: null, address: '৭৮, মিরপুর, ঢাকা', due_amount: 12000, created_at: '2024-07-20', updated_at: '2024-07-20' },
 ];
 
 const demoSales = [
@@ -37,7 +41,11 @@ export default function CustomerDetail() {
   const { t, language } = useLanguage();
   const dateLocale = language === 'bn' ? bnLocale : enUS;
 
-  const customer = demoCustomers.find(c => c.id === id);
+  const [customer, setCustomer] = useState<Customer | null>(
+    demoCustomers.find(c => c.id === id) || null
+  );
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [dueDialogOpen, setDueDialogOpen] = useState(false);
 
   if (!customer) {
     return (
@@ -53,6 +61,22 @@ export default function CustomerDetail() {
   }
 
   const totalSales = demoSales.reduce((sum, s) => sum + s.total, 0);
+
+  const handleEditSubmit = (data: CustomerFormData) => {
+    setCustomer(prev => prev ? { ...prev, ...data } : null);
+    toast.success(t('customers.updated'));
+  };
+
+  const handleDueAdjust = (id: string, amount: number, type: 'add' | 'subtract') => {
+    setCustomer(prev => {
+      if (!prev) return null;
+      const newDue = type === 'subtract' 
+        ? Math.max(0, prev.due_amount - amount)
+        : prev.due_amount + amount;
+      return { ...prev, due_amount: newDue };
+    });
+    toast.success(type === 'subtract' ? t('customers.duePaid') : t('customers.dueAdded'));
+  };
 
   return (
     <motion.div 
@@ -72,10 +96,16 @@ export default function CustomerDetail() {
           </h1>
           <p className="text-muted-foreground">{t('customers.title')}</p>
         </div>
-        <Button variant="outline">
-          <Edit className="h-4 w-4 mr-2" />
-          {t('common.edit')}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setDueDialogOpen(true)}>
+            <Wallet className="h-4 w-4 mr-2" />
+            {t('customers.adjustDue')}
+          </Button>
+          <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
+            <Edit className="h-4 w-4 mr-2" />
+            {t('common.edit')}
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -83,12 +113,12 @@ export default function CustomerDetail() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/20">
-                <Wallet className="h-5 w-5 text-red-600" />
+              <div className="p-2 rounded-lg bg-destructive/10">
+                <Wallet className="h-5 w-5 text-destructive" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{t('customers.totalDue')}</p>
-                <p className="text-xl font-bold text-red-600">{formatBDT(customer.due_amount)}</p>
+                <p className="text-xl font-bold text-destructive">{formatBDT(customer.due_amount)}</p>
               </div>
             </div>
           </CardContent>
@@ -97,8 +127,8 @@ export default function CustomerDetail() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
-                <ShoppingBag className="h-5 w-5 text-blue-600" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <ShoppingBag className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{t('sales.title')}</p>
@@ -111,7 +141,7 @@ export default function CustomerDetail() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/20">
+              <div className="p-2 rounded-lg bg-green-500/10">
                 <TrendingUp className="h-5 w-5 text-green-600" />
               </div>
               <div>
@@ -125,7 +155,7 @@ export default function CustomerDetail() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
+              <div className="p-2 rounded-lg bg-purple-500/10">
                 <ShieldCheck className="h-5 w-5 text-purple-600" />
               </div>
               <div>
@@ -249,6 +279,22 @@ export default function CustomerDetail() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Dialog */}
+      <CustomerFormDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        customer={customer}
+        onSubmit={handleEditSubmit}
+      />
+
+      {/* Due Dialog */}
+      <DueAdjustDialog
+        open={dueDialogOpen}
+        onOpenChange={setDueDialogOpen}
+        customer={customer}
+        onAdjust={handleDueAdjust}
+      />
     </motion.div>
   );
 }
