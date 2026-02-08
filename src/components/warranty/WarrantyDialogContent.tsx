@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { WarrantyPrintCard } from './WarrantyPrintCard';
 import { Printer, Share2, MessageCircle, Download, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import html2canvas from 'html2canvas';
+import { renderWarrantyCardPngBlob } from './utils/renderWarrantyCardPngBlob';
 
 interface WarrantyData {
   id: string;
@@ -46,21 +46,17 @@ export function WarrantyDialogContent({
 
   // Generate warranty card as image
   const generateCardImage = async (): Promise<Blob | null> => {
-    const cardElement = cardRef.current?.querySelector('.warranty-card-container') || cardRef.current;
+    const cardElement =
+      (cardRef.current?.querySelector('[data-warranty-card]') as HTMLElement | null) ||
+      (cardRef.current?.querySelector('.warranty-card-container') as HTMLElement | null) ||
+      (cardRef.current as HTMLElement | null);
+
     if (!cardElement) return null;
 
     try {
-      const canvas = await html2canvas(cardElement as HTMLElement, {
+      return await renderWarrantyCardPngBlob(cardElement, {
         scale: 2,
-        backgroundColor: '#ffffff',
-        useCORS: true,
-        logging: false,
-      });
-      
-      return new Promise((resolve) => {
-        canvas.toBlob((blob) => {
-          resolve(blob);
-        }, 'image/png', 1.0);
+        trim: { padding: 10, sampleStep: 2 },
       });
     } catch (error) {
       console.error('Error generating image:', error);
@@ -107,26 +103,32 @@ export function WarrantyDialogContent({
 
       const file = new File([blob], `warranty-${warranty.invoiceNo}.png`, { type: 'image/png' });
 
-      // Check if Web Share API with files is supported
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: `ওয়ারেন্টি কার্ড - ${warranty.product}`,
-        });
-        toast.success(t('warranty.shared'));
-      } else {
-        // Fallback: Download the image first
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `warranty-${warranty.invoiceNo}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        toast.success('ইমেজ ডাউনলোড হয়েছে। এখন হোয়াটসঅ্যাপে শেয়ার করুন।');
+      // Try sharing image directly (some browsers return false on canShare even when share works)
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `ওয়ারেন্টি কার্ড - ${warranty.product}`,
+          });
+          toast.success(t('warranty.shared'));
+          return;
+        } catch (error) {
+          if ((error as Error).name === 'AbortError') throw error;
+          // fall through to download fallback
+        }
       }
+
+      // Fallback: Download the image first
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `warranty-${warranty.invoiceNo}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success('ইমেজ ডাউনলোড হয়েছে। এখন হোয়াটসঅ্যাপে শেয়ার করুন।');
     } catch (error) {
       if ((error as Error).name !== 'AbortError') {
         toast.error(t('warranty.shareFailed'));
@@ -148,24 +150,37 @@ export function WarrantyDialogContent({
 
       const file = new File([blob], `warranty-${warranty.invoiceNo}.png`, { type: 'image/png' });
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: `ওয়ারেন্টি কার্ড - ${warranty.product}`,
-        });
-        toast.success(t('warranty.shared'));
-      } else if (navigator.share) {
+      // Prefer image share; fallback to text; fallback to download
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `ওয়ারেন্টি কার্ড - ${warranty.product}`,
+          });
+          toast.success(t('warranty.shared'));
+          return;
+        } catch (error) {
+          if ((error as Error).name === 'AbortError') throw error;
+          // continue to text share fallback
+        }
+
         // Fallback to text share if file share not supported
-        const text = `ওয়ারেন্টি কার্ড\n\nপণ্য: ${warranty.product}\nচালান: ${warranty.invoiceNo}\nগ্রাহক: ${warranty.customer}\nমেয়াদ: ${warranty.startDate} - ${warranty.expiryDate}`;
-        await navigator.share({
-          title: `ওয়ারেন্টি কার্ড - ${warranty.product}`,
-          text: text,
-        });
-        toast.success(t('warranty.shared'));
-      } else {
-        // Fallback: Download
-        downloadAsImage();
+        try {
+          const text = `ওয়ারেন্টি কার্ড\n\nপণ্য: ${warranty.product}\nচালান: ${warranty.invoiceNo}\nগ্রাহক: ${warranty.customer}\nমেয়াদ: ${warranty.startDate} - ${warranty.expiryDate}`;
+          await navigator.share({
+            title: `ওয়ারেন্টি কার্ড - ${warranty.product}`,
+            text,
+          });
+          toast.success(t('warranty.shared'));
+          return;
+        } catch (error) {
+          if ((error as Error).name === 'AbortError') throw error;
+          // continue to download fallback
+        }
       }
+
+      // Fallback: Download
+      downloadAsImage();
     } catch (error) {
       if ((error as Error).name !== 'AbortError') {
         toast.error(t('warranty.shareFailed'));

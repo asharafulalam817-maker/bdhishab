@@ -80,7 +80,7 @@ export const WarrantyPrintCard = forwardRef<HTMLDivElement, WarrantyPrintCardPro
         style={{ fontFamily: "'Hind Siliguri', 'Noto Sans Bengali', system-ui, sans-serif" }}
       >
         {/* Main Card Container */}
-        <div className="bg-white border-2 border-gray-300 rounded-lg overflow-hidden shadow-md print:shadow-none print:border-2">
+        <div data-warranty-card className="bg-white border-2 border-gray-300 rounded-lg overflow-hidden shadow-md print:shadow-none print:border-2">
           
           {/* Header - Store Info with Bengali Pattern Border */}
           <div className="bg-gradient-to-r from-green-700 via-green-600 to-green-700 text-white relative">
