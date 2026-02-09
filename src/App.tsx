@@ -33,6 +33,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminStoreView from "./pages/AdminStoreView";
 import QuickStock from "./pages/QuickStock";
 import Installments from "./pages/Installments";
+import InstallmentCustomerDetail from "./pages/InstallmentCustomerDetail";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,7 @@ const App = () => (
                     <Route path="/customers/:id" element={<CustomerDetail />} />
                     <Route path="/pos" element={<POS />} />
                     <Route path="/installments" element={<Installments />} />
+                    <Route path="/installments/:id" element={<InstallmentCustomerDetail />} />
                     <Route path="/sales" element={<Sales />} />
                     <Route path="/invoices" element={<Sales />} />
                     <Route path="/warranty" element={<Warranty />} />

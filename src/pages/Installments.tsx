@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   CalendarDays,
@@ -95,6 +96,7 @@ const demoInstallments = [
 ];
 
 export default function Installments() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedInstallment, setSelectedInstallment] = useState<typeof demoInstallments[0] | null>(null);
@@ -239,7 +241,12 @@ export default function Installments() {
                   <TableRow key={item.id} className="group">
                     <TableCell>
                       <div>
-                        <p className="font-medium">{item.customerName}</p>
+                        <p
+                          className="font-medium text-primary cursor-pointer hover:underline"
+                          onClick={() => navigate(`/installments/${item.id}`)}
+                        >
+                          {item.customerName}
+                        </p>
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                           <Phone className="h-3 w-3" />
                           {item.customerPhone}
