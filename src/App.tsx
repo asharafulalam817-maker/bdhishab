@@ -56,6 +56,10 @@ const App = () => (
                   {/* Admin Routes - Separate Layout */}
                   <Route element={<AdminLayout />}>
                     <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/subscribers" element={<AdminDashboard />} />
+                    <Route path="/admin/packages" element={<AdminDashboard />} />
+                    <Route path="/admin/reports" element={<AdminDashboard />} />
+                    <Route path="/admin/settings" element={<AdminDashboard />} />
                   </Route>
                   
                   {/* Protected Dashboard Routes */}

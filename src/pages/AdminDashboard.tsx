@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Store, Users, CheckCircle2, Search, Ban, 
@@ -87,7 +88,31 @@ interface Message {
 }
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const location = useLocation();
+
+  const navigate = useNavigate();
+  
+  const pathToTab: Record<string, string> = {
+    '/admin': 'dashboard',
+    '/admin/subscribers': 'subscribers',
+    '/admin/packages': 'packages',
+    '/admin/reports': 'reports',
+    '/admin/settings': 'settings',
+  };
+  const tabToPath: Record<string, string> = {
+    'dashboard': '/admin',
+    'subscribers': '/admin/subscribers',
+    'packages': '/admin/packages',
+    'reports': '/admin/reports',
+    'settings': '/admin/settings',
+  };
+  
+  const activeTab = pathToTab[location.pathname] || 'dashboard';
+  const setActiveTab = (tab: string) => {
+    const path = tabToPath[tab];
+    if (path && path !== location.pathname) navigate(path);
+  };
+  
   const [stores, setStores] = useState<StoreData[]>([]);
   const [packages, setPackages] = useState<SubscriptionPackage[]>([]);
   const [settings, setSettings] = useState<PlatformSetting[]>([]);
