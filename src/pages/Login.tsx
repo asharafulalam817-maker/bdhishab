@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
 import { Phone, Lock, Loader2, Store, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { bn } from '@/lib/constants';
@@ -60,6 +61,23 @@ export default function Login() {
       toast.error('লগইন ব্যর্থ হয়েছে। মোবাইল নম্বর বা পাসওয়ার্ড সঠিক নয়।');
       setIsLoading(false);
       return;
+    }
+
+    // Check if platform admin
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: adminData } = await supabase
+        .from('platform_admins')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .single();
+      
+      if (adminData) {
+        toast.success('সুপার অ্যাডমিন লগইন সফল!');
+        navigate('/admin', { replace: true });
+        return;
+      }
     }
 
     toast.success('সফলভাবে লগইন হয়েছে!');
