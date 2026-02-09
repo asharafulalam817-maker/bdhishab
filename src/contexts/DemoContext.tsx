@@ -1,11 +1,11 @@
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 
 // Demo store data for development without authentication
-const DEMO_STORE = {
+const INITIAL_DEMO_STORE = {
   id: 'demo-store-id',
   store_id: 'demo-store-id',
   name: 'ডেমো স্টোর',
-  logo_url: null,
+  logo_url: null as string | null,
   phone: '01712345678',
   email: 'demo@store.com',
   address: 'ঢাকা, বাংলাদেশ',
@@ -22,6 +22,8 @@ const DEMO_STORE = {
   installment_enabled: false,
 };
 
+type DemoStore = typeof INITIAL_DEMO_STORE;
+
 const DEMO_PROFILE = {
   id: 'demo-user-id',
   full_name: 'ডেমো ইউজার',
@@ -31,19 +33,27 @@ const DEMO_PROFILE = {
 
 interface DemoContextType {
   isDemoMode: boolean;
-  demoStore: typeof DEMO_STORE;
+  demoStore: DemoStore;
   demoProfile: typeof DEMO_PROFILE;
   currentStoreId: string;
+  updateStore: (updates: Partial<DemoStore>) => void;
 }
 
 const DemoContext = createContext<DemoContextType | undefined>(undefined);
 
 export function DemoProvider({ children }: { children: ReactNode }) {
+  const [store, setStore] = useState<DemoStore>(INITIAL_DEMO_STORE);
+
+  const updateStore = useCallback((updates: Partial<DemoStore>) => {
+    setStore((prev) => ({ ...prev, ...updates }));
+  }, []);
+
   const value: DemoContextType = {
     isDemoMode: true,
-    demoStore: DEMO_STORE,
+    demoStore: store,
     demoProfile: DEMO_PROFILE,
-    currentStoreId: DEMO_STORE.id,
+    currentStoreId: store.id,
+    updateStore,
   };
 
   return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>;
@@ -58,4 +68,5 @@ export function useDemo() {
 }
 
 // Export demo data for direct use
-export { DEMO_STORE, DEMO_PROFILE };
+export const DEMO_STORE = INITIAL_DEMO_STORE;
+export { DEMO_PROFILE };

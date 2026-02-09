@@ -20,11 +20,10 @@ import { useDemo } from '@/contexts/DemoContext';
 
 export default function Settings() {
   const { t } = useLanguage();
-  const { demoStore, currentStoreId } = useDemo();
+  const { demoStore, currentStoreId, updateStore } = useDemo();
   const [selectedTemplate, setSelectedTemplate] = useState<InvoiceTemplate>('classic');
   const [subscriptionOpen, setSubscriptionOpen] = useState(false);
   const [storeLogo, setStoreLogo] = useState<string | null>(demoStore.logo_url);
-  const [installmentEnabled, setInstallmentEnabled] = useState(demoStore.installment_enabled);
 
   const handleTemplateChange = (template: InvoiceTemplate) => {
     setSelectedTemplate(template);
@@ -117,9 +116,9 @@ export default function Settings() {
                   </p>
                 </div>
                 <Switch
-                  checked={installmentEnabled}
+                  checked={demoStore.installment_enabled}
                   onCheckedChange={(checked) => {
-                    setInstallmentEnabled(checked);
+                    updateStore({ installment_enabled: checked });
                     toast.success(checked ? 'কিস্তিতে বিক্রি ফিচার চালু করা হয়েছে' : 'কিস্তিতে বিক্রি ফিচার বন্ধ করা হয়েছে');
                   }}
                 />
