@@ -234,7 +234,7 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
               <Phone className="h-4 w-4" />
             </div>
             <div className="flex-1 text-left">
-              <span className="block text-emerald-700 dark:text-emerald-400 text-xs font-bold tracking-wide uppercase">হটলাইন</span>
+              <span className="block text-emerald-700 dark:text-emerald-400 text-xs font-bold tracking-wide uppercase">WhatsApp</span>
               <span className="text-sm font-bold text-foreground">01716-466739</span>
             </div>
           </button>
