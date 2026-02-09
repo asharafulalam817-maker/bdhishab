@@ -267,6 +267,30 @@ export default function POS() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Products Section */}
         <div className="lg:col-span-2 space-y-4">
+          {/* Customer Select - First */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <User className="h-4 w-4" />
+                {t('pos.selectCustomer')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('pos.selectCustomer')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {demoCustomers.map((customer) => (
+                    <SelectItem key={customer.id} value={customer.id}>
+                      {customer.name} - {customer.phone}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+
           {/* Search and Scan */}
           <Card>
             <CardContent className="p-4">
@@ -318,30 +342,6 @@ export default function POS() {
 
         {/* Cart Section */}
         <div className="space-y-4">
-          {/* Customer Select */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <User className="h-4 w-4" />
-                {t('pos.selectCustomer')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t('pos.selectCustomer')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {demoCustomers.map((customer) => (
-                    <SelectItem key={customer.id} value={customer.id}>
-                      {customer.name} - {customer.phone}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
-
           {/* Cart Items */}
           <Card className="flex-1">
             <CardHeader className="pb-3">
