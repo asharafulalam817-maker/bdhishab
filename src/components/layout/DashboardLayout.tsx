@@ -3,7 +3,6 @@ import { Outlet } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
 import { useDemo } from '@/contexts/DemoContext';
-import SupportChatDialog from '@/components/support/SupportChatDialog';
 
 export function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -11,14 +10,12 @@ export function DashboardLayout() {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      {/* Sidebar - always visible on lg+ */}
       <AppSidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         storeName={demoStore.name}
       />
       
-      {/* Main content area */}
       <div className="flex flex-1 flex-col min-w-0 lg:ml-0">
         <AppHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
         
@@ -26,9 +23,6 @@ export function DashboardLayout() {
           <Outlet />
         </main>
       </div>
-      
-      {/* Support Chat Floating Button */}
-      <SupportChatDialog />
     </div>
   );
 }
