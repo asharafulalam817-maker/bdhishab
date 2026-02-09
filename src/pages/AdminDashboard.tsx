@@ -37,9 +37,7 @@ interface StoreData {
   blocked_reason: string | null;
   created_at: string;
   total_sales?: number;
-  total_products?: number;
   total_customers?: number;
-  total_purchases?: number;
   total_revenue?: number;
   subscription?: {
     id: string;
@@ -141,11 +139,9 @@ export default function AdminDashboard() {
     if (!storesData) return [];
 
     const storesWithStats = await Promise.all(storesData.map(async (store) => {
-      const [salesResult, productsResult, customersResult, purchasesResult, subscriptionResult] = await Promise.all([
+      const [salesResult, customersResult, subscriptionResult] = await Promise.all([
         supabase.from('sales').select('id, total', { count: 'exact' }).eq('store_id', store.id),
-        supabase.from('products').select('id', { count: 'exact', head: true }).eq('store_id', store.id),
         supabase.from('customers').select('id', { count: 'exact', head: true }).eq('store_id', store.id),
-        supabase.from('purchases').select('id', { count: 'exact', head: true }).eq('store_id', store.id),
         supabase.from('store_subscriptions').select('*, package:subscription_packages(name, name_bn)').eq('store_id', store.id).single()
       ]);
 
@@ -154,9 +150,7 @@ export default function AdminDashboard() {
       return {
         ...store,
         total_sales: salesResult.count || 0,
-        total_products: productsResult.count || 0,
         total_customers: customersResult.count || 0,
-        total_purchases: purchasesResult.count || 0,
         total_revenue: totalRevenue,
         subscription: subscriptionResult.data ? {
           id: subscriptionResult.data.id,
@@ -806,11 +800,11 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <Card><CardContent className="pt-4 text-center">
-                  <Package className="h-6 w-6 mx-auto text-primary mb-2" />
-                  <p className="text-2xl font-bold">{selectedStore.total_products}</p>
-                  <p className="text-xs text-muted-foreground">পণ্য</p>
+                  <Users className="h-6 w-6 mx-auto text-primary mb-2" />
+                  <p className="text-2xl font-bold">{selectedStore.total_customers}</p>
+                  <p className="text-xs text-muted-foreground">গ্রাহক</p>
                 </CardContent></Card>
                 <Card><CardContent className="pt-4 text-center">
                   <ShoppingCart className="h-6 w-6 mx-auto text-primary mb-2" />
@@ -818,14 +812,9 @@ export default function AdminDashboard() {
                   <p className="text-xs text-muted-foreground">বিক্রয়</p>
                 </CardContent></Card>
                 <Card><CardContent className="pt-4 text-center">
-                  <Users className="h-6 w-6 mx-auto text-primary mb-2" />
-                  <p className="text-2xl font-bold">{selectedStore.total_customers}</p>
-                  <p className="text-xs text-muted-foreground">গ্রাহক</p>
-                </CardContent></Card>
-                <Card><CardContent className="pt-4 text-center">
-                  <DollarSign className="h-6 w-6 mx-auto text-emerald-600 mb-2" />
+                  <DollarSign className="h-6 w-6 mx-auto text-primary mb-2" />
                   <p className="text-2xl font-bold">৳{(selectedStore.total_revenue || 0).toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground">মোট বিক্রয়</p>
+                  <p className="text-xs text-muted-foreground">মোট রেভিনিউ</p>
                 </CardContent></Card>
               </div>
 
