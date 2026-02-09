@@ -30,6 +30,7 @@ import WarrantyDetail from "./pages/WarrantyDetail";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminStoreView from "./pages/AdminStoreView";
 import QuickStock from "./pages/QuickStock";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const App = () => (
                     <Route path="/admin/packages" element={<AdminDashboard />} />
                     <Route path="/admin/reports" element={<AdminDashboard />} />
                     <Route path="/admin/settings" element={<AdminDashboard />} />
+                    <Route path="/admin/store/:id" element={<AdminStoreView />} />
                   </Route>
                   
                   {/* Protected Dashboard Routes */}
