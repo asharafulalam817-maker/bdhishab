@@ -24,6 +24,7 @@ export default function Settings() {
   const [selectedTemplate, setSelectedTemplate] = useState<InvoiceTemplate>('classic');
   const [subscriptionOpen, setSubscriptionOpen] = useState(false);
   const [storeLogo, setStoreLogo] = useState<string | null>(demoStore.logo_url);
+  const [installmentEnabled, setInstallmentEnabled] = useState(demoStore.installment_enabled);
 
   const handleTemplateChange = (template: InvoiceTemplate) => {
     setSelectedTemplate(template);
@@ -101,6 +102,28 @@ export default function Settings() {
                 </div>
               </div>
               <Button>{t('common.save')}</Button>
+            </CardContent>
+          </Card>
+
+          {/* Installment Feature Toggle */}
+          <Card>
+            <CardHeader><CardTitle>বিক্রয় ফিচার</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-lg border border-border">
+                <div className="space-y-1">
+                  <Label className="text-base font-semibold">কিস্তিতে বিক্রি</Label>
+                  <p className="text-sm text-muted-foreground">
+                    এই ফিচার চালু করলে আপনি কিস্তিতে পণ্য বিক্রি করতে পারবেন
+                  </p>
+                </div>
+                <Switch
+                  checked={installmentEnabled}
+                  onCheckedChange={(checked) => {
+                    setInstallmentEnabled(checked);
+                    toast.success(checked ? 'কিস্তিতে বিক্রি ফিচার চালু করা হয়েছে' : 'কিস্তিতে বিক্রি ফিচার বন্ধ করা হয়েছে');
+                  }}
+                />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
