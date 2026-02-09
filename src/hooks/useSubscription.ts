@@ -10,6 +10,7 @@ export interface SubscriptionPackage {
   duration_months: number;
   price: number;
   max_devices: number;
+  max_stores: number;
   features: string[];
   is_active: boolean;
 }
@@ -90,6 +91,7 @@ export function useSubscription() {
         duration_months: number;
         price: number;
         max_devices: number;
+        max_stores: number;
         features: unknown[];
         is_active: boolean;
       } | null;
@@ -134,6 +136,7 @@ export function useSubscription() {
         duration_months: number;
         price: number;
         max_devices: number;
+        max_stores: number;
         features: unknown[];
         is_active: boolean;
       } | null;
@@ -155,7 +158,7 @@ export function useSubscription() {
     if (!currentStoreId) return null;
 
     const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 3); // 3 days trial
+    endDate.setDate(endDate.getDate() + 5); // 5 days trial
 
     const { data, error } = await supabase
       .from('store_subscriptions')
