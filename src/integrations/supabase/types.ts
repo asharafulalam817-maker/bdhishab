@@ -267,6 +267,145 @@ export type Database = {
           },
         ]
       }
+      installment_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          due_date: string
+          id: string
+          installment_number: number
+          installment_sale_id: string
+          notes: string | null
+          paid_amount: number | null
+          paid_date: string | null
+          payment_method: string | null
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          due_date: string
+          id?: string
+          installment_number: number
+          installment_sale_id: string
+          notes?: string | null
+          paid_amount?: number | null
+          paid_date?: string | null
+          payment_method?: string | null
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_date?: string
+          id?: string
+          installment_number?: number
+          installment_sale_id?: string
+          notes?: string | null
+          paid_amount?: number | null
+          paid_date?: string | null
+          payment_method?: string | null
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "installment_payments_installment_sale_id_fkey"
+            columns: ["installment_sale_id"]
+            isOneToOne: false
+            referencedRelation: "installment_sales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "installment_payments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      installment_sales: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          down_payment: number
+          id: string
+          installment_amount: number
+          notes: string | null
+          paid_installments: number
+          remaining_amount: number
+          sale_id: string | null
+          status: string
+          store_id: string
+          total_amount: number
+          total_installments: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          down_payment?: number
+          id?: string
+          installment_amount?: number
+          notes?: string | null
+          paid_installments?: number
+          remaining_amount?: number
+          sale_id?: string | null
+          status?: string
+          store_id: string
+          total_amount?: number
+          total_installments?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          down_payment?: number
+          id?: string
+          installment_amount?: number
+          notes?: string | null
+          paid_installments?: number
+          remaining_amount?: number
+          sale_id?: string | null
+          status?: string
+          store_id?: string
+          total_amount?: number
+          total_installments?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "installment_sales_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "installment_sales_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "installment_sales_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           created_at: string
@@ -1050,6 +1189,7 @@ export type Database = {
             | null
           email: string | null
           id: string
+          installment_enabled: boolean
           invoice_footer_note: string | null
           invoice_header_note: string | null
           invoice_prefix: string | null
@@ -1078,6 +1218,7 @@ export type Database = {
             | null
           email?: string | null
           id?: string
+          installment_enabled?: boolean
           invoice_footer_note?: string | null
           invoice_header_note?: string | null
           invoice_prefix?: string | null
@@ -1106,6 +1247,7 @@ export type Database = {
             | null
           email?: string | null
           id?: string
+          installment_enabled?: boolean
           invoice_footer_note?: string | null
           invoice_header_note?: string | null
           invoice_prefix?: string | null

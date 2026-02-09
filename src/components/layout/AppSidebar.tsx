@@ -28,7 +28,7 @@ interface NavItem {
   labelKey: string;
   icon: React.ElementType;
   href?: string;
-  children?: { labelKey: string; href: string }[];
+  children?: { labelKey: string; href: string; requiresInstallment?: boolean }[];
 }
 
 
@@ -54,7 +54,8 @@ const navItemsConfig: NavItem[] = [
     icon: CreditCard,
     children: [
       { labelKey: 'nav.cashSale', href: '/pos?mode=cash' },
-      { labelKey: 'nav.dueSale', href: '/pos?mode=due' },
+      { labelKey: 'nav.dueSale', href: '/pos?mode=due', requiresInstallment: true },
+      { labelKey: 'nav.installments', href: '/installments', requiresInstallment: true },
       { labelKey: 'nav.salesList', href: '/sales' },
       { labelKey: 'nav.invoices', href: '/invoices' },
     ],
@@ -87,8 +88,9 @@ interface AppSidebarProps {
 export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSidebarProps) {
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
-  const { demoProfile } = useDemo();
+  const { demoProfile, demoStore } = useDemo();
   const { t } = useLanguage();
+  const installmentEnabled = demoStore.installment_enabled;
 
 
   const toggleExpand = (labelKey: string) => {
@@ -184,7 +186,7 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden ml-4 mt-1 space-y-1"
                       >
-                        {item.children.map((child) => (
+                        {item.children.filter(child => !child.requiresInstallment || installmentEnabled).map((child) => (
                           <NavLink
                             key={child.href}
                             to={child.href}

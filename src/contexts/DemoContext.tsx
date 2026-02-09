@@ -19,6 +19,7 @@ const DEMO_STORE = {
   default_warranty_duration: 12,
   default_warranty_unit: 'months' as const,
   default_low_stock_threshold: 10,
+  installment_enabled: false,
 };
 
 const DEMO_PROFILE = {
