@@ -22,6 +22,8 @@ import {
   Wallet,
   FileText,
   AlertCircle,
+  Calendar as CalendarIcon,
+  ListOrdered,
 } from 'lucide-react';
 import { formatBDT, formatNumberBn } from '@/lib/constants';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -106,6 +108,13 @@ export default function POS() {
   const [showProductList, setShowProductList] = useState(false);
   const [showNewCustomer, setShowNewCustomer] = useState(false);
   const [customers, setCustomers] = useState(demoCustomers);
+
+  // Installment config states
+  const [totalInstallments, setTotalInstallments] = useState('3');
+  const [downPayment, setDownPayment] = useState('');
+  const [installmentStartDate, setInstallmentStartDate] = useState(
+    new Date().toISOString().split('T')[0]
+  );
 
   const handleAddCustomer = (data: CustomerFormData) => {
     const newCustomer = {
@@ -201,6 +210,29 @@ export default function POS() {
   const due = Math.max(0, grandTotal - paid);
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const selectedCustomerData = customers.find(c => c.id === selectedCustomer);
+
+  // Installment calculations
+  const installmentCount = parseInt(totalInstallments) || 1;
+  const downPaymentAmount = parseFloat(downPayment) || 0;
+  const remainingForInstallments = Math.max(0, grandTotal - downPaymentAmount);
+  const perInstallmentAmount = installmentCount > 0 ? Math.ceil(remainingForInstallments / installmentCount) : 0;
+
+  // Generate installment schedule
+  const getInstallmentSchedule = () => {
+    const schedule = [];
+    const startDate = new Date(installmentStartDate);
+    for (let i = 0; i < installmentCount; i++) {
+      const dueDate = new Date(startDate);
+      dueDate.setMonth(dueDate.getMonth() + i + 1);
+      schedule.push({
+        number: i + 1,
+        amount: perInstallmentAmount,
+        dueDate: dueDate.toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }),
+        dueDateISO: dueDate.toISOString().split('T')[0],
+      });
+    }
+    return schedule;
+  };
 
   const handleCheckout = async () => {
     if (cart.length === 0) {
@@ -611,92 +643,206 @@ export default function POS() {
 
                 <Separator />
 
-                {/* Payment Method - Visual Buttons */}
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    পেমেন্ট মাধ্যম
-                  </Label>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {[
-                      { value: 'cash', label: 'ক্যাশ', icon: '💵' },
-                      { value: 'bkash', label: 'বিকাশ', icon: '📱' },
-                      { value: 'nagad', label: 'নগদ', icon: '📲' },
-                      { value: 'bank', label: 'ব্যাংক', icon: '🏦' },
-                      { value: 'due', label: 'বাকি', icon: '📝' },
-                      { value: 'mixed', label: 'মিশ্র', icon: '🔄' },
-                    ].map((method) => (
-                      <Button
-                        key={method.value}
-                        variant={paymentMethod === method.value ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-10 text-xs font-medium"
-                        onClick={() => setPaymentMethod(method.value)}
-                      >
-                        <span className="mr-1">{method.icon}</span>
-                        {method.label}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
+                {saleMode === 'due' ? (
+                  /* Installment Configuration */
+                  <>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                        <ListOrdered className="h-3 w-3" />
+                        কিস্তি কনফিগারেশন
+                      </Label>
 
-                {/* Paid Amount */}
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    প্রদত্ত টাকা
-                  </Label>
-                  <Input
-                    type="number"
-                    placeholder="০"
-                    value={paidAmount}
-                    onChange={(e) => setPaidAmount(e.target.value)}
-                    className="h-12 text-xl font-bold font-mono text-right"
-                  />
-                  {/* Quick amount buttons */}
-                  {grandTotal > 0 && (
-                    <div className="flex gap-1.5">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 text-xs h-7"
-                        onClick={() => setPaidAmount(String(grandTotal))}
-                      >
-                        পুরো: {formatBDT(grandTotal)}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 text-xs h-7"
-                        onClick={() => setPaidAmount(String(Math.ceil(grandTotal / 1000) * 1000))}
-                      >
-                        {formatBDT(Math.ceil(grandTotal / 1000) * 1000)}
-                      </Button>
+                      {/* Down Payment */}
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">ডাউন পেমেন্ট (৳)</Label>
+                        <Input
+                          type="number"
+                          placeholder="০"
+                          value={downPayment}
+                          onChange={(e) => setDownPayment(e.target.value)}
+                          className="h-10 font-mono text-right"
+                        />
+                      </div>
+
+                      {/* Number of Installments */}
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">কিস্তির সংখ্যা</Label>
+                        <Select value={totalInstallments} onValueChange={setTotalInstallments}>
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[1, 2, 3, 4, 5, 6, 8, 10, 12, 18, 24].map((n) => (
+                              <SelectItem key={n} value={String(n)}>
+                                {n} কিস্তি
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Start Date */}
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                          <CalendarIcon className="h-3 w-3" />
+                          কিস্তি শুরুর তারিখ
+                        </Label>
+                        <Input
+                          type="date"
+                          value={installmentStartDate}
+                          onChange={(e) => setInstallmentStartDate(e.target.value)}
+                          className="h-10"
+                        />
+                      </div>
                     </div>
-                  )}
-                </div>
 
-                {/* Due / Change */}
-                {paid > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className={`rounded-lg p-3 text-center ${
-                      due > 0
-                        ? 'bg-destructive/10 border border-destructive/20'
-                        : 'bg-primary/10 border border-primary/20'
-                    }`}
-                  >
-                    {due > 0 ? (
-                      <>
-                        <p className="text-xs text-destructive font-medium">বাকি থাকবে</p>
-                        <p className="text-xl font-black font-mono text-destructive">{formatBDT(due)}</p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-xs text-primary font-medium">ফেরত দিন</p>
-                        <p className="text-xl font-black font-mono text-primary">{formatBDT(paid - grandTotal)}</p>
-                      </>
+                    <Separator />
+
+                    {/* Installment Summary */}
+                    {grandTotal > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2"
+                      >
+                        <p className="text-xs font-bold uppercase tracking-wider text-primary">কিস্তি সারাংশ</p>
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">মোট মূল্য</span>
+                            <span className="font-mono font-bold">{formatBDT(grandTotal)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">ডাউন পেমেন্ট</span>
+                            <span className="font-mono font-bold text-primary">{formatBDT(downPaymentAmount)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">বাকি পরিমাণ</span>
+                            <span className="font-mono font-bold">{formatBDT(remainingForInstallments)}</span>
+                          </div>
+                          <Separator className="my-1" />
+                          <div className="flex justify-between items-center">
+                            <span className="font-bold">প্রতি কিস্তি</span>
+                            <span className="text-lg font-black font-mono text-primary">{formatBDT(perInstallmentAmount)}</span>
+                          </div>
+                        </div>
+
+                        {/* Installment Schedule */}
+                        <div className="mt-2 max-h-[150px] overflow-y-auto space-y-1">
+                          {getInstallmentSchedule().map((inst) => (
+                            <div
+                              key={inst.number}
+                              className="flex items-center justify-between text-xs bg-background/60 rounded px-2 py-1.5"
+                            >
+                              <span className="text-muted-foreground">
+                                কিস্তি #{inst.number}
+                              </span>
+                              <span className="text-muted-foreground">{inst.dueDate}</span>
+                              <span className="font-mono font-bold">{formatBDT(inst.amount)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
                     )}
-                  </motion.div>
+
+                    {/* Customer required warning */}
+                    {!selectedCustomer && (
+                      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-2 flex items-center gap-2 text-xs text-destructive">
+                        <AlertCircle className="h-4 w-4 shrink-0" />
+                        কিস্তিতে বিক্রির জন্য কাস্টমার সিলেক্ট করা আবশ্যক
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  /* Regular Payment Section */
+                  <>
+                    {/* Payment Method - Visual Buttons */}
+                    <div className="space-y-2">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        পেমেন্ট মাধ্যম
+                      </Label>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {[
+                          { value: 'cash', label: 'ক্যাশ', icon: '💵' },
+                          { value: 'bkash', label: 'বিকাশ', icon: '📱' },
+                          { value: 'nagad', label: 'নগদ', icon: '📲' },
+                          { value: 'bank', label: 'ব্যাংক', icon: '🏦' },
+                          { value: 'due', label: 'বাকি', icon: '📝' },
+                          { value: 'mixed', label: 'মিশ্র', icon: '🔄' },
+                        ].map((method) => (
+                          <Button
+                            key={method.value}
+                            variant={paymentMethod === method.value ? 'default' : 'outline'}
+                            size="sm"
+                            className="h-10 text-xs font-medium"
+                            onClick={() => setPaymentMethod(method.value)}
+                          >
+                            <span className="mr-1">{method.icon}</span>
+                            {method.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Paid Amount */}
+                    <div className="space-y-2">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        প্রদত্ত টাকা
+                      </Label>
+                      <Input
+                        type="number"
+                        placeholder="০"
+                        value={paidAmount}
+                        onChange={(e) => setPaidAmount(e.target.value)}
+                        className="h-12 text-xl font-bold font-mono text-right"
+                      />
+                      {/* Quick amount buttons */}
+                      {grandTotal > 0 && (
+                        <div className="flex gap-1.5">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 text-xs h-7"
+                            onClick={() => setPaidAmount(String(grandTotal))}
+                          >
+                            পুরো: {formatBDT(grandTotal)}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 text-xs h-7"
+                            onClick={() => setPaidAmount(String(Math.ceil(grandTotal / 1000) * 1000))}
+                          >
+                            {formatBDT(Math.ceil(grandTotal / 1000) * 1000)}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Due / Change */}
+                    {paid > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className={`rounded-lg p-3 text-center ${
+                          due > 0
+                            ? 'bg-destructive/10 border border-destructive/20'
+                            : 'bg-primary/10 border border-primary/20'
+                        }`}
+                      >
+                        {due > 0 ? (
+                          <>
+                            <p className="text-xs text-destructive font-medium">বাকি থাকবে</p>
+                            <p className="text-xl font-black font-mono text-destructive">{formatBDT(due)}</p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-xs text-primary font-medium">ফেরত দিন</p>
+                            <p className="text-xl font-black font-mono text-primary">{formatBDT(paid - grandTotal)}</p>
+                          </>
+                        )}
+                      </motion.div>
+                    )}
+                  </>
                 )}
 
                 {/* Notes */}
@@ -718,10 +864,10 @@ export default function POS() {
                   onClick={handleCheckout}
                   className="w-full gap-2 h-14 text-lg font-bold shadow-lg"
                   size="lg"
-                  disabled={cart.length === 0}
+                  disabled={cart.length === 0 || (saleMode === 'due' && !selectedCustomer)}
                 >
                   <Check className="h-6 w-6" />
-                  বিক্রয় সম্পন্ন করুন
+                  {saleMode === 'due' ? 'কিস্তিতে বিক্রয় সম্পন্ন করুন' : 'বিক্রয় সম্পন্ন করুন'}
                 </Button>
               </CardContent>
             </Card>
