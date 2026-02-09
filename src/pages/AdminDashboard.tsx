@@ -812,6 +812,12 @@ export default function AdminDashboard() {
                 </CardContent></Card>
               </div>
 
+              <div className="flex gap-2 pt-2">
+                <Button className="flex-1" onClick={() => { setIsStoreDetailOpen(false); navigate(`/admin/store/${selectedStore.id}`); }}>
+                  <BarChart3 className="h-4 w-4 mr-2" /> সম্পূর্ণ ড্যাশবোর্ড দেখুন
+                </Button>
+              </div>
+
               {selectedStore.is_blocked && selectedStore.blocked_reason && (
                 <div className="p-3 bg-destructive/10 rounded-lg">
                   <Label className="text-destructive">ব্লকের কারণ</Label>
