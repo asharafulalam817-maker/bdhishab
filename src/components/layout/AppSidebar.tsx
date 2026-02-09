@@ -53,7 +53,8 @@ const navItemsConfig: NavItem[] = [
     labelKey: 'nav.sales',
     icon: CreditCard,
     children: [
-      { labelKey: 'nav.pos', href: '/pos' },
+      { labelKey: 'nav.cashSale', href: '/pos?mode=cash' },
+      { labelKey: 'nav.dueSale', href: '/pos?mode=due' },
       { labelKey: 'nav.salesList', href: '/sales' },
       { labelKey: 'nav.invoices', href: '/invoices' },
     ],
