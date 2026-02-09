@@ -228,12 +228,14 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
         <div className="px-3 pb-2">
           <button
             onClick={() => window.open(`https://wa.me/${SUPPORT_WHATSAPP}`, '_blank')}
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 transition-colors w-full text-left"
+            className="group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold bg-gradient-to-r from-emerald-500/10 to-green-500/10 hover:from-emerald-500/20 hover:to-green-500/20 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300 w-full"
           >
-            <Phone className="h-5 w-5" />
-            <div>
-              <span className="block">{t('nav.supportHotline') || 'সাপোর্ট হটলাইন'}</span>
-              <span className="text-xs text-muted-foreground">01716-466739</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-md shadow-emerald-500/30 group-hover:shadow-emerald-500/50 transition-shadow">
+              <Phone className="h-4 w-4" />
+            </div>
+            <div className="flex-1 text-left">
+              <span className="block text-emerald-700 dark:text-emerald-400 text-xs font-bold tracking-wide uppercase">হটলাইন</span>
+              <span className="text-sm font-bold text-foreground">01716-466739</span>
             </div>
           </button>
         </div>
