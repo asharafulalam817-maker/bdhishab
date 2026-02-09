@@ -265,7 +265,7 @@ export default function POS() {
             <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
               <ShoppingCart className="h-5 w-5 text-primary-foreground" />
             </div>
-            {saleMode === 'due' ? 'বাকিতে বিক্রি' : 'নগদে বিক্রি'}
+            {saleMode === 'due' ? 'কিস্তিতে বিক্রি' : 'নগদে বিক্রি'}
           </h1>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="gap-1.5 px-3 py-1.5 text-sm font-mono">
