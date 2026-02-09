@@ -41,11 +41,42 @@ export interface SubscriptionPayment {
 }
 
 export function useSubscription() {
-  const { currentStoreId } = useDemo();
+  const { currentStoreId, isDemoMode } = useDemo();
   const [packages, setPackages] = useState<SubscriptionPackage[]>([]);
   const [subscription, setSubscription] = useState<StoreSubscription | null>(null);
   const [payments, setPayments] = useState<SubscriptionPayment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!isDemoMode);
+
+  // Demo mode: lifetime subscription, skip all DB calls
+  if (isDemoMode) {
+    const demoSub: StoreSubscription = {
+      id: 'demo-sub',
+      store_id: currentStoreId,
+      package_id: null,
+      subscription_type: 'paid',
+      start_date: '2020-01-01',
+      end_date: '2099-12-31',
+      is_active: true,
+    };
+    return {
+      packages: [],
+      subscription: demoSub,
+      payments: [],
+      isLoading: false,
+      isSubscriptionActive: () => true,
+      isSubscriptionExpired: () => false,
+      isReadOnly: () => false,
+      getDaysExpired: () => 0,
+      isOnTrial: () => false,
+      isPaid: () => true,
+      getDaysRemaining: () => 99999,
+      hasPendingPayment: () => false,
+      createTrialSubscription: async () => null,
+      submitPayment: async () => null,
+      refreshSubscription: async () => {},
+      refreshPayments: async () => {},
+    };
+  }
 
   const fetchPackages = async () => {
     const { data, error } = await supabase
