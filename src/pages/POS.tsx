@@ -54,6 +54,8 @@ import { InvoiceData, InvoiceTemplate } from '@/components/invoice/types';
 import { toast as sonnerToast } from 'sonner';
 import { useBalance } from '@/hooks/useBalance';
 import { ReadOnlyGuard } from '@/components/subscription/ReadOnlyGuard';
+import { CustomerFormDialog } from '@/components/customers/CustomerFormDialog';
+import type { CustomerFormData } from '@/hooks/useCustomers';
 
 // Demo products with barcodes
 const demoProducts = [
@@ -100,6 +102,20 @@ export default function POS() {
   const [currentInvoice, setCurrentInvoice] = useState<InvoiceData | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [showProductList, setShowProductList] = useState(false);
+  const [showNewCustomer, setShowNewCustomer] = useState(false);
+  const [customers, setCustomers] = useState(demoCustomers);
+
+  const handleAddCustomer = (data: CustomerFormData) => {
+    const newCustomer = {
+      id: Date.now().toString(),
+      name: data.name,
+      phone: data.phone || '',
+      due: 0,
+    };
+    setCustomers((prev) => [newCustomer, ...prev]);
+    setSelectedCustomer(newCustomer.id);
+    sonnerToast.success(`${newCustomer.name} যোগ করা হয়েছে`);
+  };
 
   const filteredProducts = demoProducts.filter(
     (p) =>
@@ -182,7 +198,7 @@ export default function POS() {
   const paid = parseFloat(paidAmount) || 0;
   const due = Math.max(0, grandTotal - paid);
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const selectedCustomerData = demoCustomers.find(c => c.id === selectedCustomer);
+  const selectedCustomerData = customers.find(c => c.id === selectedCustomer);
 
   const handleCheckout = async () => {
     if (cart.length === 0) {
@@ -192,7 +208,7 @@ export default function POS() {
 
     const now = new Date();
     const invoiceNumber = `INV-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
-    const customer = demoCustomers.find(c => c.id === selectedCustomer);
+    const customer = customers.find(c => c.id === selectedCustomer);
 
     const invoiceData: InvoiceData = {
       id: crypto.randomUUID(),
@@ -272,21 +288,32 @@ export default function POS() {
                       কাস্টমার তথ্য
                     </Label>
                   </div>
-                  <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
-                    <SelectTrigger className="h-10">
-                      <SelectValue placeholder="কাস্টমার সিলেক্ট করুন বা সার্চ করুন..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {demoCustomers.map((customer) => (
-                        <SelectItem key={customer.id} value={customer.id}>
-                          <div className="flex items-center justify-between w-full gap-4">
-                            <span className="font-medium">{customer.name}</span>
-                            <span className="text-muted-foreground text-xs">{customer.phone}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-2">
+                    <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
+                      <SelectTrigger className="h-10 flex-1">
+                        <SelectValue placeholder="কাস্টমার সিলেক্ট করুন..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {customers.map((customer) => (
+                          <SelectItem key={customer.id} value={customer.id}>
+                            <div className="flex items-center justify-between w-full gap-4">
+                              <span className="font-medium">{customer.name}</span>
+                              <span className="text-muted-foreground text-xs">{customer.phone}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0 h-10 w-10 border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground"
+                      title="নতুন কাস্টমার যোগ করুন"
+                      onClick={() => setShowNewCustomer(true)}
+                    >
+                      <UserPlus className="h-4 w-4" />
+                    </Button>
+                  </div>
                   {selectedCustomerData && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
@@ -589,7 +616,7 @@ export default function POS() {
                   </Label>
                   <div className="grid grid-cols-3 gap-1.5">
                     {[
-                      { value: 'cash', label: 'নগদ', icon: '💵' },
+                      { value: 'cash', label: 'ক্যাশ', icon: '💵' },
                       { value: 'bkash', label: 'বিকাশ', icon: '📱' },
                       { value: 'nagad', label: 'নগদ', icon: '📲' },
                       { value: 'bank', label: 'ব্যাংক', icon: '🏦' },
@@ -714,6 +741,13 @@ export default function POS() {
           open={scannerOpen}
           onOpenChange={setScannerOpen}
           onScan={handleBarcodeScan}
+        />
+
+        {/* New Customer Dialog */}
+        <CustomerFormDialog
+          open={showNewCustomer}
+          onOpenChange={setShowNewCustomer}
+          onSubmit={handleAddCustomer}
         />
 
         {/* Click outside to close product list */}
