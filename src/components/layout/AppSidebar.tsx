@@ -16,6 +16,7 @@ import {
   CreditCard,
   X,
   Store,
+  Phone,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -73,6 +74,8 @@ const navItemsConfig: NavItem[] = [
   },
   { labelKey: 'nav.settings', icon: Settings, href: '/settings' },
 ];
+
+const SUPPORT_WHATSAPP = '8801716466739';
 
 interface AppSidebarProps {
   isOpen: boolean;
@@ -217,6 +220,22 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
             </div>
           ))}
         </nav>
+
+        {/* Support Hotline */}
+        <div className="px-3 pb-2">
+          <a
+            href={`https://wa.me/${SUPPORT_WHATSAPP}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 transition-colors"
+          >
+            <Phone className="h-5 w-5" />
+            <div>
+              <span className="block">{t('nav.supportHotline') || 'সাপোর্ট হটলাইন'}</span>
+              <span className="text-xs text-muted-foreground">01716-466739</span>
+            </div>
+          </a>
+        </div>
 
         {/* User Section */}
         <div className="border-t border-border p-3">

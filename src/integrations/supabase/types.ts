@@ -1129,6 +1129,7 @@ export type Database = {
           id: string
           is_active: boolean
           max_devices: number
+          max_stores: number
           name: string
           name_bn: string
           price: number
@@ -1141,6 +1142,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_devices?: number
+          max_stores?: number
           name: string
           name_bn: string
           price: number
@@ -1153,6 +1155,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_devices?: number
+          max_stores?: number
           name?: string
           name_bn?: string
           price?: number
