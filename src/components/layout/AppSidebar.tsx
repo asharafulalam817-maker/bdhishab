@@ -31,6 +31,16 @@ interface NavItem {
   children?: { labelKey: string; href: string }[];
 }
 
+// Keys to hide when on admin routes
+const ADMIN_HIDDEN_KEYS = [
+  'nav.products',
+  'nav.inventory',
+  'nav.suppliers',
+  'nav.purchases',
+  'nav.sales',
+  'nav.warranty',
+];
+
 const navItemsConfig: NavItem[] = [
   { labelKey: 'nav.dashboard', icon: LayoutDashboard, href: '/dashboard' },
   { labelKey: 'nav.products', icon: Package, href: '/products' },
@@ -86,6 +96,12 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const { demoProfile } = useDemo();
   const { t } = useLanguage();
+
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  const visibleNavItems = isAdminRoute
+    ? navItemsConfig.filter((item) => !ADMIN_HIDDEN_KEYS.includes(item.labelKey))
+    : navItemsConfig;
 
   const toggleExpand = (labelKey: string) => {
     setExpandedItems((prev) =>
@@ -147,7 +163,7 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {navItemsConfig.map((item) => (
+          {visibleNavItems.map((item) => (
             <div key={item.labelKey}>
               {item.children ? (
                 <>
