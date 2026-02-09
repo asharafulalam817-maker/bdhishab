@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Shield, Store, Users, CheckCircle2, Search, Eye, Ban, 
+  Store, Users, CheckCircle2, Search, Ban, 
   Package, ShoppingCart, DollarSign, Settings, BarChart3,
   Plus, Edit, Save, Phone, Calendar, Clock, ArrowUpDown,
-  UserPlus, Loader2, X, MessageCircle, Send
+  Loader2, X, MessageCircle, Send
 } from 'lucide-react';
-import { useAdminNotifications } from '@/hooks/useAdminNotifications';
-import { AdminNotificationBell } from '@/components/admin/AdminNotificationBell';
 import { RevenueReport } from '@/components/admin/RevenueReport';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -123,10 +121,6 @@ export default function AdminDashboard() {
   const [newMessage, setNewMessage] = useState('');
   const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
 
-  const {
-    notifications, unreadCount, soundEnabled, setSoundEnabled,
-    markAsRead, markAllAsRead, clearAll
-  } = useAdminNotifications();
 
   // ==================== DATA FETCHING ====================
   
@@ -449,31 +443,6 @@ export default function AdminDashboard() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Shield className="h-6 w-6 text-primary" />
-            সুপার অ্যাডমিন প্যানেল
-          </h1>
-          <p className="text-muted-foreground text-sm">প্ল্যাটফর্ম কন্ট্রোল সেন্টার</p>
-        </div>
-        <AdminNotificationBell
-          notifications={notifications}
-          unreadCount={unreadCount}
-          soundEnabled={soundEnabled}
-          onSoundToggle={() => setSoundEnabled(!soundEnabled)}
-          onMarkAsRead={markAsRead}
-          onMarkAllAsRead={markAllAsRead}
-          onClearAll={clearAll}
-          onNotificationClick={(notification) => {
-            if (notification.type === 'new_message' || notification.type === 'new_conversation') {
-              setActiveTab('dashboard');
-            }
-          }}
-        />
-      </div>
-
       {/* Main Navigation */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-5 max-w-2xl">

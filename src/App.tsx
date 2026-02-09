@@ -8,6 +8,7 @@ import { DemoProvider } from "@/contexts/DemoContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ReadOnlyProvider } from "@/contexts/ReadOnlyContext";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { AdminLayout } from "@/components/layout/AdminLayout";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 // App Pages
 import Home from "./pages/Home";
@@ -52,6 +53,11 @@ const App = () => (
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   
+                  {/* Admin Routes - Separate Layout */}
+                  <Route element={<AdminLayout />}>
+                    <Route path="/admin" element={<AdminDashboard />} />
+                  </Route>
+                  
                   {/* Protected Dashboard Routes */}
                   <Route element={<DashboardLayout />}>
                     <Route path="/dashboard" element={<Dashboard />} />
@@ -78,8 +84,6 @@ const App = () => (
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/reports/*" element={<Reports />} />
                     <Route path="/settings" element={<Settings />} />
-                    {/* Admin Dashboard */}
-                    <Route path="/admin" element={<AdminDashboard />} />
                   </Route>
                   
                   <Route path="*" element={<NotFound />} />
