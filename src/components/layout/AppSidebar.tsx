@@ -223,18 +223,16 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
 
         {/* Support Hotline */}
         <div className="px-3 pb-2">
-          <a
-            href={`https://wa.me/${SUPPORT_WHATSAPP}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 transition-colors"
+          <button
+            onClick={() => window.open(`https://wa.me/${SUPPORT_WHATSAPP}`, '_blank')}
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 transition-colors w-full text-left"
           >
             <Phone className="h-5 w-5" />
             <div>
               <span className="block">{t('nav.supportHotline') || 'সাপোর্ট হটলাইন'}</span>
               <span className="text-xs text-muted-foreground">01716-466739</span>
             </div>
-          </a>
+          </button>
         </div>
 
         {/* User Section */}
