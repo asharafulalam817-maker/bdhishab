@@ -16,7 +16,6 @@ import {
   CreditCard,
   X,
   Store,
-  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -31,15 +30,6 @@ interface NavItem {
   children?: { labelKey: string; href: string }[];
 }
 
-// Keys to hide when on admin routes
-const ADMIN_HIDDEN_KEYS = [
-  'nav.products',
-  'nav.inventory',
-  'nav.suppliers',
-  'nav.purchases',
-  'nav.sales',
-  'nav.warranty',
-];
 
 const navItemsConfig: NavItem[] = [
   { labelKey: 'nav.dashboard', icon: LayoutDashboard, href: '/dashboard' },
@@ -82,7 +72,6 @@ const navItemsConfig: NavItem[] = [
     ],
   },
   { labelKey: 'nav.settings', icon: Settings, href: '/settings' },
-  { labelKey: 'nav.admin', icon: Shield, href: '/admin' },
 ];
 
 interface AppSidebarProps {
@@ -97,11 +86,6 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
   const { demoProfile } = useDemo();
   const { t } = useLanguage();
 
-  const isAdminRoute = location.pathname.startsWith('/admin');
-
-  const visibleNavItems = isAdminRoute
-    ? navItemsConfig.filter((item) => !ADMIN_HIDDEN_KEYS.includes(item.labelKey))
-    : navItemsConfig;
 
   const toggleExpand = (labelKey: string) => {
     setExpandedItems((prev) =>
@@ -163,7 +147,7 @@ export function AppSidebar({ isOpen, onToggle, storeName = 'My Store' }: AppSide
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {visibleNavItems.map((item) => (
+          {navItemsConfig.map((item) => (
             <div key={item.labelKey}>
               {item.children ? (
                 <>
