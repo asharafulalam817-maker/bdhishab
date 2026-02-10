@@ -84,13 +84,31 @@ export default function Signup() {
     }
 
     // Auto-create store with the business name
-    const { error: storeError } = await createStore(businessName.trim(), phone);
+    const { error: storeError, store } = await createStore(businessName.trim(), phone);
     
     if (storeError) {
       toast.error('স্টোর তৈরিতে সমস্যা হয়েছে। পরে চেষ্টা করুন।');
       setIsLoading(false);
       navigate('/create-store');
       return;
+    }
+
+    // Create free trial subscription
+    if (store) {
+      const trialEndDate = new Date();
+      trialEndDate.setDate(trialEndDate.getDate() + 14);
+      await supabase.from('store_subscriptions').insert({
+        store_id: store.id,
+        subscription_type: 'trial',
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: trialEndDate.toISOString().split('T')[0],
+        is_active: true,
+      });
+      // Create initial store balance
+      await supabase.from('store_balance').insert({
+        store_id: store.id,
+        current_balance: 0,
+      });
     }
 
     // Send WhatsApp notification to owner and admin (fire-and-forget)

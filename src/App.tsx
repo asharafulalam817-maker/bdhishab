@@ -11,6 +11,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 // App Pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -58,7 +59,7 @@ const App = () => (
                   <Route path="/" element={<Home />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
-                  <Route path="/create-store" element={<CreateStore />} />
+                  <Route path="/create-store" element={<ProtectedRoute requireStore={false}><CreateStore /></ProtectedRoute>} />
                   
                   {/* Admin Routes - Separate Layout */}
                   <Route element={<AdminLayout />}>
