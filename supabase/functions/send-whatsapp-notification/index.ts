@@ -9,6 +9,8 @@ async function sendWhatsAppMessage(phone: string, message: string) {
   const apiKey = Deno.env.get('WACLOUD_API_KEY')
   const instanceId = Deno.env.get('WACLOUD_INSTANCE_ID')
 
+  console.log('WACloud Debug - API Key prefix:', apiKey?.substring(0, 8), 'Instance ID:', instanceId)
+
   if (!apiKey || !instanceId) {
     console.error('WACloud credentials not configured')
     return { success: false, error: 'WACloud credentials not configured' }
