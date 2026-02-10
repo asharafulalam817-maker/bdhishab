@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { DemoProvider } from "@/contexts/DemoContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ReadOnlyProvider } from "@/contexts/ReadOnlyContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
@@ -49,6 +50,7 @@ const App = () => (
           <InstallPrompt />
           <BrowserRouter>
             <DemoProvider>
+              <AuthProvider>
               <ReadOnlyProvider>
                 <Routes>
                   {/* Public Routes */}
@@ -99,6 +101,7 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </ReadOnlyProvider>
+              </AuthProvider>
             </DemoProvider>
           </BrowserRouter>
         </TooltipProvider>
