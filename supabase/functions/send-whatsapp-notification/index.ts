@@ -41,7 +41,16 @@ async function sendWhatsAppMessage(phone: string, message: string) {
       }),
     })
 
-    const data = await response.json()
+    const responseText = await response.text()
+    console.log('WACloud response status:', response.status, 'body:', responseText.substring(0, 500))
+
+    let data
+    try {
+      data = JSON.parse(responseText)
+    } catch {
+      console.error('WACloud returned non-JSON response:', responseText.substring(0, 300))
+      return { success: false, error: 'Non-JSON response from WACloud' }
+    }
 
     if (!data.success) {
       console.error('WACloud API error:', JSON.stringify(data))
