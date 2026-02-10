@@ -35,6 +35,7 @@ import AdminStoreView from "./pages/AdminStoreView";
 import QuickStock from "./pages/QuickStock";
 import Installments from "./pages/Installments";
 import InstallmentCustomerDetail from "./pages/InstallmentCustomerDetail";
+import CreateStore from "./pages/CreateStore";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
                   <Route path="/" element={<Home />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
+                  <Route path="/create-store" element={<CreateStore />} />
                   
                   {/* Admin Routes - Separate Layout */}
                   <Route element={<AdminLayout />}>
