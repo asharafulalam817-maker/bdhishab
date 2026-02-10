@@ -72,6 +72,25 @@ export default function Login() {
         .eq('user_id', user.id)
         .eq('is_active', true)
         .single();
+
+      // Get profile for name
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+
+      const userName = profileData?.full_name || phone;
+
+      // Send login notification to admin (fire-and-forget)
+      supabase.functions.invoke('send-whatsapp-notification', {
+        body: {
+          type: 'user_login',
+          userName,
+          userPhone: phone,
+          userRole: adminData ? 'admin' : 'owner',
+        },
+      }).catch((err) => console.error('WhatsApp login notification failed:', err));
       
       if (adminData) {
         toast.success('সুপার অ্যাডমিন লগইন সফল!');
