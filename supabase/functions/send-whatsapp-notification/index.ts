@@ -35,6 +35,7 @@ async function sendWhatsAppMessage(phone: string, message: string) {
         content: message,
         media_url: '',
         instance_id: instanceId,
+        message_type: 'text',
       }),
     })
 
