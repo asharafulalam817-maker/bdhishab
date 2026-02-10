@@ -1,22 +1,20 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
-const ADMIN_PHONE = '8801711740643' // Platform admin WhatsApp number
+const ADMIN_PHONE = '8801711740643'
 
 async function sendWhatsAppMessage(phone: string, message: string) {
-  const accessToken = Deno.env.get('WHATSAPP_ACCESS_TOKEN')
-  const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID')
+  const apiKey = Deno.env.get('WACLOUD_API_KEY')
+  const instanceId = Deno.env.get('WACLOUD_INSTANCE_ID')
 
-  if (!accessToken || !phoneNumberId) {
-    console.error('WhatsApp credentials not configured')
-    return { success: false, error: 'WhatsApp credentials not configured' }
+  if (!apiKey || !instanceId) {
+    console.error('WACloud credentials not configured')
+    return { success: false, error: 'WACloud credentials not configured' }
   }
 
-  // Ensure phone has country code (Bangladesh: 880)
+  // Format phone: ensure country code 880
   let formattedPhone = phone.replace(/\D/g, '')
   if (formattedPhone.startsWith('0')) {
     formattedPhone = '880' + formattedPhone.substring(1)
@@ -26,27 +24,24 @@ async function sendWhatsAppMessage(phone: string, message: string) {
   }
 
   try {
-    const response = await fetch(
-      `https://graph.facebook.com/v21.0/${phoneNumberId}/messages`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messaging_product: 'whatsapp',
-          to: formattedPhone,
-          type: 'text',
-          text: { body: message },
-        }),
-      }
-    )
+    const response = await fetch('https://api.wacloud.app/send-message', {
+      method: 'POST',
+      headers: {
+        'API-Key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        recipient: formattedPhone,
+        content: message,
+        media_url: '',
+        instance_id: instanceId,
+      }),
+    })
 
     const data = await response.json()
 
-    if (!response.ok) {
-      console.error('WhatsApp API error:', JSON.stringify(data))
+    if (!data.success) {
+      console.error('WACloud API error:', JSON.stringify(data))
       return { success: false, error: data }
     }
 
@@ -66,15 +61,15 @@ Deno.serve(async (req) => {
   try {
     const { type, storeName, ownerName, ownerPhone, userName, userPhone, userRole } = await req.json()
 
+    const timestamp = new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' })
+
     if (type === 'new_store_registration') {
       if (!storeName || !ownerName || !ownerPhone) {
         return new Response(
-          JSON.stringify({ error: 'Missing required fields: storeName, ownerName, ownerPhone' }),
+          JSON.stringify({ error: 'Missing required fields' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
-
-      const timestamp = new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' })
 
       const ownerMessage = `🎉 স্বাগতম! আপনার স্টোর "${storeName}" সফলভাবে তৈরি হয়েছে।\n\n👤 মালিক: ${ownerName}\n📱 মোবাইল: ${ownerPhone}\n🕐 সময়: ${timestamp}\n\nDigital Dondu ব্যবহার করার জন্য ধন্যবাদ!`
       const adminMessage = `🆕 নতুন স্টোর রেজিস্ট্রেশন!\n\n🏪 স্টোর: ${storeName}\n👤 মালিক: ${ownerName}\n📱 মোবাইল: ${ownerPhone}\n🕐 সময়: ${timestamp}`
@@ -93,12 +88,11 @@ Deno.serve(async (req) => {
     if (type === 'user_login') {
       if (!userName || !userPhone) {
         return new Response(
-          JSON.stringify({ error: 'Missing required fields: userName, userPhone' }),
+          JSON.stringify({ error: 'Missing required fields' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
-      const timestamp = new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' })
       const roleLabel = userRole === 'admin' ? '🛡️ অ্যাডমিন' : '🏪 স্টোর ওনার'
       const adminMessage = `🔐 লগইন নোটিফিকেশন\n\n${roleLabel}\n👤 নাম: ${userName}\n📱 মোবাইল: ${userPhone}\n🕐 সময়: ${timestamp}`
 
