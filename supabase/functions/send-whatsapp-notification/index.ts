@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { type, storeName, ownerName, ownerPhone } = await req.json()
+    const { type, storeName, ownerName, ownerPhone, userName, userPhone, userRole } = await req.json()
 
     if (type === 'new_store_registration') {
       if (!storeName || !ownerName || !ownerPhone) {
@@ -76,24 +76,36 @@ Deno.serve(async (req) => {
 
       const timestamp = new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' })
 
-      // Message to store owner
       const ownerMessage = `🎉 স্বাগতম! আপনার স্টোর "${storeName}" সফলভাবে তৈরি হয়েছে।\n\n👤 মালিক: ${ownerName}\n📱 মোবাইল: ${ownerPhone}\n🕐 সময়: ${timestamp}\n\nDigital Dondu ব্যবহার করার জন্য ধন্যবাদ!`
-
-      // Message to platform admin
       const adminMessage = `🆕 নতুন স্টোর রেজিস্ট্রেশন!\n\n🏪 স্টোর: ${storeName}\n👤 মালিক: ${ownerName}\n📱 মোবাইল: ${ownerPhone}\n🕐 সময়: ${timestamp}`
 
-      // Send both messages in parallel
       const [ownerResult, adminResult] = await Promise.all([
         sendWhatsAppMessage(ownerPhone, ownerMessage),
         sendWhatsAppMessage(ADMIN_PHONE, adminMessage),
       ])
 
       return new Response(
-        JSON.stringify({
-          success: true,
-          ownerNotification: ownerResult,
-          adminNotification: adminResult,
-        }),
+        JSON.stringify({ success: true, ownerNotification: ownerResult, adminNotification: adminResult }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (type === 'user_login') {
+      if (!userName || !userPhone) {
+        return new Response(
+          JSON.stringify({ error: 'Missing required fields: userName, userPhone' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      const timestamp = new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' })
+      const roleLabel = userRole === 'admin' ? '🛡️ অ্যাডমিন' : '🏪 স্টোর ওনার'
+      const adminMessage = `🔐 লগইন নোটিফিকেশন\n\n${roleLabel}\n👤 নাম: ${userName}\n📱 মোবাইল: ${userPhone}\n🕐 সময়: ${timestamp}`
+
+      const result = await sendWhatsAppMessage(ADMIN_PHONE, adminMessage)
+
+      return new Response(
+        JSON.stringify({ success: true, adminNotification: result }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
