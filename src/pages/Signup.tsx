@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Phone, Lock, User, Loader2, Store, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { bn } from '@/lib/constants';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -91,6 +92,16 @@ export default function Signup() {
       navigate('/create-store');
       return;
     }
+
+    // Send WhatsApp notification to owner and admin (fire-and-forget)
+    supabase.functions.invoke('send-whatsapp-notification', {
+      body: {
+        type: 'new_store_registration',
+        storeName: businessName.trim(),
+        ownerName: fullName.trim(),
+        ownerPhone: phone,
+      },
+    }).catch((err) => console.error('WhatsApp notification failed:', err));
 
     toast.success('সফলভাবে একাউন্ট ও স্টোর তৈরি হয়েছে!');
     navigate('/dashboard');
