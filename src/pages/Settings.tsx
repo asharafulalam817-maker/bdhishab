@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import InvoiceTemplateSelector from '@/components/invoice/InvoiceTemplateSelector';
 import { InvoiceTemplate } from '@/components/invoice/types';
 import { toast } from 'sonner';
-import NotificationSettings from '@/components/warranty/NotificationSettings';
+import { SmsNotificationSettings } from '@/components/settings/SmsNotificationSettings';
 import { SubscriptionDialog } from '@/components/subscription/SubscriptionDialog';
 import { AppearanceSettings } from '@/components/settings/AppearanceSettings';
 import { StoreLogoUpload } from '@/components/settings/StoreLogoUpload';
@@ -208,7 +208,7 @@ export default function Settings() {
         </TabsContent>
 
         <TabsContent value="notifications" className="mt-6">
-          <NotificationSettings />
+          <SmsNotificationSettings />
         </TabsContent>
 
         <TabsContent value="users" className="mt-6">

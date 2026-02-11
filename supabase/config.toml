@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.send-whatsapp-notification]
 verify_jwt = false
+
+[functions.send-customer-notification]
+verify_jwt = false
