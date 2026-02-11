@@ -184,17 +184,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     if (!currentUser) return { error: new Error('Not authenticated') };
 
-    // Create the store
-    const { data: store, error: storeError } = await supabase
+    // Generate a UUID for the store so we can reference it immediately
+    const storeId = crypto.randomUUID();
+    
+    // Create the store without .select() to avoid SELECT RLS check
+    const { error: storeError } = await supabase
       .from('stores')
       .insert({
+        id: storeId,
         name: storeName,
         phone,
         address,
-        slug: storeName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-      })
-      .select()
-      .single();
+        slug: storeName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || 'store',
+      });
+
+    if (storeError) return { error: storeError as Error };
+
+    const store = { id: storeId, name: storeName };
 
     if (storeError) return { error: storeError as Error };
 
