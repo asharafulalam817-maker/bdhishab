@@ -954,6 +954,104 @@ export type Database = {
           },
         ]
       }
+      sms_logs: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          error_message: string | null
+          id: string
+          message: string
+          notification_type: string
+          phone: string
+          reference_id: string | null
+          status: string
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          error_message?: string | null
+          id?: string
+          message: string
+          notification_type: string
+          phone: string
+          reference_id?: string | null
+          status?: string
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          error_message?: string | null
+          id?: string
+          message?: string
+          notification_type?: string
+          phone?: string
+          reference_id?: string | null
+          status?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_logs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sms_logs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sms_subscriptions: {
+        Row: {
+          activated_at: string | null
+          activated_by: string | null
+          created_at: string
+          deactivated_at: string | null
+          id: string
+          is_active: boolean
+          monthly_fee: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
+          created_at?: string
+          deactivated_at?: string | null
+          id?: string
+          is_active?: boolean
+          monthly_fee?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          activated_at?: string | null
+          activated_by?: string | null
+          created_at?: string
+          deactivated_at?: string | null
+          id?: string
+          is_active?: boolean
+          monthly_fee?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_subscriptions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock_adjustments: {
         Row: {
           adjustment_date: string
@@ -1117,6 +1215,47 @@ export type Database = {
             foreignKeyName: "store_memberships_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_notification_settings: {
+        Row: {
+          created_at: string
+          due_reminder: boolean
+          id: string
+          installment_reminder: boolean
+          reminder_days_before: number
+          sale_notification: boolean
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          due_reminder?: boolean
+          id?: string
+          installment_reminder?: boolean
+          reminder_days_before?: number
+          sale_notification?: boolean
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          due_reminder?: boolean
+          id?: string
+          installment_reminder?: boolean
+          reminder_days_before?: number
+          sale_notification?: boolean
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_notification_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },

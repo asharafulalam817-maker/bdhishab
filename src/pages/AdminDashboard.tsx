@@ -8,6 +8,7 @@ import {
   Loader2, X, MessageCircle, Send
 } from 'lucide-react';
 import { RevenueReport } from '@/components/admin/RevenueReport';
+import { SmsManagementSection } from '@/components/admin/SmsManagementSection';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -96,6 +97,7 @@ export default function AdminDashboard() {
     '/admin': 'dashboard',
     '/admin/subscribers': 'subscribers',
     '/admin/packages': 'packages',
+    '/admin/sms': 'sms',
     '/admin/reports': 'reports',
     '/admin/settings': 'settings',
   };
@@ -103,6 +105,7 @@ export default function AdminDashboard() {
     'dashboard': '/admin',
     'subscribers': '/admin/subscribers',
     'packages': '/admin/packages',
+    'sms': '/admin/sms',
     'reports': '/admin/reports',
     'settings': '/admin/settings',
   };
@@ -470,10 +473,11 @@ export default function AdminDashboard() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       {/* Main Navigation */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5 max-w-2xl">
+        <TabsList className="grid w-full grid-cols-6 max-w-3xl">
           <TabsTrigger value="dashboard" className="text-xs sm:text-sm">ড্যাশবোর্ড</TabsTrigger>
           <TabsTrigger value="subscribers" className="text-xs sm:text-sm">সাবস্ক্রাইবার</TabsTrigger>
           <TabsTrigger value="packages" className="text-xs sm:text-sm">প্যাকেজ</TabsTrigger>
+          <TabsTrigger value="sms" className="text-xs sm:text-sm">SMS</TabsTrigger>
           <TabsTrigger value="reports" className="text-xs sm:text-sm">রিপোর্ট</TabsTrigger>
           <TabsTrigger value="settings" className="text-xs sm:text-sm">সেটিংস</TabsTrigger>
         </TabsList>
@@ -682,6 +686,11 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ==================== SMS TAB ==================== */}
+        <TabsContent value="sms" className="mt-6">
+          <SmsManagementSection />
         </TabsContent>
 
         {/* ==================== REPORTS TAB ==================== */}
